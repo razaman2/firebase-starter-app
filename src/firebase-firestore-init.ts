@@ -5,7 +5,7 @@ import {Collection} from "@razaman2/firestore-proxy";
 connectFirestoreEmulator(getFirestore(), "127.0.0.1", firebase.emulators.firestore.port);
 
 Collection.proxy({
-    logging: false,
+    logging: true,
     modular: true,
     getFirestore: getFirestore(),
     collection,

@@ -10,25 +10,14 @@ export const useAuthStore = defineStore("auth", {
     state: () => {
         return {
             user: {} as Document,
-            company: {} as Document,
             roles: [] as Array<Document>,
-            companies: [] as Array<Document>,
-            settings: {
-                auth: {
-                    user: {},
-                    company: {},
-                },
-                user: [],
-            } as {auth: Record<string, Partial<Document>>; user: Array<Document>},
+            settings: {} as Document,
         };
     },
     persist: {
         enabled: true,
         strategies: [
-            {
-                paths: ["company"],
-                storage: localStorage,
-            },
+            {storage: localStorage},
         ],
     },
     getters: {
@@ -40,27 +29,11 @@ export const useAuthStore = defineStore("auth", {
             };
         },
 
-        getCompany(state) {
-            return (key?: string | number) => {
-                return key !== undefined
-                    ? ObjectManager.on(state.company).get(key)
-                    : state.company;
-            };
-        },
-
         getRoles(state) {
             return (id?: string) => {
                 return id !== undefined
                     ? state.roles.find((role: any) => role.id === id)
                     : state.roles;
-            };
-        },
-
-        getCompanies(state) {
-            return (id?: string) => {
-                return id !== undefined
-                    ? state.companies.find((company: any) => company.id === id)
-                    : state.companies;
             };
         },
 
@@ -74,17 +47,12 @@ export const useAuthStore = defineStore("auth", {
 
         authenticated(state) {
             return () => {
-                if (state.user && state.company) {
+                if (state.user) {
                     return (
                         state.user.id
-                        && state.company.id
-                        && state.settings.auth.user.id
-                        && state.settings.auth.company.id
+                        && state.settings.id
                         && state.roles.length
-                        && !(
-                            ["inactive"].includes(state.settings.auth.user.status) ||
-                            ["inactive"].includes(state.settings.auth.company.status)
-                        )
+                        && !["inactive"].includes(state.settings.status)
                     );
                 } else {
                     return false;

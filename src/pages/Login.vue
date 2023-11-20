@@ -2,11 +2,9 @@
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
 import CustomButton from "../components/CustomButton.vue";
 import CustomInput from "../components/CustomInput.vue";
-import CustomSelect from "../components/CustomSelect.vue";
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import Swal from "sweetalert2";
 import {computed, inject} from "vue";
-import {useAuthStore} from "../stores/auth";
 
 export default {
     props: {
@@ -54,30 +52,9 @@ export default {
                         };
 
                         const logoutForm = () => {
-                            const vnode = (
-                                <div class="flex flex-col gap-y-3">
-                                    {access($vue).companies()}
-
-                                    {access($vue).logout()}
-                                </div>
-                            );
+                            const vnode = access($vue).logout();
 
                             return $vue.$slots.logoutForm?.({$vue, vnode}) ?? vnode;
-                        };
-
-                        const companies = () => {
-                            const vnode = (
-                                <CustomSelect
-                                    class="rounded"
-                                    options={inject("app").authCompanies.getData()}
-                                    defaultData={inject("app").authCompany.getData()}
-                                    onUpdate:modelState={({after}) => {
-                                        useAuthStore().$patch({company: after});
-                                    }}
-                                />
-                            );
-
-                            return $vue.$slots.companies?.({$vue, vnode}) ?? vnode;
                         };
 
                         const username = () => {
@@ -155,7 +132,6 @@ export default {
                             template,
                             username,
                             password,
-                            companies,
                             login,
                             logout,
                             loginForm,
