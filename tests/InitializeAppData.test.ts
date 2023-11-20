@@ -1,6 +1,6 @@
 import "../src/firebase-auth-init";
 import {it, beforeEach} from "vitest";
-import {Collection, getCollectionRelationship} from "@razaman2/firestore-proxy";
+import {Collection} from "@razaman2/firestore-proxy";
 import {initializeTestApp, getAdminContext} from "@razaman2/firestore-testing";
 import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential} from "firebase/auth";
 import {faker} from "@faker-js/faker";
@@ -30,42 +30,20 @@ it("initialize app data", () => {
             payload: {
                 data: {
                     id: auth.user.uid,
-                    firstName: "Ainsley",
-                    lastName: "Clarke",
+                    firstName: faker.person.firstName(),
+                    lastName: faker.person.lastName(),
                 },
             },
         }, {getFirestore});
 
-        const company = Collection.proxy("companies", {
-            payload: {
-                data: {
-                    name: "Test Company",
-                },
-            },
-        });
-
         await Promise.all([
             user.create({batch}),
 
-            company.create({batch}),
-
-            // company settings
-            Collection.proxy("settings", {parent: company}).create({
+            // user settings
+            Collection.proxy("settings").setParent(user).create({
                 batch,
                 data: {
-                    id: company.getDoc().id,
-                    status: "active",
-                },
-            }),
-
-            // user settings within company
-            Collection.proxy("settings", {
-                parent: user,
-                owners: [company],
-            }).create({
-                batch,
-                data: {
-                    id: company.getDoc().id,
+                    id: user.getDoc().id,
                     status: "active",
                     path: `user/${user.getDoc().id}`,
                 },
@@ -78,10 +56,7 @@ it("initialize app data", () => {
             }),
 
             // user role
-            Collection.proxy("roles", {
-                parent: user,
-                owners: [company],
-            }).create({
+            Collection.proxy("roles").setParent(user).create({
                 batch,
                 data: {id: "super"},
             }),
@@ -117,57 +92,6 @@ it("initialize app data", () => {
                 },
             });
         })));
-
-        await batch.commit();
-    });
-});
-
-it("add company", async () => {
-    await signInWithEmailAndPassword(getAuth(), email, password);
-
-    return getAdminContext(async (getFirestore) => {
-        const batch = getFirestore.batch();
-
-        const user = Collection.proxy("users", {getFirestore}).setDoc(getAuth().currentUser?.uid!);
-
-        const company = Collection.proxy("companies", {
-            payload: {
-                data: {name: faker.company.name()},
-            },
-        });
-
-        const role = await Collection.proxy("roles", {parent: user}).init("super");
-
-        await Promise.all([
-            company.create({batch}),
-
-            Collection.proxy("settings", {parent: company}).create({
-                batch,
-                data: {
-                    id: company.getDoc().id,
-                    status: "active",
-                },
-            }),
-
-            Collection.proxy("settings", {
-                parent: user,
-                owners: [company],
-            }).create({
-                batch,
-                data: {
-                    id: company.getDoc().id,
-                    status: "active",
-                    path: `user/${user.getDoc().id}`,
-                },
-            }),
-
-            role[role.getData("id") ? "update" : "create"]({
-                batch,
-                data: {
-                    belongsTo: [getCollectionRelationship(company)].concat(role.getData("belongsTo")),
-                },
-            }),
-        ]);
 
         await batch.commit();
     });
