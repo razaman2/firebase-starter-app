@@ -125,7 +125,6 @@ export default {
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
                             const subscription = access($vue).authSettings.getDocument(user.id, (snapshot) => {
-                                console.log("snappa shot:", snapshot, user);
                                 if (snapshot.exists()) {
                                     useAuthStore().$patch({settings: snapshot.data()});
                                 }

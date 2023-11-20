@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import ReactiveVue, {setup} from "@razaman2/reactive-vue";
 import CustomButton from "../components/CustomButton.vue";
 import {useRouter} from "vue-router";
 import {inject} from "vue";
@@ -23,8 +23,6 @@ export default {
                         const vnode = (
 
                             <div class="h-full p-4 bg-blue-50">
-                                <h3 class="m-0">{inject("app").authCompany.getData("name")}</h3>
-
                                 <h5 class="m-0">{firstName} {lastName}</h5>
 
                                 <div class="flex gap-x-1 mt-5">

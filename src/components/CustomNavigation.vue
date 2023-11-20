@@ -22,11 +22,7 @@ export default {
                                 </li>
 
                                 <li>
-                                    <AppLink to="/super/companies">App Companies</AppLink>
-                                </li>
-
-                                <li>
-                                    <AppLink to="/users">Company Users</AppLink>
+                                    <AppLink to="/users">App Users</AppLink>
                                 </li>
 
                                 <li class={{"hidden": !useAuthStore().authenticated()}}>
