@@ -18,7 +18,6 @@ export const useAppStore = defineStore("app", {
     state: () => {
         return {
             roles: [] as Array<Document>,
-            companies: [] as Array<Document>,
             settings: {} as Document,
             _cache: {} as {
                 [key: string]: any
@@ -113,14 +112,6 @@ export const useAppStore = defineStore("app", {
                 return (id !== undefined)
                     ? state.roles.find((role: any) => (role.id === id))
                     : state.roles;
-            };
-        },
-
-        getCompanies(state) {
-            return (id?: string | number) => {
-                return (id !== undefined)
-                    ? state.companies.find((company: any) => (company.id === id))
-                    : state.companies;
             };
         },
 

@@ -16,8 +16,6 @@ export default {
                     const template = () => {
                         const vnode = (
                             <div class="h-full bg-blue-50 p-4">
-                                <h1 class="m-0">{inject("app").authCompany.getData("name")}</h1>
-
                                 <h1 class="bg-slate-500 text-white text-base font-semibold px-2 py-3 rounded">
                                     {access(parent).getState.getData("name", "None")}
                                 </h1>

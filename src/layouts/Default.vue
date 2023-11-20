@@ -1,7 +1,6 @@
 <script lang="jsx">
 import {setup, access} from "@razaman2/reactive-vue";
 import Auth from "./Auth.vue";
-import CustomDropdown from "../components/CustomDropdown.vue";
 import CustomNavigation from "../components/CustomNavigation.vue";
 import {RouterLink} from "vue-router";
 import {useAuthStore} from "../stores/auth";
@@ -44,14 +43,10 @@ export default {
                                 <div class="flex items-baseline gap-x-10">
                                     {access($vue).navigation()}
 
-                                    <div class="">
-                                        <div class="flex justify-between items-center gap-x-5">
-                                            {access($vue).user()}
+                                    <div class="flex justify-between items-center gap-x-5">
+                                        {access($vue).user()}
 
-                                            {access($vue).icon()}
-                                        </div>
-
-                                        {access($vue).company()}
+                                        {access($vue).icon()}
                                     </div>
                                 </div>
                             </div>
@@ -105,23 +100,7 @@ export default {
                         return $vue.$slots.user?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const company = () => {
-                        const vnode = (
-                            <CustomDropdown
-                                options={access($vue).authCompanies.getData()}
-                                state={access($vue).authCompany.getData()}
-                                onUpdate:modelState={({before, after}) => {
-                                    if ((before.id && after.id) && (before.id !== after.id)) {
-                                        useAuthStore().$patch({company: after});
-                                    }
-                                }}
-                            />
-                        );
-
-                        return $vue.$slots.company?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const vnodes = {template, title, user, company, navigation, toolbar, icon};
+                    const vnodes = {template, title, user, navigation, toolbar, icon};
 
                     const self = Object.assign(vnodes, {});
 
