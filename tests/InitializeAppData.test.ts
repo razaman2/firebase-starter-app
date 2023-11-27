@@ -1,4 +1,4 @@
-import "../src/firebase-auth-init";
+import "../src/firebase-init-auth";
 import {it, beforeEach} from "vitest";
 import {Collection} from "@razaman2/firestore-proxy";
 import {initializeTestApp, getAdminContext} from "@razaman2/firestore-testing";
@@ -45,7 +45,7 @@ it("initialize app data", () => {
                 data: {
                     id: user.getDoc().id,
                     status: "active",
-                    path: `user/${user.getDoc().id}`,
+                    path: `/user/${user.getDoc().id}`,
                 },
             }),
 
@@ -94,5 +94,45 @@ it("initialize app data", () => {
         })));
 
         await batch.commit();
+    });
+});
+
+it("add user", () => {
+    return getAdminContext(async (getFirestore) => {
+        const promises = [3].reduce((promises, count) => {
+            while (count--) {
+                promises.push(new Promise(async (resolve) => {
+                    const batch = getFirestore.batch();
+                    const email = faker.internet.email({provider: "sablecrm.com"});
+                    const auth = await createUserWithEmailAndPassword(getAuth(), email, password);
+
+                    const user = Collection.proxy("users", {
+                        payload: {
+                            data: {
+                                id: auth.user.uid,
+                                firstName: faker.person.firstName(),
+                                lastName: faker.person.lastName(),
+                            },
+                        },
+                    }, {getFirestore});
+
+                    await Promise.all([
+                        user.create({batch}),
+
+                        Collection.proxy("emails").setParent(user).create({
+                            batch,
+                            data: {address: email},
+                        }),
+
+                        Collection.proxy("roles").setParent(user).setDoc("user").create({batch});
+
+                    resolve(await batch.commit());
+                }));
+            }
+
+            return promises;
+        }, []);
+
+        await Promise.all(promises);
     });
 });
