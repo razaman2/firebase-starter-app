@@ -1,4 +1,4 @@
-import {firebase} from "./firebase-auth-init.ts";
+import {firebase} from "./firebase-init-auth";
 import {connectFirestoreEmulator, collection, collectionGroup, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, getFirestore, arrayUnion, serverTimestamp, onSnapshot, writeBatch} from "firebase/firestore";
 import {Collection} from "@razaman2/firestore-proxy";
 
