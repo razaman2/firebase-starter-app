@@ -34,7 +34,7 @@ const ListItem = {
                             const vnode = (
                                 <CustomInput
                                     class="rounded w-full"
-                                    debounce={500}
+                                    debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
                                     autofocus={access($vue.$attrs.list()).isDefaultDisplayComponent(data)}
                                     state={data.name}
                                     onUpdate:modelState={({after}) => {
@@ -47,7 +47,7 @@ const ListItem = {
                         };
 
                         const getActionButton = () => {
-                            const vnode = $vue.$attrs.list().access().getDeleteButton($vue);
+                            const vnode = access($vue.$attrs.list()).getDeleteButton($vue);
 
                             return $vue.$slots.getActionButton?.({$vue, vnode}) ?? vnode;
                         };
@@ -133,16 +133,22 @@ export default {
                         class="grid grid-cols-[1fr_auto] gap-2"
                         getDisplayComponent={ListItem}
                         getDefaultDisplayComponent={AddListItem}
-                        onItemAdding={({component}) => {
+                        onItemAdding={async ({component}) => {
                             if (component) {
-                                component.access().getState.create();
+                                const batch = writeBatch(getFirestore());
+
+                                await access(component).getState.create({batch});
+                                await batch.commit();
                             } else {
                                 return true;
                             }
                         }}
-                        onItemDeleting={({component}) => {
+                        onItemDeleting={async ({component}) => {
                             if (component) {
-                                component.access().getState.remove();
+                                const batch = writeBatch(getFirestore());
+
+                                await access(component).getState.remove({batch});
+                                await batch.commit();
                             } else {
                                 return true;
                             }
@@ -230,16 +236,22 @@ export default {
                                 return {parent, self};
                             },
                         }}
-                        // onItemAdding={({component}) => {
+                        // onItemAdding={async ({component}) => {
                         //     if (component) {
-                        //         component.access().getState.create();
+                        //         const batch = writeBatch(getFirestore());
+                        //
+                        //         await access(component).getState.create({batch});
+                        //         await batch.commit();
                         //     } else {
                         //         return true;
                         //     }
                         // }}
-                        // onItemDeleting={({component}) => {
+                        // onItemDeleting={async ({component}) => {
                         //     if (component) {
-                        //         component.access().getState.remove();
+                        //         const batch = writeBatch(getFirestore());
+                        //
+                        //         await access(component).getState.remove({batch});
+                        //         await batch.commit();
                         //     } else {
                         //         return true;
                         //     }

@@ -1,60 +1,43 @@
 <script lang="jsx">
-import {setup, access, getSubscription} from "@razaman2/reactive-vue";
+import {access, getSubscription} from "@razaman2/reactive-vue";
 import NewRole from "../components/NewRole.vue";
 import Role from "../components/Role.vue";
-import {ref, inject} from "vue";
+import {getFirestore, writeBatch} from "firebase/firestore";
+import {inject} from "vue";
 
 export default {
-    props: {
-        ...setup,
-    },
-
     setup() {
-        const rolesRef = ref();
         const subscriptions = getSubscription();
 
         return ($vue) => {
             return (
                 <List
-                    ref={rolesRef}
-                    subscriptions={subscriptions}
                     modelName="AppRoles"
                     class="p-4 space-y-2"
+                    subscriptions={subscriptions}
                     getDisplayComponent={Role}
                     getDefaultDisplayComponent={NewRole}
-                    // getItemProps={{
-                    //     setup: (parent) => {
-                    //         const template = () => {
-                    //             const template = access(parent).template();
-                    //
-                    //             const vnode = (
-                    //                 rolesRef.value?.access().isDefaultComponent(parent) ?
-                    //                     <NewRole/> : template
-                    //             );
-                    //
-                    //             return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
-                    //         };
-                    //
-                    //         const self = {template};
-                    //
-                    //         return {parent, self};
-                    //     },
-                    // }}
-                    onItemAdding={({component}) => {
+                    onItemAdding={async ({component}) => {
                         if (component) {
-                            access(component).getState.create();
+                            const batch = writeBatch(getFirestore());
+
+                            await access(component).getState.create({batch});
+                            await batch.commit();
                         } else {
                             return true;
                         }
                     }}
-                    onItemDeleting={({component}) => {
+                    onItemDeleting={async ({component}) => {
                         if (component) {
-                            access(component).getState.remove();
+                            const batch = writeBatch(getFirestore());
+
+                            await access(component).getState.remove({batch});
+                            await batch.commit();
                         } else {
                             return true;
                         }
                     }}
-                    model={inject("app").appRoles}
+                    state={inject("app").appRoles.getData()}
 
                     v-slots={$vue.$slots}
                 />
