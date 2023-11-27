@@ -68,7 +68,7 @@ export default {
                                             access(parent).getState.setData("price", after);
                                         }}
                                         decimals={2}
-                                        debounce={500}
+                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
                                         unsigned={true}
                                         money={true}
                                     />
@@ -81,12 +81,12 @@ export default {
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("age", after);
                                         }}
-                                        debounce={500}
+                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
                                         unsigned={true}
                                     />
 
                                     <CustomInput
-                                        debounce={750}
+                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
                                         type="textarea"
                                         class="rounded"
                                         placeholder="Details"

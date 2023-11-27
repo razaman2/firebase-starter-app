@@ -1,5 +1,5 @@
 <script lang="jsx">
-import "../firebase-firestore-init";
+import "../firebase-init-firestore";
 import {Collection} from "@razaman2/firestore-proxy";
 import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getSubscription} from "@razaman2/reactive-vue";
@@ -248,15 +248,10 @@ export default {
                     };
 
                     const isUserHaveRoles = (roles) => {
-                        const user = {
-                            roles: Array.isArray(roles) ? roles : [roles],
-                            isHaveRoles: false,
-                        };
+                        const user = {roles: Array.isArray(roles) ? roles : [roles]};
 
                         return Boolean(useAuthStore().getRoles().find((role) => {
-                            return user.roles.some((id) => {
-                                return role.id === id;
-                            });
+                            return user.roles.some((id) => (role.id === id));
                         }));
                     };
 
@@ -277,7 +272,9 @@ export default {
                     onMounted(() => {
                         watch(() => useNavigationStore().to(), async (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
-                                await router.push(to.fullPath ?? useAuthStore().getSettings("auth.user.path") ?? "/");
+                                await router.push(to.fullPath
+                                    ?? useAuthStore().getSettings("auth.user.path")
+                                    ?? "/");
                             } else if (to.requiresAuth || toBefore?.requiresAuth) {
                                 await router.push("/login");
                             }
@@ -285,7 +282,9 @@ export default {
 
                         watch(() => useAuthStore().authenticated(), async (authenticated) => {
                             if (authenticated) {
-                                await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("auth.user.path") ?? "/");
+                                await router.push(useNavigationStore().to().fullPath
+                                    ?? useAuthStore().getSettings("auth.user.path")
+                                    ?? "/");
                             } else if (useNavigationStore().to().requiresAuth) {
                                 await router.push("/login");
                             }

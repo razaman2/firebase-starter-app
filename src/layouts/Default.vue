@@ -5,6 +5,7 @@ import CustomDropdown from "../components/CustomDropdown.vue";
 import CustomNavigation from "../components/CustomNavigation.vue";
 import {RouterLink} from "vue-router";
 import {useAuthStore} from "../stores/auth";
+import Swal from "sweetalert2";
 import {useRoute} from "vue-router";
 
 export default {
@@ -44,8 +45,8 @@ export default {
                                 <div class="flex items-baseline gap-x-10">
                                     {access($vue).navigation()}
 
-                                    <div class="">
-                                        <div class="flex justify-between items-center gap-x-5">
+                                    <div>
+                                        <div class="flex justify-between gap-x-5">
                                             {access($vue).user()}
 
                                             {access($vue).icon()}
@@ -83,6 +84,17 @@ export default {
                         const vnode = (
                             <i-mdi-menu
                                 class="text-2xl cursor-pointer hover:scale-90 transition duration-500"
+                                onClick={async () => {
+                                    await Swal.fire({
+                                        title: "Right sidebar 👋",
+                                        html: `<div id="right-drawer">drawer</div>`,
+                                        position: "top-end",
+                                        grow: "column",
+                                        width: 500,
+                                        showConfirmButton: false,
+                                        showCloseButton: true,
+                                    });
+                                }}
                             />
                         );
 

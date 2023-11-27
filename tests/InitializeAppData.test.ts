@@ -1,4 +1,4 @@
-import "../src/firebase-auth-init";
+import "../src/firebase-init-auth";
 import {it, beforeEach} from "vitest";
 import {Collection, getCollectionRelationship} from "@razaman2/firestore-proxy";
 import {initializeTestApp, getAdminContext} from "@razaman2/firestore-testing";
@@ -30,8 +30,8 @@ it("initialize app data", () => {
             payload: {
                 data: {
                     id: auth.user.uid,
-                    firstName: "Ainsley",
-                    lastName: "Clarke",
+                    firstName: faker.person.firstName(),
+                    lastName: faker.person.lastName(),
                 },
             },
         }, {getFirestore});
@@ -50,7 +50,7 @@ it("initialize app data", () => {
             company.create({batch}),
 
             // company settings
-            Collection.proxy("settings", {parent: company}).create({
+            Collection.proxy("settings").setParent(company).create({
                 batch,
                 data: {
                     id: company.getDoc().id,
@@ -67,12 +67,12 @@ it("initialize app data", () => {
                 data: {
                     id: company.getDoc().id,
                     status: "active",
-                    path: `user/${user.getDoc().id}`,
+                    path: `/user/${user.getDoc().id}`,
                 },
             }),
 
             // user email
-            Collection.proxy("emails", {parent: user}).create({
+            Collection.proxy("emails").setParent(user).create({
                 batch,
                 data: {address: email, primary: true},
             }),

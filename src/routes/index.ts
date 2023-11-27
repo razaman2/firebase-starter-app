@@ -8,7 +8,7 @@ import Authorization from "../../helpers/Authorization.ts";
 import Swal from "sweetalert2";
 
 const Route = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: "/",
@@ -21,6 +21,21 @@ const Route = createRouter({
                 {
                     path: "user/:id",
                     component: () => import("../pages/User.vue"),
+                },
+                {
+                    path: "users",
+                    component: () => import("../pages/Users.vue"),
+                },
+                {
+                    path: "unauthorized",
+                    component: {
+                        setup() {
+                            return () => {
+                                return "Unauthorized Page";
+                            };
+                        },
+                    },
+                    meta: {rolesAllowed: ["unauthorized"]},
                 },
             ],
             meta: {requiresAuth: true},
@@ -81,9 +96,10 @@ const Route = createRouter({
 
 Route.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some((to) => to.meta.requiresAuth);
+    const fullPath = useNavigationStore().to().fullPath;
 
     const cache = () => {
-        if (!to.matched.some((to) => ["/login"].includes(to.path)) && (to.fullPath !== useNavigationStore().to().fullPath)) {
+        if (!to.matched.some((to) => ["/login"].includes(to.path)) && (to.fullPath !== fullPath)) {
             useNavigationStore().$patch({
                 route: {
                     path: to.path,
@@ -92,7 +108,7 @@ Route.beforeEach((to, from, next) => {
                 },
             });
 
-            console.info(`%cto: ${to.fullPath} from: ${from.fullPath} cached: ${useNavigationStore().to().fullPath}`, "color: purple");
+            console.info(`%cto: ${to.fullPath} from: ${from.fullPath} cached: ${fullPath}`, "color: purple");
         }
 
         return next();
@@ -115,6 +131,10 @@ Route.beforeEach((to, from, next) => {
                     timerProgressBar: true,
                     toast: true,
                 });
+
+                if ((to.fullPath && fullPath) && (to.fullPath !== fullPath)) {
+                    return next({path: fullPath});
+                }
             }
         } else {
             return cache();

@@ -25,6 +25,7 @@ export const useAuthStore = defineStore("auth", {
     persist: {
         enabled: true,
         strategies: [
+            {storage: sessionStorage},
             {
                 paths: ["company"],
                 storage: localStorage,
@@ -51,7 +52,7 @@ export const useAuthStore = defineStore("auth", {
         getRoles(state) {
             return (id?: string) => {
                 return id !== undefined
-                    ? state.roles.find((role: any) => role.id === id)
+                    ? state.roles.find((role: any) => (role.id === id))
                     : state.roles;
             };
         },
@@ -59,7 +60,7 @@ export const useAuthStore = defineStore("auth", {
         getCompanies(state) {
             return (id?: string) => {
                 return id !== undefined
-                    ? state.companies.find((company: any) => company.id === id)
+                    ? state.companies.find((company: any) => (company.id === id))
                     : state.companies;
             };
         },
@@ -82,8 +83,8 @@ export const useAuthStore = defineStore("auth", {
                         && state.settings.auth.company.id
                         && state.roles.length
                         && !(
-                            ["inactive"].includes(state.settings.auth.user.status) ||
-                            ["inactive"].includes(state.settings.auth.company.status)
+                            ["inactive"].includes(state.settings.auth.user.status)
+                            || ["inactive"].includes(state.settings.auth.company.status)
                         )
                     );
                 } else {
