@@ -17,7 +17,7 @@ export const useAuthStore = defineStore("auth", {
     persist: {
         enabled: true,
         strategies: [
-            {storage: localStorage},
+            {storage: sessionStorage},
         ],
     },
     getters: {
@@ -32,7 +32,7 @@ export const useAuthStore = defineStore("auth", {
         getRoles(state) {
             return (id?: string) => {
                 return id !== undefined
-                    ? state.roles.find((role: any) => role.id === id)
+                    ? state.roles.find((role: any) => (role.id === id))
                     : state.roles;
             };
         },
