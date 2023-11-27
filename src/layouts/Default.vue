@@ -4,6 +4,7 @@ import Auth from "./Auth.vue";
 import CustomNavigation from "../components/CustomNavigation.vue";
 import {RouterLink} from "vue-router";
 import {useAuthStore} from "../stores/auth";
+import Swal from "sweetalert2";
 import {useRoute} from "vue-router";
 
 export default {
@@ -37,10 +38,10 @@ export default {
 
                     const toolbar = () => {
                         const vnode = (
-                            <div class="bg-blue-200 p-4 flex justify-between items-baseline gap-x-10">
+                            <div class="bg-blue-200 p-4 flex justify-between items-center gap-x-10">
                                 {access($vue).title()}
 
-                                <div class="flex items-baseline gap-x-10">
+                                <div class="flex items-center gap-x-10">
                                     {access($vue).navigation()}
 
                                     <div class="flex justify-between items-center gap-x-5">
@@ -78,6 +79,17 @@ export default {
                         const vnode = (
                             <i-mdi-menu
                                 class="text-2xl cursor-pointer hover:scale-90 transition duration-500"
+                                onClick={async () => {
+                                    await Swal.fire({
+                                        title: "Right sidebar 👋",
+                                        html: `<div id="right-drawer">drawer</div>`,
+                                        position: "top-end",
+                                        grow: "column",
+                                        width: 500,
+                                        showConfirmButton: false,
+                                        showCloseButton: true,
+                                    });
+                                }}
                             />
                         );
 
