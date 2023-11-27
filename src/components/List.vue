@@ -1,6 +1,6 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access, safeRequest} from "@razaman2/reactive-vue";
-import {h, ref, reactive, computed} from "vue";
+import {h, ref, reactive, computed, Fragment} from "vue";
 import {v4 as uuid} from "uuid";
 
 export default {
@@ -40,7 +40,7 @@ export default {
         },
         getDefaultDisplayComponent: {
             validator: (value) => {
-                return /Function|Object/.test(value.constructor.name);
+                return /Function|Object|Boolean/.test(value.constructor.name);
             },
         },
         isValid: {
@@ -104,7 +104,7 @@ export default {
                             );
 
                             if (component && data) {
-                                component.access().getState.replaceData(handler ? handler(access(component).getState.getData()) : data);
+                                access(component).getState.replaceData(handler ? handler(access(component).getState.getData()) : data);
                             }
 
                             return component;
@@ -304,12 +304,16 @@ export default {
                         };
 
                         const getDefaultDisplay = () => {
-                            const vnode = ((typeof $vue.getDefaultDisplayComponent === "function")
-                                // ? $vue.getDefaultDisplayComponent({component: access($vue).getDefaultComponent(), list: $vue})
-                                ? $vue.getDefaultDisplayComponent
-                                : $vue.getDefaultDisplayComponent) ?? access($vue).getDisplay();
+                            if ($vue.getDefaultDisplayComponent !== false) {
+                                const vnode = ((typeof $vue.getDefaultDisplayComponent === "function")
+                                    // ? $vue.getDefaultDisplayComponent({component: access($vue).getDefaultComponent(), list: $vue})
+                                    ? $vue.getDefaultDisplayComponent
+                                    : $vue.getDefaultDisplayComponent) ?? access($vue).getDisplay();
 
-                            return $vue.$slots.getDefaultDisplay?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.getDefaultDisplay?.({$vue, vnode}) ?? vnode;
+                            } else {
+                                return Fragment;
+                            }
                         };
 
                         const getActiveDisplay = (item) => {

@@ -36,7 +36,7 @@ export default {
                     const deleteButton = () => {
                         const vnode = (
                             <CustomButton
-                                class="bg-red-500 hover:bg-red-400"
+                                class="bg-red-500 hover:bg-red-400 disabled:bg-red-400"
                                 onClick={() => {
                                     const data = access(parent).getState.getData();
 

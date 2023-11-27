@@ -1,6 +1,5 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import {onMounted} from "vue";
 
 export default {
     props: {
@@ -73,6 +72,8 @@ export default {
 
                                         if (option) {
                                             access(parent).getState.replaceData(getProperty(option));
+                                        } else {
+                                            access(parent).getState.replaceData();
                                         }
                                     }
                                 }}
@@ -111,14 +112,6 @@ export default {
                         getProperty,
                         getSelected,
                         findOption,
-                    });
-
-                    onMounted(() => {
-                        const option = access($vue).findOption($vue.state);
-
-                        if (option) {
-                            access(parent).getState.replaceData(getProperty(option));
-                        }
                     });
 
                     return $vue.setup({parent, self});
