@@ -39,26 +39,20 @@ it("initialize app data", () => {
         await Promise.all([
             user.create({batch}),
 
-            // user settings
-            Collection.proxy("settings").setParent(user).create({
-                batch,
-                data: {
-                    id: user.getDoc().id,
-                    status: "active",
-                    path: `/user/${user.getDoc().id}`,
-                },
-            }),
-
             // user email
             Collection.proxy("emails", {parent: user}).create({
                 batch,
                 data: {address: email, primary: true},
             }),
 
-            // user role
-            Collection.proxy("roles").setParent(user).create({
+            // user settings
+            Collection.proxy("settings").setParent(user).create({
                 batch,
-                data: {id: "super"},
+                data: {
+                    id: user.getDoc().id,
+                    status: "active",
+                    path: `user/${user.getDoc().id}`,
+                },
             }),
 
             // app settings
@@ -82,16 +76,33 @@ it("initialize app data", () => {
                     },
                 },
             }),
-        ].concat(["Super", "Admin", "User"].map((role) => {
-            // app roles
-            return Collection.proxy("roles").create({
+
+            Collection.proxy("roles").setParent(user).setDoc("super").create({batch}),
+
+            Collection.proxy("roles").create({
                 batch,
                 data: {
-                    id: role.trim().toLowerCase(),
-                    name: role,
+                    id: "super",
+                    name: "Super",
                 },
-            });
-        })));
+            }),
+
+            Collection.proxy("roles").create({
+                batch,
+                data: {
+                    id: "admin",
+                    name: "Admin",
+                },
+            }),
+
+            Collection.proxy("roles").create({
+                batch,
+                data: {
+                    id: "user",
+                    name: "User",
+                },
+            }),
+        ]);
 
         await batch.commit();
     });
@@ -103,7 +114,7 @@ it("add user", () => {
             while (count--) {
                 promises.push(new Promise(async (resolve) => {
                     const batch = getFirestore.batch();
-                    const email = faker.internet.email({provider: "sablecrm.com"});
+                    const email = faker.internet.email({provider: "firestore.com"}).trim().toLowerCase();
                     const auth = await createUserWithEmailAndPassword(getAuth(), email, password);
 
                     const user = Collection.proxy("users", {
@@ -119,12 +130,22 @@ it("add user", () => {
                     await Promise.all([
                         user.create({batch}),
 
+                        Collection.proxy("roles").setParent(user).setDoc("user").create({batch}),
+
                         Collection.proxy("emails").setParent(user).create({
                             batch,
                             data: {address: email},
                         }),
 
-                        Collection.proxy("roles").setParent(user).setDoc("user").create({batch});
+                        Collection.proxy("settings").setParent(user).create({
+                            batch,
+                            data: {
+                                id: user.getDoc().id,
+                                status: "active",
+                                path: `user/${user.getDoc().id}`,
+                            },
+                        }),
+                    ]);
 
                     resolve(await batch.commit());
                 }));

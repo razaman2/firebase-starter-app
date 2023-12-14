@@ -1,5 +1,6 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import {computed} from "vue";
 
 export default {
     props: {
@@ -21,12 +22,22 @@ export default {
         },
     },
 
-    setup(props, context) {
+    setup() {
         return ($vue) => (
             <ReactiveVue
                 modelName="CustomSelect"
                 setup={(parent) => {
+                    const _default = computed(() => {
+                        return [
+                            {
+                                [$vue.optionLabel]: $vue.$attrs.placeholder ?? "None",
+                                [$vue.optionValue]: "${cleared}",
+                            },
+                        ];
+                    });
+
                     const getName = (option) => option?.[$vue.optionLabel] ?? option;
+
                     const getValue = (option) => option?.[$vue.optionValue] ?? option;
 
                     const getProperty = (option) => {
@@ -66,25 +77,20 @@ export default {
                                 class="w-full"
                                 onInput={(e) => {
                                     if (e.target.value === "${cleared}") {
-                                        context.emit("update:modelCleared");
+                                        access(parent).getState.replaceData(undefined);
                                     } else {
                                         const option = access($vue).findOption(e.target.value);
 
                                         if (option) {
                                             access(parent).getState.replaceData(getProperty(option));
                                         } else {
-                                            access(parent).getState.replaceData();
+                                            access(parent).getState.replaceData(undefined);
                                         }
                                     }
                                 }}
-                            >
-                                {[
-                                    {
-                                        [$vue.optionLabel]: $vue.$attrs.placeholder ?? "None",
-                                        [$vue.optionValue]: "${cleared}",
-                                    },
-                                ].concat($vue.options).map((option) => access($vue).option(option))}
-                            </select>
+                            >{access($vue)._default.value.concat($vue.options).map((option) => {
+                                return access($vue).option(option);
+                            })}</select>
                         );
 
                         return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
@@ -112,6 +118,7 @@ export default {
                         getProperty,
                         getSelected,
                         findOption,
+                        _default,
                     });
 
                     return $vue.setup({parent, self});

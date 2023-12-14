@@ -12,6 +12,7 @@ declare module 'vue' {
     CustomDropdown: typeof import('./src/components/CustomDropdown.vue')['default']
     CustomInput: typeof import('./src/components/CustomInput.vue')['default']
     CustomNavigation: typeof import('./src/components/CustomNavigation.vue')['default']
+    CustomOptionGroup: typeof import('./src/components/CustomOptionGroup.vue')['default']
     CustomSelect: typeof import('./src/components/CustomSelect.vue')['default']
     IMdiDelete: typeof import('~icons/mdi/delete')['default']
     IMdiMenu: typeof import('~icons/mdi/menu')['default']
@@ -19,6 +20,7 @@ declare module 'vue' {
     List: typeof import('./src/components/List.vue')['default']
     NewRole: typeof import('./src/components/NewRole.vue')['default']
     Role: typeof import('./src/components/Role.vue')['default']
+    Roles: typeof import('./src/components/Roles.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

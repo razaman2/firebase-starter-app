@@ -106,7 +106,7 @@ export default {
                         const template = () => {
                             const vnode = (
                                 <div>
-                                    {access($vue).getItemsContainer()}
+                                    {access($vue).getItems()}
 
                                     {access($vue).getItemActions()}
 
@@ -117,25 +117,19 @@ export default {
                             return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getItemsContainer = () => {
+                        const getItems = () => {
                             const vnode = (
                                 <div class={{
                                     "hidden": !$vue.items,
                                     "flex flex-col gap-1": true,
-                                }}>
-                                    {access($vue).getItems()}
-                                </div>
+                                }}>{access(parent).getState.getData().map((item, index) => {
+                                    const vnode = access($vue).getItem({item, index});
+
+                                    return $vue.$slots.getItems?.({$vue, vnode}) ?? vnode;
+                                })}</div>
                             );
 
-                            return $vue.$slots.getItemsContainer?.({$vue, vnode}) ?? vnode;
-                        };
-
-                        const getItems = () => {
-                            return access(parent).getState.getData().map((item, index) => {
-                                const vnode = access($vue).getItem({item, index});
-
-                                return $vue.$slots.getItems?.({$vue, vnode}) ?? vnode;
-                            });
+                            return $vue.$slots.getItems?.({$vue, vnode}) ?? vnode;
                         };
 
                         const getItem = ({item, index}) => {
@@ -158,9 +152,9 @@ export default {
                                             component: access(parent).components[id],
                                             index,
                                             id,
-                                        }) ??
+                                        })
                                         // item display is set in the display component.
-                                        (access(access(parent).components[id]).getItemDisplay?.value
+                                        ?? (access(access(parent).components[id]).getItemDisplay?.value
                                             || access(access(parent).components[id]).getItemDisplay)
                                     }
                                 </div>
@@ -243,7 +237,6 @@ export default {
                             template,
                             getItem,
                             getItems,
-                            getItemsContainer,
                             getItemActions,
                             getAddButton,
                             getSaveButton,
@@ -272,7 +265,7 @@ export default {
                         };
 
                         const loadActivationHandler = () => {
-                            const getItem = (items, active) => {
+                            const getItem = (items, active = "") => {
                                 if (/String|Object/.test(active.constructor.name)) {
                                     return items.find((item) => {
                                         return (
@@ -291,7 +284,7 @@ export default {
                                 if (!itemsBefore.length) {
                                     access($vue).setDefaultItem((
                                         ($vue.active.constructor.name === "Function")
-                                            ? getItem(items, $vue.active(items) ?? "")
+                                            ? getItem(items, $vue.active(items))
                                             : getItem(items, $vue.active)
                                     ));
                                 }

@@ -2,7 +2,7 @@
 import {Collection, Updates} from "@razaman2/firestore-proxy";
 import ReactiveVue, {access, setup, getProps} from "@razaman2/reactive-vue";
 import {deleteField, writeBatch, getFirestore} from "firebase/firestore";
-import {inject, computed} from "vue";
+import {inject, computed, ref} from "vue";
 
 const ListItem = {
     props: {
@@ -13,7 +13,8 @@ const ListItem = {
         return ($vue) => {
             return (
                 <ReactiveVue
-                    logging={false}
+                    logging={true}
+                    modelName="ListItem"
                     setup={(parent) => {
                         // region TEMPLATE V-NODES
                         const template = () => {
@@ -34,9 +35,10 @@ const ListItem = {
                             const vnode = (
                                 <CustomInput
                                     class="rounded w-full"
-                                    debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                    debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                     autofocus={access($vue.$attrs.list()).isDefaultDisplayComponent(data)}
                                     state={data.name}
+                                    onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                     onUpdate:modelState={({after}) => {
                                         access($vue).getState.setData({name: after});
                                     }}
@@ -95,6 +97,7 @@ const AddListItem = {
         return ($vue) => {
             return (
                 <ListItem
+                    modelName="AddListItem"
                     setup={(parent) => {
                         const isValid = computed(() => {
                             return (access(parent).getState.getData("name", "").length >= 3);
@@ -125,6 +128,8 @@ const AddListItem = {
 export default {
     setup() {
         return ($vue) => {
+            const itemsListCheckbox = ref();
+
             return (
                 <div class="flex flex-col gap-y-10 w-max mx-auto py-3">
                     <List
@@ -206,27 +211,20 @@ export default {
                                 const template = () => {
                                     return (
                                         <div class="flex flex-col gap-y-1">
-                                            {access(parent).getNameInput()}
-
                                             <CustomSelect
                                                 class="rounded"
                                                 optionProperty="id"
-                                                options={[{id: "super", name: "Super"}, {id: "admin", name: "Admin"}, {id: "user", name: "User"}, {id: "sales", name: "Sales"}, {id: "tech", name: "Tech"}]}
+                                                options={inject("app").appRoles.getData()}
                                                 state={access(parent).getState.getData("role")}
-                                                onUpdate:propsState={{
-                                                    callback: ({before, after}, state) => {
-                                                        if (before !== after) {
-                                                            state.replaceData(after);
-                                                        }
-                                                    },
-                                                }}
-                                                onUpdate:modelState={({after}) => {
-                                                    access(parent).getState.setData({role: after});
-                                                }}
-                                                onUpdate:modelCleared={() => {
-                                                    access(parent).getState.setData({role: deleteField()});
+                                                onUpdate:propsState={({after}, state) => state.replaceData(after)}
+                                                onUpdate:modelState={({before, after}) => {
+                                                    if (before !== after) {
+                                                        access(parent).getState.setData({role: after ?? deleteField()});
+                                                    }
                                                 }}
                                             />
+
+                                            {access(parent).getNameInput()}
                                         </div>
                                     );
                                 };
@@ -236,26 +234,26 @@ export default {
                                 return {parent, self};
                             },
                         }}
-                        // onItemAdding={async ({component}) => {
-                        //     if (component) {
-                        //         const batch = writeBatch(getFirestore());
-                        //
-                        //         await access(component).getState.create({batch});
-                        //         await batch.commit();
-                        //     } else {
-                        //         return true;
-                        //     }
-                        // }}
-                        // onItemDeleting={async ({component}) => {
-                        //     if (component) {
-                        //         const batch = writeBatch(getFirestore());
-                        //
-                        //         await access(component).getState.remove({batch});
-                        //         await batch.commit();
-                        //     } else {
-                        //         return true;
-                        //     }
-                        // }}
+                        onItemAdding={async ({component}) => {
+                            if (component) {
+                                const batch = writeBatch(getFirestore());
+
+                                await access(component).getState.create({batch});
+                                await batch.commit();
+                            } else {
+                                return access(itemsListCheckbox).getState.getData();
+                            }
+                        }}
+                        onItemDeleting={async ({component}) => {
+                            if (component) {
+                                const batch = writeBatch(getFirestore());
+
+                                await access(component).getState.remove({batch});
+                                await batch.commit();
+                            } else {
+                                return access(itemsListCheckbox).getState.getData();
+                            }
+                        }}
                         onItemActive={({data}) => {
                             console.log("item active:", {data});
                         }}
@@ -268,7 +266,16 @@ export default {
                             const template = () => {
                                 const vnode = (
                                     <div class="flex flex-col gap-y-3">
-                                        <div class="p-2 bg-slate-500 text-white font-semibold">Items List</div>
+                                        <div class="p-2 bg-slate-500 text-white font-semibold flex">
+                                            <span>Items List</span>
+
+                                            <CustomOptionGroup
+                                                state={true}
+                                                type="checkbox"
+                                                options={["global"]}
+                                                ref={itemsListCheckbox}
+                                            />
+                                        </div>
 
                                         {access(parent).template()}
 
@@ -295,7 +302,10 @@ export default {
                             const getSaveAllButton = () => {
                                 const vnode = (
                                     <CustomButton
-                                        class="bg-green-500 disabled:bg-green-500 hover:bg-green-400"
+                                        class={{
+                                            hidden: access(itemsListCheckbox).getState?.getData(),
+                                            "bg-green-500 disabled:bg-green-500 hover:bg-green-400": true,
+                                        }}
                                         onClick={async () => {
                                             const batch = writeBatch(getFirestore());
 

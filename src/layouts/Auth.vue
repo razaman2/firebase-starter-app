@@ -101,18 +101,16 @@ export default {
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
                             const subscription = access($vue).authRoles.getDocuments({
                                 callback: (snapshot) => {
-                                    if (!snapshot.empty) {
-                                        const roles = snapshot.docs.reduce((authRoles, authRole) => {
-                                            const appRole = useAppStore().getRoles(authRole.id);
+                                    const roles = snapshot.docs.reduce((authRoles, authRole) => {
+                                        const appRole = useAppStore().getRoles(authRole.id);
 
-                                            return appRole ? authRoles.concat({
-                                                ...authRole.data(),
-                                                name: appRole.name,
-                                            }) : authRoles;
-                                        }, []);
+                                        return appRole ? authRoles.concat({
+                                            ...authRole.data(),
+                                            name: appRole.name,
+                                        }) : authRoles;
+                                    }, []);
 
-                                        useAuthStore().$patch({roles});
-                                    }
+                                    useAuthStore().$patch({roles});
                                 },
                             });
 
@@ -182,9 +180,7 @@ export default {
                     onMounted(() => {
                         watch(() => useNavigationStore().to(), async (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
-                                await router.push(to.fullPath
-                                    ?? useAuthStore().getSettings("path")
-                                    ?? "/");
+                                await router.push(to.fullPath ?? useAuthStore().getSettings("path") ?? "/");
                             } else if (to.requiresAuth || toBefore?.requiresAuth) {
                                 await router.push("/login");
                             }
@@ -192,13 +188,21 @@ export default {
 
                         watch(() => useAuthStore().authenticated(), async (authenticated) => {
                             if (authenticated) {
-                                await router.push(useNavigationStore().to().fullPath
-                                    ?? useAuthStore().getSettings("path")
-                                    ?? "/");
+                                if (useAppStore().getRoles("super")) {
+                                    await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                } else {
+                                    await router.push("/roles");
+                                }
                             } else if (useNavigationStore().to().requiresAuth) {
                                 await router.push("/login");
                             }
                         }, {immediate: true});
+
+                        watch(authRoles.getData(), async () => {
+                            if (!useAuthStore().authorized(router.currentRoute.value)) {
+                                await router.push(`/user/${useAuthStore().getUser("id")}`);
+                            }
+                        });
 
                         watch(authUser.getData(), (user) => {
                             if (user.id) {
@@ -216,6 +220,17 @@ export default {
 
                             if (mutation.payload?.roles) {
                                 appRoles.replaceData(mutation.payload.roles);
+
+                                useAuthStore().$patch({
+                                    roles: useAuthStore().getRoles().reduce((authRoles, authRole) => {
+                                        const appRole = useAppStore().getRoles(authRole.id);
+
+                                        return appRole ? authRoles.concat({
+                                            ...authRole,
+                                            name: appRole.name,
+                                        }) : authRoles;
+                                    }, []),
+                                });
                             }
                         });
 

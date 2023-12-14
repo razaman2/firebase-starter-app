@@ -40,7 +40,7 @@ export default {
                             <CustomInput
                                 class="rounded"
                                 placeholder="Role Name"
-                                debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                 state={access(parent).getState.getData("name")}
                                 onUpdate:modelState={({after}) => {
                                     access(parent).getState.setData("name", after, false);
@@ -56,7 +56,7 @@ export default {
                             <CustomInput
                                 class="rounded"
                                 placeholder="Role Identifier"
-                                debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                 state={access(parent).getState.getData("id")}
                                 onUpdate:modelState={({after}) => {
                                     access(parent).getState.setData("id", after, false);

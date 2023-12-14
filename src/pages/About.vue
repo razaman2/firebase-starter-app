@@ -1,5 +1,7 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import CustomOptionGroup from "../components/CustomOptionGroup.vue";
+import {ref, reactive, capitalize} from "vue";
 
 export default {
     props: {
@@ -11,52 +13,86 @@ export default {
             <ReactiveVue
                 logging={true}
                 modelName="AboutPage"
-                defaultData={{radio: []}}
+                state={{fruits: ["apples", "bananas", "grapes", "plums"], direction: "north"}}
+                // state={["apples", "bananas", "grapes", "plums"]}
                 setup={(parent) => {
+                    access(parent).getState.setIgnoredPath("fruits.");
+
                     const template = () => {
                         const vnode = (
                             <div class="m-4">
                                 <h1>{access(parent).getState.getData("price")}</h1>
 
                                 <div class="flex flex-col gap-y-2">
-                                    <div class="flex items-center gap-2">
-                                        Male
-                                        <CustomInput
-                                            type="checkbox"
-                                            value="gender.male"
-                                            model={access(parent).getState}
+                                    <div>
+                                        <h3 class="bg-slate-200 p-2">Favourite Fruits</h3>
+
+                                        <CustomOptionGroup
+                                            class="flex gap-x-2"
+                                            options={[
+                                                {id: "apples", name: "Apples"},
+                                                {id: "bananas", name: "Bananas"},
+                                                {id: "grapes", name: "Grapes"},
+                                            ]}
+                                            state={access(parent).getState.getData("fruits")}
+                                            // onUpdate:propsState={({after}, state) => state.replaceData(after)}
+                                            onUpdate:modelState={({before, after, added, removed}) => {
+                                                console.log("checkbox1 update:", {before, after, added, removed});
+                                                access(parent).getState.setData({fruits: after.map((item) => item.id)});
+                                            }}
+
+                                            v-slots={{
+                                                name: ({vnode}) => {
+                                                    return (
+                                                        <vnode.type
+                                                            {...vnode.props}
+                                                        >{vnode.children.map((item) => capitalize(item))}</vnode.type>
+                                                    );
+                                                },
+                                            }}
+                                        />
+
+                                        <CustomOptionGroup
+                                            class="flex gap-x-2"
+                                            options={["apples", "bananas", "grapes", "plums"]}
+                                            state={access(parent).getState.getData("fruits")}
+                                            // onUpdate:propsState={({after}, state) => state.replaceData(after)}
+                                            onUpdate:modelState={({before, after, added, removed}) => {
+                                                console.log("checkbox2 update:", {before, after, added, removed});
+                                                access(parent).getState.setData({fruits: after});
+                                            }}
+
+                                            v-slots={{
+                                                name: ({vnode}) => {
+                                                    return (
+                                                        <vnode.type
+                                                            {...vnode.props}
+                                                        >{vnode.children.map((item) => capitalize(item))}</vnode.type>
+                                                    );
+                                                },
+                                            }}
                                         />
                                     </div>
 
-                                    <div class="flex items-center gap-2">
-                                        Female
-                                        <CustomInput
-                                            type="checkbox"
-                                            value="gender.female"
-                                            model={access(parent).getState}
+                                    <div>
+                                        <h3 class="bg-slate-200 p-2">Direction</h3>
+
+                                        <CustomOptionGroup
+                                            type="radio"
+                                            name="direction"
+                                            class="flex gap-x-2 ml-2"
+                                            options={[
+                                                {id: "north", name: "North"},
+                                                {id: "south", name: "South"},
+                                            ]}
+                                            // options={["north", "south"]}
+                                            state={access(parent).getState.getData("direction")}
+                                            onUpdate:modelState={({before, after}) => {
+                                                console.log("radio:", {before, after});
+
+                                                access(parent).getState.setData({direction: after.id});
+                                            }}
                                         />
-                                    </div>
-
-                                    <div class="flex gap-x-2">
-                                        <div class="flex items-center gap-2">
-                                            up
-                                            <CustomInput
-                                                type="radio"
-                                                value="radio.up"
-                                                name="direction"
-                                                model={access(parent).getState}
-                                            />
-                                        </div>
-
-                                        <div class="flex items-center gap-2">
-                                            down
-                                            <CustomInput
-                                                type="radio"
-                                                value="radio.down"
-                                                name="direction"
-                                                model={access(parent).getState}
-                                            />
-                                        </div>
                                     </div>
 
                                     <CustomInput
@@ -64,11 +100,12 @@ export default {
                                         class="rounded"
                                         placeholder="Price"
                                         state={access(parent).getState.getData("price")}
+                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("price", after);
                                         }}
                                         decimals={2}
-                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                         unsigned={true}
                                         money={true}
                                     />
@@ -78,19 +115,32 @@ export default {
                                         class="rounded"
                                         placeholder="Age"
                                         state={access(parent).getState.getData("age")}
+                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("age", after);
                                         }}
-                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                         unsigned={true}
                                     />
 
                                     <CustomInput
-                                        debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
+                                        class="rounded"
+                                        placeholder="Name"
+                                        state={access(parent).getState.getData("test")}
+                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
+                                        onUpdate:modelState={({after}) => {
+                                            access(parent).getState.setData("test", after);
+                                        }}
+                                    />
+
+                                    <CustomInput
+                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                         type="textarea"
                                         class="rounded"
                                         placeholder="Details"
                                         state={access(parent).getState.getData("details")}
+                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("details", after);
                                         }}
@@ -110,6 +160,7 @@ export default {
                     };
 
                     const vnodes = {template};
+
                     const self = Object.assign(vnodes, {});
 
                     return $vue.setup({parent, self});

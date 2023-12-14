@@ -33,6 +33,10 @@ export default {
                                     <AppLink to="/about">About</AppLink>
                                 </li>
 
+                                <li>
+                                    <AppLink to="/list">List</AppLink>
+                                </li>
+
                                 <li class={{"hidden": useAuthStore().authenticated()}}>
                                     <AppLink to="/login">Login</AppLink>
                                 </li>

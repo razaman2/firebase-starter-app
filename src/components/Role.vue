@@ -12,18 +12,13 @@ export default {
             <NewRole
                 modelName="Role"
                 setup={(parent) => {
-                    const {id, name} = access(parent).getState.getData();
-
                     // region TEMPLATE V-NODES
                     const template = () => {
                         const vnode = (
-                            <div class={{
-                                "hidden": access($vue.$attrs.list()).isDefaultDisplayComponent(parent),
-                                "flex justify-between items-center bg-black text-white rounded-r-lg rounded ring ring-black": true,
-                            }}>
-                                <div class="flex justify-between w-full px-4">
-                                    <p>{id}</p>
-                                    <p>{name}</p>
+                            <div class="flex justify-between items-center gap-x-3 bg-black text-white rounded-r-lg rounded ring ring-black">
+                                <div class="flex justify-between flex-wrap gap-x-3 w-full px-4">
+                                    <p>{access(parent).getState.getData("id")}</p>
+                                    <p>{access(parent).getState.getData("name")}</p>
                                 </div>
 
                                 {access($vue).deleteButton()}

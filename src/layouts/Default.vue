@@ -61,7 +61,7 @@ export default {
                             <RouterLink
                                 to="/"
                                 class="font-bold"
-                            >Vite App</RouterLink>
+                            >Firebase App</RouterLink>
                         );
 
                         return $vue.$slots.title?.({$vue, vnode}) ?? vnode;

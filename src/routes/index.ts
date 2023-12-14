@@ -4,7 +4,6 @@ import admin from "./admin.ts";
 import {createRouter, createWebHistory} from "vue-router";
 import {useNavigationStore} from "../stores/navigation.ts";
 import {useAuthStore} from "../stores/auth.ts";
-import Authorization from "../../helpers/Authorization.ts";
 import Swal from "sweetalert2";
 
 const Route = createRouter({
@@ -25,17 +24,11 @@ const Route = createRouter({
                 {
                     path: "users",
                     component: () => import("../pages/Users.vue"),
+                    meta: {rolesAllowed: ["super", "admin"]},
                 },
                 {
-                    path: "unauthorized",
-                    component: {
-                        setup() {
-                            return () => {
-                                return "Unauthorized Page";
-                            };
-                        },
-                    },
-                    meta: {rolesAllowed: ["unauthorized"]},
+                    path: "roles",
+                    component: () => import("../pages/Roles.vue"),
                 },
             ],
             meta: {requiresAuth: true},
@@ -116,18 +109,14 @@ Route.beforeEach((to, from, next) => {
 
     if (requiresAuth) {
         if (useAuthStore().authenticated()) {
-            const roles = useAuthStore().getRoles().map((role) => role.id);
-            const authorized = Authorization.app({route: to, roles});
-            const user = Authorization.user({route: to, user: {id: useAuthStore().getUser("id"), roles}});
-
-            if (authorized && user) {
+            if (useAuthStore().authorized(to)) {
                 return cache();
             } else {
                 Swal.fire({
                     position: "top",
                     icon: "warning",
                     title: "Not Authorized!",
-                    timer: 3000,
+                    timer: 2000,
                     timerProgressBar: true,
                     toast: true,
                 });
