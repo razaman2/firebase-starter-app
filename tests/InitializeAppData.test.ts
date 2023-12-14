@@ -26,22 +26,18 @@ it("initialize app data", () => {
             });
         }, {}) as UserCredential;
 
-        const user = Collection.proxy("users", {
-            payload: {
-                data: {
-                    id: auth.user.uid,
-                    firstName: faker.person.firstName(),
-                    lastName: faker.person.lastName(),
-                },
-            },
-        }, {getFirestore});
+        const company = Collection.proxy("companies", {getFirestore}).setData({name: "Test Company"});
 
-        const company = Collection.proxy("companies").setData({name: "Test Company"});
+        const user = Collection.proxy("users").setData({
+            id: auth.user.uid,
+            firstName: faker.person.firstName(),
+            lastName: faker.person.lastName(),
+        });
 
         await Promise.all([
-            user.create({batch}),
-
             company.create({batch}),
+
+            user.create({batch}),
 
             // company settings
             Collection.proxy("settings").setParent(company).create({
@@ -94,37 +90,37 @@ it("initialize app data", () => {
             }),
 
             // user role
-            // Collection.proxy("roles", {
-            //     parent: user,
-            //     owners: [company],
-            // }).create({
-            //     batch,
-            //     data: {id: "super"},
-            // }),
-            //
-            // Collection.proxy("roles").create({
-            //     batch,
-            //     data: {
-            //         id: "super",
-            //         name: "Super",
-            //     },
-            // }),
-            //
-            // Collection.proxy("roles").create({
-            //     batch,
-            //     data: {
-            //         id: "admin",
-            //         name: "Admin",
-            //     },
-            // }),
-            //
-            // Collection.proxy("roles").create({
-            //     batch,
-            //     data: {
-            //         id: "user",
-            //         name: "User",
-            //     },
-            // }),
+            Collection.proxy("roles", {
+                parent: user,
+                owners: [company],
+            }).create({
+                batch,
+                data: {id: "super"},
+            }),
+
+            Collection.proxy("roles").create({
+                batch,
+                data: {
+                    id: "super",
+                    name: "Super",
+                },
+            }),
+
+            Collection.proxy("roles").create({
+                batch,
+                data: {
+                    id: "admin",
+                    name: "Admin",
+                },
+            }),
+
+            Collection.proxy("roles").create({
+                batch,
+                data: {
+                    id: "user",
+                    name: "User",
+                },
+            }),
         ]);
 
         await batch.commit();
@@ -162,7 +158,7 @@ it("add company", async () => {
                 data: {
                     id: company.getDoc().id,
                     status: "active",
-                    path: `user/${user.getDoc().id}`,
+                    path: `/user/${user.getDoc().id}`,
                 },
             }),
 

@@ -266,13 +266,14 @@ export default {
                             const template = () => {
                                 const vnode = (
                                     <div class="flex flex-col gap-y-3">
-                                        <div class="p-2 bg-slate-500 text-white font-semibold flex">
+                                        <div class="p-2 bg-slate-500 text-white font-semibold flex justify-between">
                                             <span>Items List</span>
 
                                             <CustomOptionGroup
                                                 state={true}
                                                 type="checkbox"
-                                                options={["global"]}
+                                                class="flex w-min"
+                                                options={[""]}
                                                 ref={itemsListCheckbox}
                                             />
                                         </div>

@@ -272,7 +272,7 @@ export default {
                     onMounted(() => {
                         watch(() => useNavigationStore().to(), async (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
-                                await router.push(to.fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                await router.push(to.fullPath ?? useAuthStore().getSettings("auth.user.path") ?? "/");
                             } else if (to.requiresAuth || toBefore?.requiresAuth) {
                                 await router.push("/login");
                             }
@@ -281,7 +281,7 @@ export default {
                         watch(() => useAuthStore().authenticated(), async (authenticated) => {
                             if (authenticated) {
                                 if (useAppStore().getRoles("super")) {
-                                    await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                    await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("auth.user.path") ?? "/");
                                 } else {
                                     await router.push("/super/roles");
                                 }

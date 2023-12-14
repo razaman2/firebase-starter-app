@@ -67,7 +67,7 @@ const Route = createRouter({
             path: "/super",
             component: () => import("../layouts/Default.vue"),
             children: _super,
-            meta: {requiresAuth: true, rolesAllowed: []},
+            meta: {requiresAuth: true, rolesAllowed: ["super"]},
         },
 
         {
