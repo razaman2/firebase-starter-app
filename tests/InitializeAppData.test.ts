@@ -36,13 +36,7 @@ it("initialize app data", () => {
             },
         }, {getFirestore});
 
-        const company = Collection.proxy("companies", {
-            payload: {
-                data: {
-                    name: "Test Company",
-                },
-            },
-        });
+        const company = Collection.proxy("companies").setData({name: "Test Company"});
 
         await Promise.all([
             user.create({batch}),
@@ -77,15 +71,6 @@ it("initialize app data", () => {
                 data: {address: email, primary: true},
             }),
 
-            // user role
-            Collection.proxy("roles", {
-                parent: user,
-                owners: [company],
-            }).create({
-                batch,
-                data: {id: "super"},
-            }),
-
             // app settings
             Collection.proxy("settings").create({
                 batch,
@@ -107,16 +92,40 @@ it("initialize app data", () => {
                     },
                 },
             }),
-        ].concat(["Super", "Admin", "User"].map((role) => {
-            // app roles
-            return Collection.proxy("roles").create({
-                batch,
-                data: {
-                    id: role.trim().toLowerCase(),
-                    name: role,
-                },
-            });
-        })));
+
+            // user role
+            // Collection.proxy("roles", {
+            //     parent: user,
+            //     owners: [company],
+            // }).create({
+            //     batch,
+            //     data: {id: "super"},
+            // }),
+            //
+            // Collection.proxy("roles").create({
+            //     batch,
+            //     data: {
+            //         id: "super",
+            //         name: "Super",
+            //     },
+            // }),
+            //
+            // Collection.proxy("roles").create({
+            //     batch,
+            //     data: {
+            //         id: "admin",
+            //         name: "Admin",
+            //     },
+            // }),
+            //
+            // Collection.proxy("roles").create({
+            //     batch,
+            //     data: {
+            //         id: "user",
+            //         name: "User",
+            //     },
+            // }),
+        ]);
 
         await batch.commit();
     });
@@ -130,18 +139,14 @@ it("add company", async () => {
 
         const user = Collection.proxy("users", {getFirestore}).setDoc(getAuth().currentUser?.uid!);
 
-        const company = Collection.proxy("companies", {
-            payload: {
-                data: {name: faker.company.name()},
-            },
-        });
+        const company = Collection.proxy("companies").setData({name: faker.company.name()});
 
-        const role = await Collection.proxy("roles", {parent: user}).init("super");
+        const role = await Collection.proxy("roles").setParent(user).init("super");
 
         await Promise.all([
             company.create({batch}),
 
-            Collection.proxy("settings", {parent: company}).create({
+            Collection.proxy("settings").setParent(company).create({
                 batch,
                 data: {
                     id: company.getDoc().id,

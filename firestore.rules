@@ -1,3 +1,6 @@
+// https://firebase.google.com/docs/reference/rules/rules
+// https://firebase.google.com/docs/firestore
+
 rules_version = '2';
 service cloud.firestore {
     match /databases/{database}/documents {
@@ -92,8 +95,7 @@ service cloud.firestore {
 
                 allow update: if (
                     userHasRole("super")
-                    || (
-                    userHasRole("admin")
+                    || (userHasRole("admin")
                     && diffData().affectedKeys().hasOnly(["global", "updatedAt"]))
                 );
             }
@@ -111,8 +113,14 @@ service cloud.firestore {
         match /roles/{roleId} {
             allow read: if signedIn();
 
+            // allow the creation of the application's super role.
+            allow create: if (roleId == "super");
+
             // only super users can write roles.
-            allow write: if userHasRole("super");
+            allow write: if (
+                roleExists("super")
+                && userHasRole("super")
+            );
         }
 
         match /settings/{settingsId} {
@@ -147,8 +155,20 @@ service cloud.firestore {
                     || userHasRole("super"))
                 );
 
+                // assign super role to the creator of the app's super role.
+                allow create: if (
+                    !roleExists(roleId)
+                    && (roleId == "super")
+                )
+
                 allow update: if (
-                    diffData().affectedKeys().hasOnly(["belongsTo", "updatedAt"])
+                    diffData().affectedKeys().hasOnly(["global", "belongsTo", "updatedAt"])
+                    && (((roleId != "super") && userHasRole("admin"))
+                    || userHasRole("super"))
+                );
+
+                allow delete: if (
+                    !storedData().belongsTo.join("|").matches(".+ companies")
                     && (((roleId != "super") && userHasRole("admin"))
                     || userHasRole("super"))
                 );

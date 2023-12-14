@@ -1,18 +1,17 @@
 import {defineStore} from "pinia";
 import ObjectManager from "@razaman2/object-manager";
+import Authorization from "../../helpers/Authorization.ts";
 
 type Document = {
     [p: string]: any;
-    id: string | number;
+    id: string;
 };
 
 export const useAuthStore = defineStore("auth", {
     state: () => {
         return {
             user: {} as Document,
-            company: {} as Document,
             roles: [] as Array<Document>,
-            companies: [] as Array<Document>,
             settings: {
                 auth: {
                     user: {},
@@ -20,6 +19,8 @@ export const useAuthStore = defineStore("auth", {
                 },
                 user: [],
             } as {auth: Record<string, Partial<Document>>; user: Array<Document>},
+            company: {} as Document,
+            companies: [] as Array<Document>,
         };
     },
     persist: {
@@ -81,7 +82,6 @@ export const useAuthStore = defineStore("auth", {
                         && state.company.id
                         && state.settings.auth.user.id
                         && state.settings.auth.company.id
-                        && state.roles.length
                         && !(
                             ["inactive"].includes(state.settings.auth.user.status)
                             || ["inactive"].includes(state.settings.auth.company.status)
@@ -90,6 +90,17 @@ export const useAuthStore = defineStore("auth", {
                 } else {
                     return false;
                 }
+            };
+        },
+
+        authorized(state) {
+            return (route: any) => {
+                const roles = state.roles.map((role) => role.id);
+
+                return (
+                    Authorization.app({route, roles})
+                    && Authorization.user({route, roles, user: state.user})
+                );
             };
         },
     },

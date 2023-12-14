@@ -4,7 +4,7 @@ import ObjectManager from "@razaman2/object-manager";
 
 type Document = {
     [p: string]: any;
-    id: string | number;
+    id: string;
 };
 
 type CacheOptions = {
@@ -19,7 +19,7 @@ export const useAppStore = defineStore("app", {
         return {
             roles: [] as Array<Document>,
             companies: [] as Array<Document>,
-            settings: {} as Document,
+            settings: {} as Document & {id: string | number},
             _cache: {} as {
                 [key: string]: any
             },
@@ -109,7 +109,7 @@ export const useAppStore = defineStore("app", {
         },
 
         getRoles(state) {
-            return (id?: string | number) => {
+            return (id?: string) => {
                 return (id !== undefined)
                     ? state.roles.find((role: any) => (role.id === id))
                     : state.roles;

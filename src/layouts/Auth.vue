@@ -272,9 +272,7 @@ export default {
                     onMounted(() => {
                         watch(() => useNavigationStore().to(), async (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
-                                await router.push(to.fullPath
-                                    ?? useAuthStore().getSettings("auth.user.path")
-                                    ?? "/");
+                                await router.push(to.fullPath ?? useAuthStore().getSettings("path") ?? "/");
                             } else if (to.requiresAuth || toBefore?.requiresAuth) {
                                 await router.push("/login");
                             }
@@ -282,13 +280,21 @@ export default {
 
                         watch(() => useAuthStore().authenticated(), async (authenticated) => {
                             if (authenticated) {
-                                await router.push(useNavigationStore().to().fullPath
-                                    ?? useAuthStore().getSettings("auth.user.path")
-                                    ?? "/");
+                                if (useAppStore().getRoles("super")) {
+                                    await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                } else {
+                                    await router.push("/super/roles");
+                                }
                             } else if (useNavigationStore().to().requiresAuth) {
                                 await router.push("/login");
                             }
                         }, {immediate: true});
+
+                        watch(authRoles.getData(), async () => {
+                            if (!useAuthStore().authorized(router.currentRoute.value)) {
+                                await router.push(`/user/${useAuthStore().getUser("id")}`);
+                            }
+                        });
 
                         watch(appCompanies.getData(), () => {
                             loadAuthCompanies(authUser.getData());
@@ -340,6 +346,17 @@ export default {
 
                             if (mutation.payload?.roles) {
                                 appRoles.replaceData(mutation.payload.roles);
+
+                                useAuthStore().$patch({
+                                    roles: useAuthStore().getRoles().reduce((authRoles, authRole) => {
+                                        const appRole = useAppStore().getRoles(authRole.id);
+
+                                        return appRole ? authRoles.concat({
+                                            ...authRole,
+                                            name: appRole.name,
+                                        }) : authRoles;
+                                    }, []),
+                                });
                             }
                         });
 

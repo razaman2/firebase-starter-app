@@ -46,7 +46,7 @@ export default {
                                     {access($vue).navigation()}
 
                                     <div>
-                                        <div class="flex justify-between gap-x-5">
+                                        <div class="flex justify-between items-center gap-x-5">
                                             {access($vue).user()}
 
                                             {access($vue).icon()}
@@ -66,7 +66,7 @@ export default {
                             <RouterLink
                                 to="/"
                                 class="font-bold"
-                            >Vite App</RouterLink>
+                            >Firebase App</RouterLink>
                         );
 
                         return $vue.$slots.title?.({$vue, vnode}) ?? vnode;

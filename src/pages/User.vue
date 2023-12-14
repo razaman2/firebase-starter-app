@@ -1,8 +1,118 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import CustomButton from "../components/CustomButton.vue";
-import {useRouter} from "vue-router";
-import {inject} from "vue";
+import {Collection, Updates, getCollectionRelationship} from "@razaman2/firestore-proxy";
+import ReactiveVue, {setup, access, getProps} from "@razaman2/reactive-vue";
+import CustomSelect from "../components/CustomSelect.vue";
+import Roles from "../components/Roles.vue";
+import Role from "../components/Role.vue";
+import {getFirestore, writeBatch, arrayRemove, arrayUnion} from "firebase/firestore";
+import {inject, ref, computed} from "vue";
+
+const UserRole = {
+    setup() {
+        return ($vue) => {
+            return (
+                <ReactiveVue
+                    setup={(parent) => {
+                        const rolesRef = ref();
+                        const {authUser, authCompany, appRoles} = inject("app");
+
+                        const isValid = computed(() => {
+                            return access(rolesRef).getState?.getData("id");
+                        });
+
+                        // region TEMPLATE V-NODES
+                        const template = () => {
+                            const list = access($vue.$attrs.list());
+                            const getAddButton = access(list).getAddButton();
+
+                            const vnode = (
+                                <div class="flex gap-x-1">
+                                    <CustomSelect
+                                        ref={rolesRef}
+                                        class="rounded"
+                                        placeholder="Add Role"
+                                        options={appRoles.getData()}
+                                    />
+
+                                    <getAddButton.type
+                                        {...getProps(getAddButton.props, "onClick")}
+                                        onClick={async () => {
+                                            const role = await Collection.proxy("roles", {
+                                                creator: authUser,
+                                            }).setParent(authUser).setDoc(access(rolesRef).getState.getData("id")).init();
+
+                                            if (role.getData("id")) {
+                                                const batch = writeBatch(getFirestore());
+
+                                                await role.update({
+                                                    batch,
+                                                    update: (collection) => new Updates(collection),
+                                                    data: {
+                                                        belongsTo: arrayUnion(getCollectionRelationship(authCompany)),
+                                                    },
+                                                });
+
+                                                await batch.commit();
+                                            } else {
+                                                list.add(list.getDefaultComponent({
+                                                    id: access(rolesRef).getState.getData("id"),
+                                                }));
+                                            }
+                                        }}
+
+                                        v-slots={getAddButton.children}
+                                    >
+                                        save
+                                    </getAddButton.type>
+                                </div>
+                            );
+
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        };
+
+                        const vnodes = {template};
+                        // endregion
+
+                        const self = Object.assign(vnodes, {isValid});
+
+                        return {parent, self};
+                    }}
+                />
+            );
+        };
+    },
+};
+
+const NewRole = {
+    setup() {
+        return ($vue) => {
+            return (
+                <Role
+                    setup={(parent) => {
+                        const {authCompany} = inject("app");
+
+                        const remove = async () => {
+                            const batch = writeBatch(getFirestore());
+
+                            await access(parent).getState.update({
+                                batch,
+                                data: {
+                                    belongsTo: arrayRemove(getCollectionRelationship(authCompany)),
+                                },
+                            });
+
+                            await batch.commit();
+                        };
+
+                        const self = {remove};
+
+                        return {parent, self};
+                    }}
+                />
+            );
+        };
+    },
+};
 
 export default {
     props: {
@@ -10,36 +120,37 @@ export default {
     },
 
     setup() {
-        const router = useRouter();
-
         return ($vue) => (
             <ReactiveVue
                 modelName="UserPage"
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
-                        const {firstName, lastName} = inject("app").authUser.getData();
+                        const {authUser, authRoles, authCompany} = inject("app");
+                        const {firstName, lastName} = authUser.getData();
 
                         const vnode = (
-
                             <div class="h-full p-4 bg-blue-50">
-                                <h3 class="m-0">{inject("app").authCompany.getData("name")}</h3>
+                                <h5 class="font-semibold text-2xl text-slate-500">{firstName} {lastName}</h5>
 
-                                <h5 class="m-0">{firstName} {lastName}</h5>
-
-                                <div class="flex gap-x-1 mt-5">
-                                    <CustomButton
-                                        label="logout"
-                                        class="bg-red-500 disabled:bg-red-400 hover:bg-red-400"
-                                        onClick={inject("app").logout}
-                                    />
-
-                                    <CustomButton
-                                        label="unauthorized"
-                                        class="bg-orange-500 disabled:bg-orange-400 hover:bg-orange-400"
-                                        onClick={() => router.push("/unauthorized")}
-                                    />
-                                </div>
+                                <Roles
+                                    class="mt-5 space-y-2"
+                                    model={authRoles}
+                                    getDefaultDisplayComponent={UserRole}
+                                    getDisplayComponent={NewRole}
+                                    getItemProps={{
+                                        model: (payload) => {
+                                            return Collection.proxy("roles", {
+                                                payload,
+                                                creator: authUser,
+                                                owners: [authCompany],
+                                            }).setParent(authUser).onWrite({
+                                                handler: (collection) => new Updates(collection),
+                                                triggers: ["create", "update", "delete"],
+                                            });
+                                        },
+                                    }}
+                                />
                             </div>
                         );
 

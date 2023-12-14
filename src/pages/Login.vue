@@ -85,7 +85,7 @@ export default {
                                 <CustomInput
                                     type="email"
                                     class="rounded"
-                                    debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                    debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                     placeholder="Username"
                                     state={access(parent).getState.getData("username")}
                                     onUpdate:modelState={({after}) => {
@@ -102,7 +102,7 @@ export default {
                                 <CustomInput
                                     type="password"
                                     class="rounded"
-                                    debounce={import.meta.VITE_DEBOUNCE_AGGRESSIVE}
+                                    debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                     placeholder="Password"
                                     state={access(parent).getState.getData("password")}
                                     onUpdate:modelState={({after}) => {
