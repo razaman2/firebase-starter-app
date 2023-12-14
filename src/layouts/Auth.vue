@@ -191,7 +191,7 @@ export default {
                                 if (useAppStore().getRoles("super")) {
                                     await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("path") ?? "/");
                                 } else {
-                                    await router.push("/roles");
+                                    await router.push("/super/roles");
                                 }
                             } else if (useNavigationStore().to().requiresAuth) {
                                 await router.push("/login");

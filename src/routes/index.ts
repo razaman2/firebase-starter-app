@@ -26,10 +26,6 @@ const Route = createRouter({
                     component: () => import("../pages/Users.vue"),
                     meta: {rolesAllowed: ["super", "admin"]},
                 },
-                {
-                    path: "roles",
-                    component: () => import("../pages/Roles.vue"),
-                },
             ],
             meta: {requiresAuth: true},
         },

@@ -46,7 +46,7 @@ export default {
                                         },
                                     }).then(async (result) => {
                                         if (result.isConfirmed) {
-                                            await access($vue.$attrs.list()).remove(parent);
+                                            await access($vue).remove();
 
                                             Swal.fire({
                                                 title: `${data.name} role deleted.`,
@@ -75,7 +75,11 @@ export default {
                     const vnodes = {template, deleteButton, deleteButtonIcon};
                     // endregion
 
-                    const self = Object.assign(vnodes, {});
+                    const remove = () => {
+                        return access($vue.$attrs.list()).remove(parent);
+                    };
+
+                    const self = Object.assign(vnodes, {remove});
 
                     return $vue.setup({parent, self});
                 }}

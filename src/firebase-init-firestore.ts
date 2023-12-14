@@ -22,5 +22,3 @@ Collection.proxy({
     onSnapshot,
     writeBatch,
 });
-
-Collection.proxy().getDocuments()

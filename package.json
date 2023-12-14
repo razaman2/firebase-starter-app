@@ -10,11 +10,10 @@
         "test": "firebase emulators:start --project demo-app --only firestore,auth"
     },
     "dependencies": {
-        "@razaman2/data-manager": "^3.2.4",
         "@razaman2/event-emitter": "^2.0.14",
-        "@razaman2/firestore-proxy": "^1.2.11",
+        "@razaman2/firestore-proxy": "^1.2.13",
         "@razaman2/object-manager": "^3.3.7",
-        "@razaman2/reactive-vue": "^5.1.0",
+        "@razaman2/reactive-vue": "^5.1.1",
         "daisyui": "^4.4.19",
         "firebase": "^10.7.1",
         "pinia": "^2.1.7",
@@ -26,7 +25,7 @@
     },
     "devDependencies": {
         "@faker-js/faker": "^8.3.1",
-        "@iconify-json/mdi": "^1.1.61",
+        "@iconify-json/mdi": "^1.1.62",
         "@razaman2/firestore-testing": "^0.0.1",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/forms": "^0.5.7",

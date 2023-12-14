@@ -8,7 +8,7 @@ import {inject} from "vue";
 export default {
     setup() {
         const notifications = new EventEmitter();
-        const authUser = inject("app").authUser;
+        const {authUser} = inject("app");
 
         notifications.on("creating", (collection, {batch}) => {
             if (collection.getDoc().id === "super") {

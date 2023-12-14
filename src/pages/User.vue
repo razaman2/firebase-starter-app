@@ -1,8 +1,10 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/firestore-proxy";
+import {Collection, Updates, getCollectionRelationship} from "@razaman2/firestore-proxy";
 import ReactiveVue, {setup, access, getProps} from "@razaman2/reactive-vue";
 import CustomSelect from "../components/CustomSelect.vue";
 import Roles from "../components/Roles.vue";
+import Role from "../components/Role.vue";
+import {getFirestore, writeBatch, arrayRemove, arrayUnion} from "firebase/firestore";
 import {inject, ref, computed} from "vue";
 
 const UserRole = {
@@ -12,6 +14,7 @@ const UserRole = {
                 <ReactiveVue
                     setup={(parent) => {
                         const rolesRef = ref();
+                        const {authUser, authCompany, appRoles} = inject("app");
 
                         const isValid = computed(() => {
                             return access(rolesRef).getState?.getData("id");
@@ -28,7 +31,7 @@ const UserRole = {
                                         ref={rolesRef}
                                         class="rounded"
                                         placeholder="Add Role"
-                                        options={inject("app").appRoles.getData()}
+                                        options={appRoles.getData()}
                                     />
 
                                     <getAddButton.type
@@ -74,7 +77,8 @@ export default {
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
-                        const {firstName, lastName} = inject("app").authUser.getData();
+                        const {authUser, authRoles, authCompany} = inject("app");
+                        const {firstName, lastName} = authUser.getData();
 
                         const vnode = (
                             <div class="h-full p-4 bg-blue-50">
@@ -82,14 +86,15 @@ export default {
 
                                 <Roles
                                     class="mt-5 space-y-2"
-                                    model={inject("app").authRoles}
+                                    model={authRoles}
                                     getDefaultDisplayComponent={UserRole}
                                     getItemProps={{
                                         model: (payload) => {
                                             return Collection.proxy("roles", {
                                                 payload,
-                                                creator: inject("app").authUser,
-                                            }).setParent(inject("app").authUser).onWrite({
+                                                creator: authUser,
+                                                owners: [authCompany],
+                                            }).setParent(authUser).onWrite({
                                                 handler: (collection) => new Updates(collection),
                                                 triggers: ["create", "update", "delete"],
                                             });
