@@ -1,6 +1,6 @@
 import {initializeApp} from "firebase/app";
 import {connectAuthEmulator, getAuth} from "firebase/auth";
-import firebase from "../firebase.json";
+import firebase from "@/firebase.json";
 
 initializeApp({
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

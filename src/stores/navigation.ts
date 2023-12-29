@@ -3,8 +3,8 @@ import {defineStore} from "pinia";
 export const useNavigationStore = defineStore("navigation", {
     state: () => {
         return {
-            navigation: {} as Record<string, any>,
-            route: {} as Record<string, any>,
+            navigation: {} as {[p: string]: any},
+            route: {} as {[p: string]: any},
         };
     },
     persist: {

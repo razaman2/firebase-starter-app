@@ -1,12 +1,12 @@
 <script lang="jsx">
 import {setup, access} from "@razaman2/reactive-vue";
-import Auth from "./Auth.vue";
-import CustomDropdown from "../components/CustomDropdown.vue";
-import CustomNavigation from "../components/CustomNavigation.vue";
+import Auth from "@layouts/Auth.vue";
+import CustomDropdown from "@components/CustomDropdown.vue";
+import CustomNavigation from "@components/CustomNavigation.vue";
 import {RouterLink} from "vue-router";
-import {useAuthStore} from "../stores/auth";
+import {useAuthStore} from "@stores/auth";
 import Swal from "sweetalert2";
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 export default {
     props: {
@@ -15,6 +15,7 @@ export default {
 
     setup() {
         const route = useRoute();
+        const router = useRouter();
 
         return ($vue) => (
             <Auth
@@ -22,19 +23,18 @@ export default {
                 setup={(parent) => {
                     const template = () => {
                         const vnode = (
-                            <div class={{
-                                "hidden": (
-                                    route.matched.some((to) => to.meta.requiresAuth)
-                                    && !useAuthStore().authenticated()
-                                ),
-                            }}>
+                            <div>
                                 {access($vue).toolbar()}
 
                                 {access(parent).template()}
                             </div>
                         );
 
-                        return $vue.$slots.view?.({$vue, vnode}) ?? vnode;
+                        if (!route.meta.requiresAuth || (route.meta.requiresAuth && useAuthStore().authenticated())) {
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        } else {
+                            router.push("/login");
+                        }
                     };
 
                     const toolbar = () => {
@@ -66,7 +66,7 @@ export default {
                             <RouterLink
                                 to="/"
                                 class="font-bold"
-                            >Firebase App</RouterLink>
+                            >{import.meta.env.VITE_APP_NAME}</RouterLink>
                         );
 
                         return $vue.$slots.title?.({$vue, vnode}) ?? vnode;

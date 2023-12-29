@@ -1,7 +1,7 @@
 <script lang="jsx">
 import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getProps} from "@razaman2/reactive-vue";
-import List from "./List.vue";
+import List from "@components/List.vue";
 import {watch, ref, nextTick, onMounted} from "vue";
 
 export default {

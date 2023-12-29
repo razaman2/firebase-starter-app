@@ -1,12 +1,12 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import CustomButton from "../components/CustomButton.vue";
-import CustomInput from "../components/CustomInput.vue";
-import CustomSelect from "../components/CustomSelect.vue";
+import CustomButton from "@components/CustomButton.vue";
+import CustomInput from "@components/CustomInput.vue";
+import CustomSelect from "@components/CustomSelect.vue";
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import Swal from "sweetalert2";
 import {computed, inject} from "vue";
-import {useAuthStore} from "../stores/auth";
+import {useAuthStore} from "@stores/auth";
 
 export default {
     props: {

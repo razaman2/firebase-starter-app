@@ -1,4 +1,4 @@
-import "../src/firebase-init-auth";
+import "@src/firebase-init-auth";
 import {it, beforeEach} from "vitest";
 import {Collection, getCollectionRelationship} from "@razaman2/firestore-proxy";
 import {initializeTestApp, getAdminContext} from "@razaman2/firestore-testing";
@@ -20,7 +20,7 @@ it("initialize app data", () => {
             return new Promise(async (resolve) => {
                 try {
                     resolve(await createUserWithEmailAndPassword(getAuth(), email, password));
-                } catch (e) {
+                } catch {
                     resolve(await signInWithEmailAndPassword(getAuth(), email, password));
                 }
             });

@@ -1,4 +1,5 @@
 // https://firebase.google.com/docs/reference/rules/rules
+// https://firebase.google.com/docs/firestore/security/overview
 // https://firebase.google.com/docs/firestore
 
 rules_version = '2';

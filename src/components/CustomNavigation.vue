@@ -1,7 +1,7 @@
 <script lang="jsx">
 import ReactiveVue, {setup} from "@razaman2/reactive-vue";
-import AppLink from "./AppLink.vue";
-import {useAuthStore} from "../stores/auth";
+import AppLink from "@components/AppLink.vue";
+import {useAuthStore} from "@stores/auth";
 import {inject} from "vue";
 
 export default {

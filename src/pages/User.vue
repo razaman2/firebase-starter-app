@@ -1,9 +1,9 @@
 <script lang="jsx">
 import {Collection, Updates, getCollectionRelationship} from "@razaman2/firestore-proxy";
 import ReactiveVue, {setup, access, getProps} from "@razaman2/reactive-vue";
-import CustomSelect from "../components/CustomSelect.vue";
-import Roles from "../components/Roles.vue";
-import Role from "../components/Role.vue";
+import CustomSelect from "@components/CustomSelect.vue";
+import Roles from "@components/Roles.vue";
+import Role from "@components/Role.vue";
 import {getFirestore, writeBatch, arrayRemove, arrayUnion} from "firebase/firestore";
 import {inject, ref, computed} from "vue";
 

@@ -1,14 +1,14 @@
 <script lang="jsx">
-import "../firebase-init-firestore";
+import "@src/firebase-init-firestore";
 import {Collection} from "@razaman2/firestore-proxy";
 import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getSubscription} from "@razaman2/reactive-vue";
-import Base from "./Base.vue";
+import Base from "@layouts/Base.vue";
 import {getAuth, onAuthStateChanged, signOut} from "firebase/auth";
 import {query, where} from "firebase/firestore";
-import {useAuthStore} from "../stores/auth";
-import {useAppStore} from "../stores/app";
-import {useNavigationStore} from "../stores/navigation";
+import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
+import {useNavigationStore} from "@stores/navigation";
 import {useRouter} from "vue-router";
 import {reactive, provide, watch, onMounted} from "vue";
 
@@ -39,7 +39,6 @@ export default {
                             name: "AuthCompany",
                             data: reactive(useAuthStore().getCompany()),
                         },
-                        parent: authUser,
                     });
 
                     const authCompanies = Collection.proxy("settings", {
@@ -112,7 +111,14 @@ export default {
 
                         useAppStore().$reset();
                         useAuthStore().$reset();
-                        useNavigationStore().$reset();
+
+                        useNavigationStore().$patch({
+                            route: {
+                                path: null,
+                                fullPath: null,
+                                meta: {},
+                            },
+                        });
 
                         signOut(getAuth());
                     };
@@ -239,7 +245,7 @@ export default {
                         const subscriptionName = `app.settings`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).appSettings.getDocument(1, (snapshot) => {
+                            const subscription = access($vue).appSettings.getDocument(import.meta.env.VITE_APP_SETTINGS, (snapshot) => {
                                 useAppStore().$patch({settings: snapshot.data()});
                             });
 
@@ -257,7 +263,7 @@ export default {
 
                     const self = Object.assign(collections, {logout, isUserHaveRoles});
 
-                    provide("app", Object.assign(collections, {logout, isUserHaveRoles}));
+                    provide("app", self);
 
                     onAuthStateChanged(getAuth(), (auth) => {
                         if (auth) {
@@ -273,7 +279,7 @@ export default {
                         watch(() => useNavigationStore().to(), async (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
                                 await router.push(to.fullPath ?? useAuthStore().getSettings("auth.user.path") ?? "/");
-                            } else if (to.requiresAuth || toBefore?.requiresAuth) {
+                            } else if (to.meta.requiresAuth || toBefore?.meta.requiresAuth) {
                                 await router.push("/login");
                             }
                         }, {immediate: true, deep: true});
@@ -285,7 +291,7 @@ export default {
                                 } else {
                                     await router.push("/super/roles");
                                 }
-                            } else if (useNavigationStore().to().requiresAuth) {
+                            } else if (useNavigationStore().to().meta.requiresAuth) {
                                 await router.push("/login");
                             }
                         }, {immediate: true});

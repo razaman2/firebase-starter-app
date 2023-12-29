@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import ObjectManager from "@razaman2/object-manager";
-import Authorization from "../../helpers/Authorization.ts";
+import Authorization from "@helpers/Authorization";
 
 type Document = {
     [p: string]: any;

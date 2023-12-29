@@ -1,6 +1,6 @@
 <script lang="jsx">
 import ReactiveVue from "@razaman2/reactive-vue";
-import CustomButton from "../components/CustomButton.vue";
+import CustomButton from "@components/CustomButton.vue";
 import {useRouter} from "vue-router";
 
 export default {

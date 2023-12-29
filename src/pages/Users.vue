@@ -1,7 +1,7 @@
 <script lang="jsx">
 import {Collection} from "@razaman2/firestore-proxy";
 import ReactiveVue, {setup, access, getSubscription} from "@razaman2/reactive-vue";
-import List from "../components/List.vue";
+import List from "@components/List.vue";
 import {onMounted, onBeforeUnmount} from "vue";
 
 export default {

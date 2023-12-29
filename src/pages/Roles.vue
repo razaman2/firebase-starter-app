@@ -1,8 +1,8 @@
 <script lang="jsx">
 import EventEmitter from "@razaman2/event-emitter";
 import {Collection} from "@razaman2/firestore-proxy";
-import Roles from "../components/Roles.vue";
-import {useAppStore} from "../stores/app";
+import Roles from "@components/Roles.vue";
+import {useAppStore} from "@stores/app";
 import {inject} from "vue";
 
 export default {

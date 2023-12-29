@@ -1,6 +1,6 @@
 <script lang="jsx">
 import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import CustomOptionGroup from "../components/CustomOptionGroup.vue";
+import CustomOptionGroup from "@components/CustomOptionGroup.vue";
 import {ref, reactive, capitalize} from "vue";
 
 export default {
