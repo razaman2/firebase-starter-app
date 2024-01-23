@@ -1,4 +1,5 @@
 // https://firebase.google.com/docs/reference/rules/rules
+// https://firebase.google.com/docs/firestore/security/overview
 // https://firebase.google.com/docs/firestore
 
 rules_version = '2';
@@ -67,6 +68,18 @@ service cloud.firestore {
 
         function diffData() {
             return incomingData().diff(storedData());
+        }
+
+        function incomingDataHasOnly(keys) {
+            return diffData().affectedKeys().hasOnly(keys);
+        }
+
+        function incomingDataHasAny(keys) {
+            return diffData().affectedKeys().hasAny(keys);
+        }
+
+        function incomingDataHasAll(keys) {
+            return diffData().affectedKeys().hasAll(keys);
         }
 
         function authorized() {

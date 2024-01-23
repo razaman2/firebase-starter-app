@@ -1,7 +1,7 @@
 <script lang="jsx">
 import {setup, access, getProps} from "@razaman2/reactive-vue";
-import CustomSelect from "./CustomSelect.vue";
-import CustomInput from "./CustomInput.vue";
+import CustomSelect from "@components/CustomSelect.vue";
+import CustomInput from "@components/CustomInput.vue";
 import {ref, computed} from "vue";
 
 export default {

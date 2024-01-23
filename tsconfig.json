@@ -20,7 +20,47 @@
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "allowJs": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./*"
+            ],
+            "@collections/*": [
+                "./collections/*"
+            ],
+            "@helpers/*": [
+                "./helpers/*"
+            ],
+            "@src/*": [
+                "./src/*"
+            ],
+            "@assets/*": [
+                "./src/assets/*"
+            ],
+            "@components/*": [
+                "./src/components/*"
+            ],
+            "@factories/*": [
+                "./src/factories/*"
+            ],
+            "@layouts/*": [
+                "./src/layouts/*"
+            ],
+            "@pages/*": [
+                "./src/pages/*"
+            ],
+            "@routes/*": [
+                "./src/routes/*"
+            ],
+            "@stores/*": [
+                "./src/stores/*"
+            ]
+        },
+        "types": [
+            "./node_modules/pinia-plugin-persist"
+        ]
     },
     "include": [
         "src/**/*.ts",

@@ -1,5 +1,5 @@
-import {defineStore} from "pinia";
-import {Collection} from "@razaman2/firestore-proxy";
+import { defineStore } from "pinia";
+import { Collection } from "@razaman2/firestore-proxy";
 import ObjectManager from "@razaman2/object-manager";
 
 type Document = {
@@ -12,29 +12,27 @@ type CacheOptions = {
     force?: boolean;
     timeout?: number;
     async?: boolean;
-}
+};
 
 export const useAppStore = defineStore("app", {
     state: () => {
         return {
             roles: [] as Array<Document>,
-            settings: {} as Document & {id: string | number},
-            _cache: {} as {
-                [key: string]: any
-            },
+            settings: {} as Document & { id: string | number; },
+            _cache: {} as { [key: string]: any; },
         };
     },
     persist: {
         enabled: true,
         strategies: [
-            {storage: localStorage},
+            { storage: localStorage },
         ],
     },
     getters: {
         cache(state) {
             return (id: string | number, options: CacheOptions) => {
                 const config = (typeof options.collection === "string")
-                    ? {name: options.collection}
+                    ? { name: options.collection }
                     : options.collection;
 
                 if (!state._cache[config.name]) {
@@ -72,7 +70,7 @@ export const useAppStore = defineStore("app", {
 
                                     return (!document.id || options.force) ? promises.concat(
                                         config.query
-                                            ? _collection.getDocuments(Object.assign({query: (ref: any) => config.query(ref, id)}, _options))
+                                            ? _collection.getDocuments(Object.assign({ query: (ref: any) => config.query(ref, id) }, _options))
                                             : _collection.getDocument(id, _options),
                                     ) : promises;
                                 }, []);

@@ -1,6 +1,6 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import ObjectManager from "@razaman2/object-manager";
-import Authorization from "../../helpers/Authorization.ts";
+import Authorization from "@helpers/Authorization";
 
 type Document = {
     [p: string]: any;
@@ -18,7 +18,7 @@ export const useAuthStore = defineStore("auth", {
     persist: {
         enabled: true,
         strategies: [
-            {storage: sessionStorage},
+            { storage: sessionStorage },
         ],
     },
     getters: {
@@ -48,13 +48,13 @@ export const useAuthStore = defineStore("auth", {
 
         authenticated(state) {
             return () => {
-                if (state.user) {
+                try {
                     return (
                         state.user.id
                         && state.settings.id
                         && !["inactive"].includes(state.settings.status)
                     );
-                } else {
+                } catch {
                     return false;
                 }
             };
@@ -65,8 +65,8 @@ export const useAuthStore = defineStore("auth", {
                 const roles = state.roles.map((role) => role.id);
 
                 return (
-                    Authorization.app({route, roles})
-                    && Authorization.user({route, roles, user: state.user})
+                    Authorization.app({ route, roles })
+                    && Authorization.user({ route, roles, user: state.user })
                 );
             };
         },

@@ -1,18 +1,18 @@
 <script lang="jsx">
 import EventEmitter from "@razaman2/event-emitter";
-import {Collection} from "@razaman2/firestore-proxy";
-import Roles from "../components/Roles.vue";
-import {useAppStore} from "../stores/app";
-import {inject} from "vue";
+import { Collection } from "@razaman2/firestore-proxy";
+import Roles from "@components/Roles.vue";
+import { useAppStore } from "@stores/app";
+import { inject } from "vue";
 
 export default {
     setup() {
         const notifications = new EventEmitter();
-        const {authUser} = inject("app");
+        const { authUser, appRoles } = inject("app");
 
-        notifications.on("creating", (collection, {batch}) => {
+        notifications.on("creating", (collection, { batch }) => {
             if (collection.getDoc().id === "super") {
-                return Collection.proxy("roles").setDoc(collection.getDoc().id).setParent(authUser).create({batch});
+                return Collection.proxy("roles").setDoc(collection.getDoc().id).setParent(authUser).create({ batch });
             }
         });
 
@@ -27,8 +27,8 @@ export default {
                     <Roles
                         modelName="AppRolesPage"
                         class="space-y-2"
-                        getItemProps={{notifications}}
-                        model={inject("app").appRoles}
+                        getItemProps={{ notifications }}
+                        model={appRoles}
                     />
                 </div>
             );

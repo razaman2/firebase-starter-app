@@ -1,7 +1,7 @@
 <script lang="jsx">
 import {access} from "@razaman2/reactive-vue";
-import NewRole from "../components/NewRole.vue";
-import Role from "../components/Role.vue";
+import NewRole from "@components/NewRole.vue";
+import Role from "@components/Role.vue";
 import {getFirestore, writeBatch} from "firebase/firestore";
 
 export default {

@@ -34,7 +34,7 @@ export default class Authorization {
     }
 
     public static user({route, roles, user}: {route: Route; roles: Array<string>; user: {id: string};}) {
-        if (/^\/user\/\w+/.test(route.path)) {
+        if (RegExp("^/user/\\w+").test(route.path)) {
             if (user.id !== route.params.id) {
                 for (const role of roles) {
                     if (["admin", "super"].includes(role)) {

@@ -1,7 +1,7 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/firestore-proxy";
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import {computed, inject} from "vue";
+import { Collection, Updates } from "@razaman2/firestore-proxy";
+import ReactiveVue, { setup, access } from "@razaman2/reactive-vue";
+import { computed, inject } from "vue";
 
 export default {
     props: {
@@ -9,6 +9,8 @@ export default {
     },
 
     setup() {
+        const { authUser } = inject("app");
+
         return ($vue) => (
             <ReactiveVue
                 modelName="NewRole"
@@ -32,7 +34,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const roleName = () => {
@@ -42,13 +44,13 @@ export default {
                                 placeholder="Role Name"
                                 debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                 state={access(parent).getState.getData("name")}
-                                onUpdate:modelState={({after}) => {
+                                onUpdate:modelState={({ after }) => {
                                     access(parent).getState.setData("name", after, false);
                                 }}
                             />
                         );
 
-                        return $vue.$slots.roleName?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.roleName?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const roleIdentifier = () => {
@@ -58,13 +60,13 @@ export default {
                                 placeholder="Role Identifier"
                                 debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                 state={access(parent).getState.getData("id")}
-                                onUpdate:modelState={({after}) => {
+                                onUpdate:modelState={({ after }) => {
                                     access(parent).getState.setData("id", after, false);
                                 }}
                             />
                         );
 
-                        return $vue.$slots.roleIdentifier?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.roleIdentifier?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const saveButton = () => {
@@ -78,20 +80,20 @@ export default {
                             >save</CustomButton>
                         );
 
-                        return $vue.$slots.saveButton?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.saveButton?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template, roleName, roleIdentifier, saveButton};
+                    const vnodes = { template, roleName, roleIdentifier, saveButton };
                     // endregion
 
-                    const self = Object.assign(vnodes, {isValid});
+                    const self = Object.assign(vnodes, { isValid });
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
                 model={(payload) => {
                     return Collection.proxy("roles", {
                         payload,
-                        creator: inject("app").authUser,
+                        creator: authUser,
                     }).onWrite({
                         handler: (collection) => new Updates(collection),
                         triggers: ["create", "update", "delete"],

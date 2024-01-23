@@ -1,9 +1,9 @@
-import _super from "./super.ts";
-import admin from "./admin.ts";
+import _super from "@routes/super";
+import admin from "@routes/admin";
 
-import {createRouter, createWebHistory} from "vue-router";
-import {useNavigationStore} from "../stores/navigation.ts";
-import {useAuthStore} from "../stores/auth.ts";
+import { createRouter, createWebHistory } from "vue-router";
+import { useNavigationStore } from "@stores/navigation";
+import { useAuthStore } from "@stores/auth";
 import Swal from "sweetalert2";
 
 const Route = createRouter({
@@ -11,72 +11,72 @@ const Route = createRouter({
     routes: [
         {
             path: "/",
-            component: () => import("../layouts/Default.vue"),
+            component: () => import("@layouts/Default.vue"),
             children: [
                 {
                     path: "",
-                    component: () => import("../pages/Home.vue"),
+                    component: () => import("@pages/Home.vue"),
                 },
                 {
                     path: "user/:id",
-                    component: () => import("../pages/User.vue"),
+                    component: () => import("@pages/User.vue"),
                 },
                 {
                     path: "users",
-                    component: () => import("../pages/Users.vue"),
-                    meta: {rolesAllowed: ["super", "admin"]},
+                    component: () => import("@pages/Users.vue"),
+                    meta: { rolesAllowed: ["super", "admin"] },
                 },
             ],
-            meta: {requiresAuth: true},
+            meta: { requiresAuth: true },
         },
 
         {
             path: "/",
-            component: () => import("../layouts/Default.vue"),
+            component: () => import("@layouts/Default.vue"),
             children: [
                 {
                     path: "about",
-                    component: () => import("../pages/About.vue"),
+                    component: () => import("@pages/About.vue"),
                 },
                 {
                     path: "list",
-                    component: () => import("../pages/List.vue"),
+                    component: () => import("@pages/List.vue"),
                 },
             ],
         },
 
         {
             path: "/",
-            component: () => import("../layouts/Auth.vue"),
+            component: () => import("@layouts/Auth.vue"),
             children: [
                 {
                     path: "login",
-                    component: () => import("../pages/Login.vue"),
+                    component: () => import("@pages/Login.vue"),
                 },
             ],
         },
 
         {
             path: "/admin",
-            component: () => import("../layouts/Default.vue"),
+            component: () => import("@layouts/Default.vue"),
             children: admin,
-            meta: {requiresAuth: true, rolesAllowed: ["super", "admin"]},
+            meta: { requiresAuth: true, rolesAllowed: ["super", "admin"] },
         },
 
         {
             path: "/super",
-            component: () => import("../layouts/Default.vue"),
+            component: () => import("@layouts/Default.vue"),
             children: _super,
-            meta: {requiresAuth: true, rolesAllowed: ["super"]},
+            meta: { requiresAuth: true, rolesAllowed: ["super"] },
         },
 
         {
             path: "/:pathMatch(.*)*",
-            component: () => import("../layouts/Base.vue"),
+            component: () => import("@layouts/Base.vue"),
             children: [
                 {
                     path: "",
-                    component: () => import("../pages/Error404.vue"),
+                    component: () => import("@pages/Error404.vue"),
                 },
             ],
         },
@@ -84,16 +84,15 @@ const Route = createRouter({
 });
 
 Route.beforeEach((to, from, next) => {
-    const requiresAuth = to.matched.some((to) => to.meta.requiresAuth);
     const fullPath = useNavigationStore().to().fullPath;
 
     const cache = () => {
-        if (!to.matched.some((to) => ["/login"].includes(to.path)) && (to.fullPath !== fullPath)) {
+        if (!["/login"].includes(to.path) && (to.fullPath !== fullPath)) {
             useNavigationStore().$patch({
                 route: {
                     path: to.path,
                     fullPath: to.fullPath,
-                    requiresAuth,
+                    meta: to.meta,
                 },
             });
 
@@ -103,7 +102,7 @@ Route.beforeEach((to, from, next) => {
         return next();
     };
 
-    if (requiresAuth) {
+    if (to.meta.requiresAuth) {
         if (useAuthStore().authenticated()) {
             if (useAuthStore().authorized(to)) {
                 return cache();
@@ -118,7 +117,7 @@ Route.beforeEach((to, from, next) => {
                 });
 
                 if ((to.fullPath && fullPath) && (to.fullPath !== fullPath)) {
-                    return next({path: fullPath});
+                    return next({ path: fullPath });
                 }
             }
         } else {

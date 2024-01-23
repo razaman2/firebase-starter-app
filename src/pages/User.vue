@@ -1,11 +1,9 @@
 <script lang="jsx">
-import {Collection, Updates, getCollectionRelationship} from "@razaman2/firestore-proxy";
-import ReactiveVue, {setup, access, getProps} from "@razaman2/reactive-vue";
-import CustomSelect from "../components/CustomSelect.vue";
-import Roles from "../components/Roles.vue";
-import Role from "../components/Role.vue";
-import {getFirestore, writeBatch, arrayRemove, arrayUnion} from "firebase/firestore";
-import {inject, ref, computed} from "vue";
+import { Collection, Updates } from "@razaman2/firestore-proxy";
+import ReactiveVue, { setup, access, getProps } from "@razaman2/reactive-vue";
+import CustomSelect from "@components/CustomSelect.vue";
+import Roles from "@components/Roles.vue";
+import { inject, ref, computed } from "vue";
 
 const UserRole = {
     setup() {
@@ -14,7 +12,7 @@ const UserRole = {
                 <ReactiveVue
                     setup={(parent) => {
                         const rolesRef = ref();
-                        const {authUser, authCompany, appRoles} = inject("app");
+                        const { appRoles } = inject("app");
 
                         const isValid = computed(() => {
                             return access(rolesRef).getState?.getData("id");
@@ -49,15 +47,15 @@ const UserRole = {
                                 </div>
                             );
 
-                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                         };
 
-                        const vnodes = {template};
+                        const vnodes = { template };
                         // endregion
 
-                        const self = Object.assign(vnodes, {isValid});
+                        const self = Object.assign(vnodes, { isValid });
 
-                        return {parent, self};
+                        return { parent, self };
                     }}
                 />
             );
@@ -77,8 +75,8 @@ export default {
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
-                        const {authUser, authRoles, authCompany} = inject("app");
-                        const {firstName, lastName} = authUser.getData();
+                        const { authUser, authRoles, authCompany } = inject("app");
+                        const { firstName, lastName } = authUser.getData();
 
                         const vnode = (
                             <div class="h-full p-4 bg-blue-50">
@@ -104,15 +102,15 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template};
+                    const vnodes = { template };
                     // endregion
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
 
                 v-slots={$vue.$slots}

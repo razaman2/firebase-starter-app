@@ -1,8 +1,8 @@
 <script lang="jsx">
-import ReactiveVue, {setup} from "@razaman2/reactive-vue";
-import AppLink from "./AppLink.vue";
-import {useAuthStore} from "../stores/auth";
-import {inject} from "vue";
+import ReactiveVue, { setup } from "@razaman2/reactive-vue";
+import AppLink from "@components/AppLink.vue";
+import { useAuthStore } from "@stores/auth";
+import { inject } from "vue";
 
 export default {
     props: {
@@ -10,6 +10,8 @@ export default {
     },
 
     setup() {
+        const { authUser, logout } = inject("app");
+
         return ($vue) => (
             <ReactiveVue
                 setup={(parent) => {
@@ -25,8 +27,8 @@ export default {
                                     <AppLink to="/users">App Users</AppLink>
                                 </li>
 
-                                <li class={{"hidden": !useAuthStore().authenticated()}}>
-                                    <AppLink to={`/user/${inject("app").authUser.getData("id")}`}>Auth User</AppLink>
+                                <li class={{ "hidden": !useAuthStore().authenticated() }}>
+                                    <AppLink to={`/user/${authUser.getData("id")}`}>Auth User</AppLink>
                                 </li>
 
                                 <li>
@@ -37,28 +39,28 @@ export default {
                                     <AppLink to="/list">List</AppLink>
                                 </li>
 
-                                <li class={{"hidden": useAuthStore().authenticated()}}>
+                                <li class={{ "hidden": useAuthStore().authenticated() }}>
                                     <AppLink to="/login">Login</AppLink>
                                 </li>
 
                                 <li class={{
                                     "hidden": !useAuthStore().authenticated(),
                                     "cursor-pointer text-red-500 hover:text-red-700 transition duration-200": true,
-                                }} onClick={inject("app").logout}>
+                                }} onClick={logout}>
                                     Logout
                                 </li>
                             </ul>
                         );
 
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template};
+                    const vnodes = { template };
                     // endregion
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
 
                 v-slots={$vue.$slots}

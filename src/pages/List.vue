@@ -1,8 +1,8 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/firestore-proxy";
-import ReactiveVue, {access, setup, getProps} from "@razaman2/reactive-vue";
-import {deleteField, writeBatch, getFirestore} from "firebase/firestore";
-import {inject, computed, ref} from "vue";
+import { Collection, Updates } from "@razaman2/firestore-proxy";
+import ReactiveVue, { access, setup, getProps } from "@razaman2/reactive-vue";
+import { deleteField, writeBatch, getFirestore } from "firebase/firestore";
+import { inject, computed, ref } from "vue";
 
 const ListItem = {
     props: {
@@ -10,6 +10,8 @@ const ListItem = {
     },
 
     setup() {
+        const { authUser, appRoles } = inject("app");
+
         return ($vue) => {
             return (
                 <ReactiveVue
@@ -26,7 +28,7 @@ const ListItem = {
                                 </div>
                             );
 
-                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const getNameInput = () => {
@@ -38,43 +40,43 @@ const ListItem = {
                                     debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                     autofocus={access($vue.$attrs.list()).isDefaultDisplayComponent(data)}
                                     state={data.name}
-                                    onUpdate:propsState={({after}, state) => state.replaceData(after)}
-                                    onUpdate:modelState={({after}) => {
-                                        access($vue).getState.setData({name: after});
+                                    onUpdate:propsState={({ after }, state) => state.replaceData(after)}
+                                    onUpdate:modelState={({ after }) => {
+                                        access($vue).getState.setData({ name: after });
                                     }}
                                 />
                             );
 
-                            return $vue.$slots.getNameInput?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getNameInput?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const getActionButton = () => {
                             const vnode = access($vue.$attrs.list()).getDeleteButton($vue);
 
-                            return $vue.$slots.getActionButton?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getActionButton?.({ $vue, vnode }) ?? vnode;
                         };
 
-                        const onItemActive = ({data}) => {
+                        const onItemActive = ({ data }) => {
                             console.log("internal item active:", data);
                         };
 
-                        const onItemInactive = ({data}) => {
+                        const onItemInactive = ({ data }) => {
                             console.log("internal item inactive:", data);
                         };
 
-                        const vnodes = {template, getNameInput, getActionButton, onItemActive, onItemInactive};
+                        const vnodes = { template, getNameInput, getActionButton, onItemActive, onItemInactive };
                         // endregion
 
                         const getTid = () => access(parent).getState.getDoc().id;
 
-                        const self = Object.assign(vnodes, {getTid});
+                        const self = Object.assign(vnodes, { getTid });
 
-                        return $vue.setup({parent, self});
+                        return $vue.setup({ parent, self });
                     }}
                     model={(payload) => {
                         return Collection.proxy({
                             payload,
-                            creator: inject("app").authUser,
+                            creator: authUser,
                         }).onWrite({
                             handler: (collection) => new Updates(collection, {}, collection.config),
                             triggers: ["create", "update", "delete"],
@@ -107,15 +109,15 @@ const AddListItem = {
                         const getActionButton = () => {
                             const vnode = access($vue.$attrs.list()).getAddButton();
 
-                            return $vue.$slots.getActionButton?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getActionButton?.({ $vue, vnode }) ?? vnode;
                         };
 
-                        const vnodes = {getActionButton};
+                        const vnodes = { getActionButton };
                         // endregion
 
-                        const self = Object.assign(vnodes, {isValid});
+                        const self = Object.assign(vnodes, { isValid });
 
-                        return $vue.setup({parent, self});
+                        return $vue.setup({ parent, self });
                     }}
 
                     v-slots={$vue.$slots}
@@ -138,21 +140,21 @@ export default {
                         class="grid grid-cols-[1fr_auto] gap-2"
                         getDisplayComponent={ListItem}
                         getDefaultDisplayComponent={AddListItem}
-                        onItemAdding={async ({component}) => {
+                        onItemAdding={async ({ component }) => {
                             if (component) {
                                 const batch = writeBatch(getFirestore());
 
-                                await access(component).getState.create({batch});
+                                await access(component).getState.create({ batch });
                                 await batch.commit();
                             } else {
                                 return true;
                             }
                         }}
-                        onItemDeleting={async ({component}) => {
+                        onItemDeleting={async ({ component }) => {
                             if (component) {
                                 const batch = writeBatch(getFirestore());
 
-                                await access(component).getState.remove({batch});
+                                await access(component).getState.remove({ batch });
                                 await batch.commit();
                             } else {
                                 return true;
@@ -170,7 +172,7 @@ export default {
                                     </div>
                                 );
 
-                                return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                             };
 
                             const getSaveAllButton = () => {
@@ -178,22 +180,22 @@ export default {
                                     <CustomButton
                                         class="bg-green-500"
                                         onClick={() => {
-                                            access(parent).map(({component}) => {
+                                            access(parent).map(({ component }) => {
                                                 return access(component).getState.create();
                                             });
                                         }}
                                     >save all</CustomButton>
                                 );
 
-                                return $vue.$slots.getSaveAllButton?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.getSaveAllButton?.({ $vue, vnode }) ?? vnode;
                             };
 
-                            const self = {template, getSaveAllButton};
+                            const self = { template, getSaveAllButton };
 
-                            return {parent};
+                            return { parent };
                         }}
                         model={(payload) => {
-                            return Collection.proxy({payload});
+                            return Collection.proxy({ payload });
                         }}
 
                         v-slots={$vue.$slots}
@@ -214,12 +216,12 @@ export default {
                                             <CustomSelect
                                                 class="rounded"
                                                 optionProperty="id"
-                                                options={inject("app").appRoles.getData()}
+                                                options={appRoles.getData()}
                                                 state={access(parent).getState.getData("role")}
-                                                onUpdate:propsState={({after}, state) => state.replaceData(after)}
-                                                onUpdate:modelState={({before, after}) => {
+                                                onUpdate:propsState={({ after }, state) => state.replaceData(after)}
+                                                onUpdate:modelState={({ before, after }) => {
                                                     if (before !== after) {
-                                                        access(parent).getState.setData({role: after ?? deleteField()});
+                                                        access(parent).getState.setData({ role: after ?? deleteField() });
                                                     }
                                                 }}
                                             />
@@ -229,36 +231,36 @@ export default {
                                     );
                                 };
 
-                                const self = {template, getItemDisplay};
+                                const self = { template, getItemDisplay };
 
-                                return {parent, self};
+                                return { parent, self };
                             },
                         }}
-                        onItemAdding={async ({component}) => {
+                        onItemAdding={async ({ component }) => {
                             if (component) {
                                 const batch = writeBatch(getFirestore());
 
-                                await access(component).getState.create({batch});
+                                await access(component).getState.create({ batch });
                                 await batch.commit();
                             } else {
                                 return access(itemsListCheckbox).getState.getData();
                             }
                         }}
-                        onItemDeleting={async ({component}) => {
+                        onItemDeleting={async ({ component }) => {
                             if (component) {
                                 const batch = writeBatch(getFirestore());
 
-                                await access(component).getState.remove({batch});
+                                await access(component).getState.remove({ batch });
                                 await batch.commit();
                             } else {
                                 return access(itemsListCheckbox).getState.getData();
                             }
                         }}
-                        onItemActive={({data}) => {
-                            console.log("item active:", {data});
+                        onItemActive={({ data }) => {
+                            console.log("item active:", { data });
                         }}
-                        onItemInactive={({data}) => {
-                            console.log("item inactive:", {data});
+                        onItemInactive={({ data }) => {
+                            console.log("item inactive:", { data });
                         }}
                         setup={(parent) => {
                             access(parent).getState.getDocuments();
@@ -284,7 +286,7 @@ export default {
                                     </div>
                                 );
 
-                                return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                             };
 
                             const getItem = (params) => {
@@ -310,8 +312,8 @@ export default {
                                         onClick={async () => {
                                             const batch = writeBatch(getFirestore());
 
-                                            await access(parent).map(({component}) => {
-                                                return access(component).getState.create({batch});
+                                            await access(parent).map(({ component }) => {
+                                                return access(component).getState.create({ batch });
                                             });
 
                                             await batch.commit();
@@ -319,15 +321,15 @@ export default {
                                     >save all</CustomButton>
                                 );
 
-                                return $vue.$slots.getSaveAllButton?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.getSaveAllButton?.({ $vue, vnode }) ?? vnode;
                             };
 
-                            const self = {template, getItem, getSaveAllButton};
+                            const self = { template, getItem, getSaveAllButton };
 
-                            return {parent, self};
+                            return { parent, self };
                         }}
                         model={(payload) => {
-                            return Collection.proxy({payload});
+                            return Collection.proxy({ payload });
                         }}
 
                         v-slots={$vue.$slots}

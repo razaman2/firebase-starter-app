@@ -1,11 +1,10 @@
 <script lang="jsx">
-import {setup, access} from "@razaman2/reactive-vue";
-import Auth from "./Auth.vue";
-import CustomNavigation from "../components/CustomNavigation.vue";
-import {RouterLink} from "vue-router";
-import {useAuthStore} from "../stores/auth";
-import Swal from "sweetalert2";
-import {useRoute} from "vue-router";
+import { setup, access } from "@razaman2/reactive-vue";
+import Auth from "@layouts/Auth.vue";
+import CustomNavigation from "@components/CustomNavigation.vue";
+import CustomDrawer from "@components/CustomDrawer.vue";
+import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@stores/auth";
 
 export default {
     props: {
@@ -14,6 +13,7 @@ export default {
 
     setup() {
         const route = useRoute();
+        const router = useRouter();
 
         return ($vue) => (
             <Auth
@@ -21,19 +21,18 @@ export default {
                 setup={(parent) => {
                     const template = () => {
                         const vnode = (
-                            <div class={{
-                                "hidden": (
-                                    route.matched.some((to) => to.meta.requiresAuth)
-                                    && !useAuthStore().authenticated()
-                                ),
-                            }}>
+                            <CustomDrawer>
                                 {access($vue).toolbar()}
 
                                 {access(parent).template()}
-                            </div>
+                            </CustomDrawer>
                         );
 
-                        return $vue.$slots.view?.({$vue, vnode}) ?? vnode;
+                        if (!route.meta.requiresAuth || (route.meta.requiresAuth && useAuthStore().authenticated())) {
+                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        } else {
+                            router.push("/login");
+                        }
                     };
 
                     const toolbar = () => {
@@ -53,7 +52,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.toolbar?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.toolbar?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const title = () => {
@@ -61,62 +60,51 @@ export default {
                             <RouterLink
                                 to="/"
                                 class="font-bold"
-                            >Firebase App</RouterLink>
+                            >{import.meta.env.VITE_APP_NAME}</RouterLink>
                         );
 
-                        return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.title?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const navigation = () => {
                         const vnode = (
-                            <CustomNavigation/>
+                            <CustomNavigation />
                         );
 
-                        return $vue.$slots.navigation?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.navigation?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const icon = () => {
                         const vnode = (
-                            <i-mdi-menu
-                                class="text-2xl cursor-pointer hover:scale-90 transition duration-500"
-                                onClick={async () => {
-                                    await Swal.fire({
-                                        title: "Right sidebar 👋",
-                                        html: `<div id="right-drawer">drawer</div>`,
-                                        position: "top-end",
-                                        grow: "column",
-                                        width: 500,
-                                        showConfirmButton: false,
-                                        showCloseButton: true,
-                                    });
-                                }}
-                            />
+                            <label for="drawer-toggle">
+                                <i-mdi-menu class="text-2xl cursor-pointer hover:scale-90 transition duration-500" />
+                            </label>
                         );
 
-                        return $vue.$slots.icon?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.icon?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const user = () => {
-                        const {firstName, lastName} = access(parent).authUser.getData();
+                        const { id, firstName, lastName } = access(parent).authUser.getData();
 
                         const vnode = (
                             <RouterLink
-                                to={`/user/${access(parent).authUser.getData("id")}`}
+                                to={`/user/${id}`}
                                 class={{
-                                    "tw-hidden": !useAuthStore().authenticated(),
-                                    "tw-italic": true,
+                                    "hidden": !useAuthStore().authenticated(),
+                                    "italic": true,
                                 }}
                             >{firstName} {lastName}</RouterLink>
                         );
 
-                        return $vue.$slots.user?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.user?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template, title, user, navigation, toolbar, icon};
+                    const vnodes = { template, title, user, navigation, toolbar, icon };
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
 
                 v-slots={$vue.$slots}
