@@ -1,5 +1,5 @@
 <script lang="jsx">
-import {setup, access} from "@razaman2/reactive-vue";
+import { setup, access } from "@razaman2/reactive-view";
 import Swal from "sweetalert2";
 
 export default {
@@ -25,7 +25,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const deleteButton = () => {
@@ -61,27 +61,27 @@ export default {
                             </CustomButton>
                         );
 
-                        return $vue.$slots.deleteButton?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.deleteButton?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const deleteButtonIcon = () => {
                         const vnode = (
-                            <i-mdi-delete class="text-xl"/>
+                            <i-mdi-delete class="text-xl" />
                         );
 
-                        return $vue.$slots.deleteButtonIcon?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.deleteButtonIcon?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template, deleteButton, deleteButtonIcon};
+                    const vnodes = { template, deleteButton, deleteButtonIcon };
                     // endregion
 
                     const remove = () => {
                         return access($vue.$attrs.list()).remove(parent);
                     };
 
-                    const self = Object.assign(vnodes, {remove});
+                    const self = Object.assign(vnodes, { remove });
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
 
                 v-slots={$vue.$slots}

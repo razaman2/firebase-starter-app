@@ -14,9 +14,9 @@ dependencies:
   '@razaman2/object-manager':
     specifier: ^3.3.9
     version: 3.3.9
-  '@razaman2/reactive-vue':
-    specifier: link:..\..\reactive-view
-    version: link:../../reactive-view
+  '@razaman2/reactive-view':
+    specifier: ^0.0.1
+    version: 0.0.1(typescript@5.3.3)
   daisyui:
     specifier: ^4.6.0
     version: 4.6.0(postcss@8.4.33)
@@ -49,9 +49,9 @@ devDependencies:
   '@iconify-json/mdi':
     specifier: ^1.1.64
     version: 1.1.64
-  '@razaman2/firestore-testing':
+  '@razaman2/collection-proxy-testing':
     specifier: ^0.0.1
-    version: 0.0.1(firebase@10.7.2)
+    version: 0.0.1
   '@tailwindcss/container-queries':
     specifier: ^0.1.1
     version: 0.1.1(tailwindcss@3.4.1)
@@ -371,6 +371,13 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-typescript': 7.23.3(@babel/core@7.23.7)
     dev: true
+
+  /@babel/runtime@7.23.8:
+    resolution: {integrity: sha512-Y7KbAP984rn1VGMbGqKmBLio9V7y5Je9GvU4rQPCPinCyNfUcToxIXl06d59URp/F3LwinvODxab5N/G6qggkw==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.14.1
+    dev: false
 
   /@babel/template@7.22.15:
     resolution: {integrity: sha512-QPErUVm4uyJa60rkI73qneDacvdvzxshT3kksGqlGWYdOTIUOwJ7RDUL8sGqslY1uXWSL6xMFKEXDS3ox2uF0w==}
@@ -1185,6 +1192,24 @@ packages:
   /@protobufjs/utf8@1.1.0:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
+  /@razaman2/collection-proxy-testing@0.0.1:
+    resolution: {integrity: sha512-CMAfKwfeElNJcawekAEwinuFMY5MOQ7RSQUQnEqO7FMW0weaZWEcuP2v9Px3IY1Ug78XJU3PhELUl77Z5iXAMw==}
+    dependencies:
+      '@firebase/rules-unit-testing': 3.0.1(firebase@10.7.2)
+      firebase: 10.7.2
+    transitivePeerDependencies:
+      - '@react-native-async-storage/async-storage'
+      - encoding
+    dev: true
+
+  /@razaman2/collection-proxy@0.0.1:
+    resolution: {integrity: sha512-cAXopjpBhGGIGdUztmP+sM6MkI0eooWrhOf3vjRLJxT3yIZj1mhAxNZNa9WuHuaAVYKknHFfhNMihDVCUpTzBQ==}
+    dependencies:
+      '@razaman2/data-manager': 3.2.6
+      '@razaman2/js-factory': 1.2.5
+      '@razaman2/object-manager': 3.3.9
+    dev: false
+
   /@razaman2/data-manager@3.2.6:
     resolution: {integrity: sha512-ED7b6RCQtAAXmzIU5Yl9YK5TKjd3ZgXDCx+QHDwKdCHMF74otC+1yZOc2a1UV0MAOXmG5MJQvHBAgPojPk7qhA==}
     dependencies:
@@ -1206,15 +1231,6 @@ packages:
       '@razaman2/object-manager': 3.3.9
     dev: false
 
-  /@razaman2/firestore-testing@0.0.1(firebase@10.7.2):
-    resolution: {integrity: sha512-8r2jJm9SbgYuVwg1hMtFUr2vPum/rMznhDSWfQ4Gy1drELd64FdqC3Gj+0AOEP/1ut3GjfnzQS0ZsNh4cnrjQg==}
-    dependencies:
-      '@firebase/rules-unit-testing': 3.0.1(firebase@10.7.2)
-    transitivePeerDependencies:
-      - encoding
-      - firebase
-    dev: true
-
   /@razaman2/js-factory@1.2.5:
     resolution: {integrity: sha512-HWhG5MZ7IvT2Yz4UJFV0DzmsPW04ux8RXJDeHeDnw2cAM5lnRCU/h3OoVF0JK00ojxV2FKGhWZ4R2/haU1cN8w==}
     dependencies:
@@ -1223,6 +1239,20 @@ packages:
 
   /@razaman2/object-manager@3.3.9:
     resolution: {integrity: sha512-F5eLxOcVuqTlnpUbzfwSZDdPa53PqJnvPHmd2Qg73mD5yo3GNIEf/NBgpVMwrJdkRwXCF0AZQ6JhCRk+lzGNRg==}
+    dev: false
+
+  /@razaman2/reactive-view@0.0.1(typescript@5.3.3):
+    resolution: {integrity: sha512-3FfyENxbXEgfrLnSFiTgW8pld2QDxyRWXxpzU858/29H3I4uV/Syf8W+D4CWKjWI7WfKSmvRE6+Qta/6+5ltUg==}
+    dependencies:
+      '@razaman2/collection-proxy': 0.0.1
+      '@razaman2/data-manager': 3.2.6
+      '@razaman2/object-manager': 3.3.9
+      date-fns: 2.30.0
+      date-fns-tz: 2.0.0(date-fns@2.30.0)
+      uuid: 9.0.1
+      vue: 3.4.15(typescript@5.3.3)
+    transitivePeerDependencies:
+      - typescript
     dev: false
 
   /@rollup/pluginutils@5.1.0:
@@ -1839,6 +1869,21 @@ packages:
       postcss-js: 4.0.1(postcss@8.4.33)
     transitivePeerDependencies:
       - postcss
+    dev: false
+
+  /date-fns-tz@2.0.0(date-fns@2.30.0):
+    resolution: {integrity: sha512-OAtcLdB9vxSXTWHdT8b398ARImVwQMyjfYGkKD2zaGpHseG2UPHbHjXELReErZFxWdSLph3c2zOaaTyHfOhERQ==}
+    peerDependencies:
+      date-fns: '>=2.0.0'
+    dependencies:
+      date-fns: 2.30.0
+    dev: false
+
+  /date-fns@2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
+    engines: {node: '>=0.11'}
+    dependencies:
+      '@babel/runtime': 7.23.8
     dev: false
 
   /de-indent@1.0.2:
@@ -2696,6 +2741,10 @@ packages:
     dependencies:
       picomatch: 2.3.1
     dev: true
+
+  /regenerator-runtime@0.14.1:
+    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
+    dev: false
 
   /require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}

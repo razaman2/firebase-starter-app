@@ -1,6 +1,6 @@
 <script lang="jsx">
 import { Collection, Updates } from "@razaman2/firestore-proxy";
-import ReactiveVue, { setup, access } from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access } from "@razaman2/reactive-view";
 import { computed, inject } from "vue";
 
 export default {
@@ -12,7 +12,7 @@ export default {
         const { authUser } = inject("app");
 
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="NewRole"
                 setup={(parent) => {
                     const isValid = computed(() => {

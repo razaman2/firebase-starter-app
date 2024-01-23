@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, { setup } from "@razaman2/reactive-vue";
+import ReactiveView, { setup } from "@razaman2/reactive-view";
 import { RouterView, useRoute } from "vue-router";
 
 export default {
@@ -11,7 +11,7 @@ export default {
         const route = useRoute();
 
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="BaseLayout"
                 class="h-screen flex flex-col"
                 setup={(parent) => {

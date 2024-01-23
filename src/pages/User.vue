@@ -1,6 +1,6 @@
 <script lang="jsx">
 import { Collection, Updates } from "@razaman2/firestore-proxy";
-import ReactiveVue, { setup, access, getProps } from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access, getProps } from "@razaman2/reactive-view";
 import CustomSelect from "@components/CustomSelect.vue";
 import Roles from "@components/Roles.vue";
 import { inject, ref, computed } from "vue";
@@ -9,7 +9,7 @@ const UserRole = {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     setup={(parent) => {
                         const rolesRef = ref();
                         const { appRoles } = inject("app");
@@ -70,7 +70,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="UserPage"
                 setup={(parent) => {
                     // region TEMPLATE V-NODES

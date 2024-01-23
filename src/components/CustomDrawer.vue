@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, { setup, access } from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access } from "@razaman2/reactive-view";
 import CustomInput from "@components/CustomInput.vue";
 import CustomButton from "@components/CustomButton.vue";
 import AppLink from "@components/AppLink.vue";
@@ -21,7 +21,7 @@ export default {
         const { logout } = inject("app");
 
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="Drawer"
                 defaultData={false}
                 setup={(parent) => {

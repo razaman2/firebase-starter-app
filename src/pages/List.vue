@@ -1,6 +1,6 @@
 <script lang="jsx">
 import { Collection, Updates } from "@razaman2/firestore-proxy";
-import ReactiveVue, { access, setup, getProps } from "@razaman2/reactive-vue";
+import ReactiveView, { access, setup, getProps } from "@razaman2/reactive-view";
 import { deleteField, writeBatch, getFirestore } from "firebase/firestore";
 import { inject, computed, ref } from "vue";
 
@@ -14,7 +14,7 @@ const ListItem = {
 
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     logging={true}
                     modelName="ListItem"
                     setup={(parent) => {

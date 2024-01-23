@@ -1,7 +1,7 @@
 <script lang="jsx">
-import ReactiveVue from "@razaman2/reactive-vue";
+import ReactiveView from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 export default {
     setup() {
@@ -9,7 +9,7 @@ export default {
 
         return () => {
             return (
-                <ReactiveVue class="justify-center items-center gap-y-6 text-blue-500">
+                <ReactiveView class="justify-center items-center gap-y-6 text-blue-500">
                     <h3 class="text-5xl">Error 404</h3>
 
                     <CustomButton
@@ -17,7 +17,7 @@ export default {
                         onClick={() => router.back()}
                         class="bg-blue-500 disabled:bg-blue-400 hover:bg-blue-400"
                     />
-                </ReactiveVue>
+                </ReactiveView>
             );
         };
     },

@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, { setup } from "@razaman2/reactive-vue";
+import ReactiveView, { setup } from "@razaman2/reactive-view";
 import AppLink from "@components/AppLink.vue";
 import { useAuthStore } from "@stores/auth";
 import { inject } from "vue";
@@ -13,7 +13,7 @@ export default {
         const { authUser, logout } = inject("app");
 
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {

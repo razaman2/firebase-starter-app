@@ -1,6 +1,6 @@
 <script lang="jsx">
-import ReactiveVue, {setup} from "@razaman2/reactive-vue";
-import {RouterLink} from "vue-router";
+import ReactiveView, { setup } from "@razaman2/reactive-view";
+import { RouterLink } from "vue-router";
 
 export default {
     props: {
@@ -14,7 +14,7 @@ export default {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="AppLink"
                     setup={(parent) => {
                         // region TEMPLATE V-NODES
@@ -29,15 +29,15 @@ export default {
                                 </RouterLink>
                             );
 
-                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                         };
 
-                        const vnodes = {template};
+                        const vnodes = { template };
                         // endregion
 
                         const self = Object.assign(vnodes, {});
 
-                        return $vue.setup({parent, self});
+                        return $vue.setup({ parent, self });
                     }}
 
                     v-slots={$vue.$slots}

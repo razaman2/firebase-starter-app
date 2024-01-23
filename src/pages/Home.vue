@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, { setup, access } from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access } from "@razaman2/reactive-view";
 import { ref } from "vue";
 
 export default {
@@ -9,7 +9,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="HomePage"
                 setup={(parent) => {
                     const modalRef = ref();

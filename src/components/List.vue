@@ -1,7 +1,7 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access, safeRequest} from "@razaman2/reactive-vue";
-import {h, ref, reactive, computed, Fragment} from "vue";
-import {v4 as uuid} from "uuid";
+import ReactiveView, { setup, access, safeRequest } from "@razaman2/reactive-view";
+import { h, ref, reactive, computed, Fragment } from "vue";
+import { v4 as uuid } from "uuid";
 
 export default {
     emits: ["item-before-add", "item-adding", "item-before-delete", "item-deleting"],
@@ -33,7 +33,7 @@ export default {
             },
         },
         getDisplayComponent: {
-            default: ReactiveVue,
+            default: ReactiveView,
             validator: (value) => {
                 return /Function|Object/.test(value.constructor.name);
             },
@@ -55,7 +55,7 @@ export default {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="List"
                     defaultData={[]}
                     setup={(parent) => {
@@ -168,15 +168,15 @@ export default {
                         const add = async (component) => {
                             const onItemBeforeAdd = $vue.onItemBeforeAdd ?? access(component).onItemBeforeAdd;
                             const onItemAdding = $vue.onItemAdding ?? access(component).onItemAdding;
-                            const options = {tid: access($vue).tid.value, list: $vue};
+                            const options = { tid: access($vue).tid.value, list: $vue };
 
                             const execute = () => {
-                                return onItemBeforeAdd?.(Object.assign(options, {component: finalize(component)})) ?? true;
+                                return onItemBeforeAdd?.(Object.assign(options, { component: finalize(component) })) ?? true;
                             };
 
                             if (await onItemAdding?.(options)) {
                                 if (await execute()) {
-                                    await onItemAdding(Object.assign(options, {component: finalize(component)}));
+                                    await onItemAdding(Object.assign(options, { component: finalize(component) }));
                                 }
                             } else {
                                 if (await execute()) {
@@ -190,15 +190,15 @@ export default {
                         const remove = async (component) => {
                             const onItemBeforeDelete = $vue.onItemBeforeDelete ?? access(component).onItemBeforeDelete;
                             const onItemDeleting = $vue.onItemDeleting ?? access(component).onItemDeleting;
-                            const options = {list: $vue};
+                            const options = { list: $vue };
 
                             const execute = () => {
-                                return onItemBeforeDelete?.(Object.assign(options, {component})) ?? true;
+                                return onItemBeforeDelete?.(Object.assign(options, { component })) ?? true;
                             };
 
                             if (await onItemDeleting?.(options)) {
                                 if (await execute()) {
-                                    await onItemDeleting(Object.assign(options, {component}));
+                                    await onItemDeleting(Object.assign(options, { component }));
                                 }
                             } else {
                                 if (await execute()) {
@@ -239,7 +239,7 @@ export default {
 
                             return Object.assign({
                                 list: () => $vue,
-                                "onUpdate:propsState": ({after}) => {
+                                "onUpdate:propsState": ({ after }) => {
                                     safeRequest({
                                         alternative: false,
                                         try: () => {
@@ -257,7 +257,7 @@ export default {
                         const getItemOptions = (options) => {
                             const state = (options.id || (options.id === 0))
                                 ? options.state
-                                : Object.assign(options.state, {tid: uuid()});
+                                : Object.assign(options.state, { tid: uuid() });
 
                             const id = access($vue).getItemIdentifier(state);
 
@@ -291,7 +291,7 @@ export default {
                                 <div>{access($vue).getItemsDisplay()}</div>
                             );
 
-                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const getDisplay = () => {
@@ -300,7 +300,7 @@ export default {
                                 ? $vue.getDisplayComponent
                                 : $vue.getDisplayComponent;
 
-                            return $vue.$slots.getDisplayComponent?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getDisplayComponent?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const getDefaultDisplay = () => {
@@ -310,7 +310,7 @@ export default {
                                     ? $vue.getDefaultDisplayComponent
                                     : $vue.getDefaultDisplayComponent) ?? access($vue).getDisplay();
 
-                                return $vue.$slots.getDefaultDisplay?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.getDefaultDisplay?.({ $vue, vnode }) ?? vnode;
                             } else {
                                 return Fragment;
                             }
@@ -325,7 +325,7 @@ export default {
                         };
 
                         const getItemsDisplay = () => {
-                            return access(parent).getState.getData().concat({tid: access($vue).tid.value}).map((item, index) => {
+                            return access(parent).getState.getData().concat({ tid: access($vue).tid.value }).map((item, index) => {
                                 const options = {
                                     id: access($vue).getItemIdentifier(item),
                                     component: access($vue).getDefaultComponent(),
@@ -338,11 +338,11 @@ export default {
                                     h(access($vue).getActiveDisplay(item), Object.assign(
                                         access($vue).getItemProps(options),
                                         access($vue).getItemOptions(options),
-                                        {options},
+                                        { options },
                                     ), access($vue).getItemSlots(options))
                                 );
 
-                                return $vue.$slots.getItemsDisplay?.({$vue, vnode}) ?? vnode;
+                                return $vue.$slots.getItemsDisplay?.({ $vue, vnode }) ?? vnode;
                             });
                         };
 
@@ -360,7 +360,7 @@ export default {
                                 >add</button>
                             );
 
-                            return $vue.$slots.getAddButton?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getAddButton?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const getDeleteButton = (component) => {
@@ -373,7 +373,7 @@ export default {
                                 >delete</button>
                             );
 
-                            return $vue.$slots.getDeleteButton?.({$vue, vnode}) ?? vnode;
+                            return $vue.$slots.getDeleteButton?.({ $vue, vnode }) ?? vnode;
                         };
 
                         const vnodes = {
@@ -410,7 +410,7 @@ export default {
                             size,
                         });
 
-                        return $vue.setup({parent, self});
+                        return $vue.setup({ parent, self });
                     }}
 
                     v-slots={$vue.$slots}

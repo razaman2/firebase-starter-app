@@ -1,5 +1,5 @@
 <script lang="jsx">
-import { setup, access } from "@razaman2/reactive-vue";
+import { setup, access } from "@razaman2/reactive-view";
 import Auth from "@layouts/Auth.vue";
 import CustomNavigation from "@components/CustomNavigation.vue";
 import CustomDrawer from "@components/CustomDrawer.vue";

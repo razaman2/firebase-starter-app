@@ -13,7 +13,7 @@
         "@razaman2/event-emitter": "^2.0.14",
         "@razaman2/firestore-proxy": "^1.2.26",
         "@razaman2/object-manager": "^3.3.9",
-        "@razaman2/reactive-vue": "link:..\\..\\reactive-view",
+        "@razaman2/reactive-view": "^0.0.1",
         "daisyui": "^4.6.0",
         "firebase": "^10.7.2",
         "pinia": "^2.1.7",
@@ -26,7 +26,7 @@
     "devDependencies": {
         "@faker-js/faker": "^8.3.1",
         "@iconify-json/mdi": "^1.1.64",
-        "@razaman2/firestore-testing": "^0.0.1",
+        "@razaman2/collection-proxy-testing": "^0.0.1",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/forms": "^0.5.7",
         "@vitejs/plugin-vue": "^4.6.2",

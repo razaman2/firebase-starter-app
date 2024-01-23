@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access } from "@razaman2/reactive-view";
 
 export default {
     props: {
@@ -20,7 +20,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
@@ -32,7 +32,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const label = () => {
@@ -45,7 +45,7 @@ export default {
                             </label>
                         );
 
-                        return $vue.$slots.label?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.label?.({ $vue, vnode }) ?? vnode;
                     };
 
                     const list = () => {
@@ -55,15 +55,15 @@ export default {
                                 tabindex={0}
                             >
                                 {$vue.options.map((item, index) => {
-                                    return access($vue).item({item, index});
+                                    return access($vue).item({ item, index });
                                 })}
                             </ul>
                         );
 
-                        return $vue.$slots.list?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.list?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const item = ({item, index}) => {
+                    const item = ({ item, index }) => {
                         const vnode = (
                             <li
                                 key={index}
@@ -78,15 +78,15 @@ export default {
                             </li>
                         );
 
-                        return $vue.$slots.item?.({$vue, vnode}) ?? vnode;
+                        return $vue.$slots.item?.({ $vue, vnode }) ?? vnode;
                     };
 
-                    const vnodes = {template, label, list, item};
+                    const vnodes = { template, label, list, item };
                     // endregion
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({parent, self});
+                    return $vue.setup({ parent, self });
                 }}
 
                 v-slots={$vue.$slots}

@@ -1,7 +1,7 @@
 <script lang="jsx">
 import "@src/firebase-init-firestore";
 import { Collection } from "@razaman2/firestore-proxy";
-import { setup, access } from "@razaman2/reactive-vue";
+import { setup, access } from "@razaman2/reactive-view";
 import Base from "@layouts/Base.vue";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useAuthStore } from "@stores/auth";

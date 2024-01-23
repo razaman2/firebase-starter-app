@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, { setup, access } from "@razaman2/reactive-vue";
+import ReactiveView, { setup, access } from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
 import CustomInput from "@components/CustomInput.vue";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -16,7 +16,7 @@ export default {
 
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="LoginPage"
                     setup={(parent) => {
                         const isValid = computed(() => {
