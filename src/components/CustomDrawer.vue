@@ -1,9 +1,11 @@
 <script lang="jsx">
-import ReactiveView, { setup, access } from "@razaman2/reactive-view";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import CustomInput from "@components/CustomInput.vue";
 import CustomButton from "@components/CustomButton.vue";
 import AppLink from "@components/AppLink.vue";
-import { inject } from "vue";
+import CustomCollapse from "@components/CustomCollapse.vue";
+import {inject} from "vue";
+import {useNavigationStore} from "@stores/navigation";
 
 export default {
     props: {
@@ -18,7 +20,7 @@ export default {
     },
 
     setup() {
-        const { logout } = inject("app");
+        const {logout, authUser} = inject("app");
 
         return ($vue) => (
             <ReactiveView
@@ -43,36 +45,79 @@ export default {
                                 </div>
 
                                 <div class="drawer-side">
-                                    <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay" />
+                                    <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"/>
 
                                     <ul class="menu w-80 min-h-full bg-base-200/90 text-base-content">
-                                        <li class="mb-3">
-                                            <CustomButton
-                                                class="bg-red-500 hover:bg-red-400"
-                                                onClick={logout}
-                                            >logout</CustomButton>
-                                        </li>
+                                        <CustomButton
+                                            class="bg-red-500 hover:bg-red-400 mb-3"
+                                            onClick={logout}
+                                        >logout</CustomButton>
 
                                         <li>
                                             <AppLink to="/">Home</AppLink>
                                         </li>
 
                                         <li>
+                                            <AppLink to={`/user/${authUser.getData("id")}`}>User</AppLink>
+                                        </li>
+
+                                        <li>
                                             <AppLink to="/list">List</AppLink>
+                                        </li>
+
+                                        <li>
+                                            <CustomCollapse
+                                                title="Admin"
+                                                class="hover:bg-transparent"
+                                                contentClass="px-4 pb-4"
+                                                opened={useNavigationStore().get("admin")}
+                                                onUpdate:modelState={({after}) => {
+                                                    useNavigationStore().set({admin: after.open});
+                                                }}
+                                            >
+                                                <li>
+                                                    <AppLink to="/users">Users</AppLink>
+                                                </li>
+                                                <li>
+                                                    <AppLink to="/admin/accounts">Accounts</AppLink>
+                                                </li>
+                                                <li>
+                                                    <AppLink to="/admin/products">Products</AppLink>
+                                                </li>
+                                            </CustomCollapse>
+                                        </li>
+
+                                        <li>
+                                            <CustomCollapse
+                                                title="Super"
+                                                class="hover:bg-transparent"
+                                                contentClass="px-4 pb-4"
+                                                opened={useNavigationStore().get("super")}
+                                                onUpdate:modelState={({after}) => {
+                                                    useNavigationStore().set({super: after.open});
+                                                }}
+                                            >
+                                                <li>
+                                                    <AppLink to="/development">Development</AppLink>
+                                                </li>
+                                                <li>
+                                                    <AppLink to="/super/roles">Roles</AppLink>
+                                                </li>
+                                            </CustomCollapse>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                         );
 
-                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template };
+                    const vnodes = {template};
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}
