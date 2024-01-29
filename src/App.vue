@@ -1,5 +1,5 @@
 <script lang="jsx">
-import { RouterView, useRoute } from "vue-router";
+import {RouterView, useRoute} from "vue-router";
 
 export default {
     setup() {
@@ -7,7 +7,7 @@ export default {
 
         return () => {
             return (
-                <RouterView key={route.fullPath} />
+                <RouterView key={route.fullPath}/>
             );
         };
     },

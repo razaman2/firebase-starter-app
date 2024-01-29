@@ -1,6 +1,6 @@
 import "@src/style.css";
-import { createApp } from "vue";
-import { createPinia } from "pinia";
+import {createApp} from "vue";
+import {createPinia} from "pinia";
 import Storage from "pinia-plugin-persist";
 import Routes from "@routes/index";
 import App from "@src/App.vue";

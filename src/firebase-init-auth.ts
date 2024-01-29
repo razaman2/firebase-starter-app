@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { connectAuthEmulator, getAuth } from "firebase/auth";
+import {initializeApp} from "firebase/app";
+import {connectAuthEmulator, getAuth} from "firebase/auth";
 import firebase from "@/firebase.json";
 
 initializeApp({
@@ -9,4 +9,4 @@ initializeApp({
 
 connectAuthEmulator(getAuth(), `http://127.0.0.1:${firebase.emulators.auth.port}`);
 
-export { firebase };
+export {firebase};
