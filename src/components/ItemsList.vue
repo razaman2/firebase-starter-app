@@ -1,8 +1,8 @@
 <script lang="jsx">
 import ObjectManager from "@razaman2/object-manager";
-import { setup, access, getProps } from "@razaman2/reactive-view";
+import {setup, access, getProps} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
-import { watch, ref, nextTick, onMounted } from "vue";
+import {watch, ref, nextTick, onMounted} from "vue";
 
 export default {
     emits: ["item-active", "item-inactive"],
@@ -52,11 +52,11 @@ export default {
                 <List
                     modelName="ItemsList"
                     setup={(parent) => {
-                        const selected = ref({ tid: access(parent).tid.value });
+                        const selected = ref({tid: access(parent).tid.value});
                         const saveButtonRef = ref();
 
                         const setDefaultItem = (item) => {
-                            selected.value = (item ?? { tid: access(parent).tid.value });
+                            selected.value = (item ?? {tid: access(parent).tid.value});
                         };
 
                         const getActiveItemIdentifier = () => {
@@ -87,7 +87,7 @@ export default {
                         const getItemProps = (options) => {
                             const props = {
                                 class: {
-                                    "hidden": !$vue.display || (
+                                    "hidden": ($vue.display === false) || (
                                         access(parent).getItemIdentifier(options.state)
                                         !== access($vue).getActiveItemIdentifier()
                                     ),
@@ -114,7 +114,7 @@ export default {
                                 </div>
                             );
 
-                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
 
                         const getItems = () => {
@@ -123,16 +123,16 @@ export default {
                                     "hidden": !$vue.items,
                                     "flex flex-col gap-1": true,
                                 }}>{access(parent).getState.getData().map((item, index) => {
-                                    const vnode = access($vue).getItem({ item, index });
+                                    const vnode = access($vue).getItem({item, index});
 
-                                    return $vue.$slots.getItems?.({ $vue, vnode }) ?? vnode;
+                                    return $vue.$slots.getItems?.({$vue, vnode}) ?? vnode;
                                 })}</div>
                             );
 
-                            return $vue.$slots.getItems?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getItems?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getItem = ({ item, index }) => {
+                        const getItem = ({item, index}) => {
                             const id = access(parent).getItemIdentifier(item);
 
                             const vnode = (
@@ -160,7 +160,7 @@ export default {
                                 </div>
                             );
 
-                            return $vue.$slots.getItem?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getItem?.({$vue, vnode}) ?? vnode;
                         };
 
                         const getItemActions = () => {
@@ -177,11 +177,13 @@ export default {
                                 </div>
                             );
 
-                            return $vue.$slots.getItemActions?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getItemActions?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getAddButton = () => {
-                            const getAddButton = access(parent).getAddButton();
+                        const getAddButton = (data) => {
+                            const getAddButton = access(parent).getAddButton(data);
+
+                            console.log("add button:", getAddButton)
 
                             const vnode = (
                                 <getAddButton.type
@@ -195,11 +197,11 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.getAddButton?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getAddButton?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getSaveButton = () => {
-                            const getAddButton = access(parent).getAddButton();
+                        const getSaveButton = (data) => {
+                            const getAddButton = access(parent).getAddButton(data);
 
                             const vnode = (
                                 <getAddButton.type
@@ -213,11 +215,11 @@ export default {
                                 >save</getAddButton.type>
                             );
 
-                            return $vue.$slots.getSaveButton?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getSaveButton?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getDeleteButton = () => {
-                            const getDeleteButton = access(parent).getDeleteButton(access($vue).getActiveComponent());
+                        const getDeleteButton = (component) => {
+                            const getDeleteButton = access(parent).getDeleteButton(component ?? access($vue).getActiveComponent());
 
                             const vnode = (
                                 <getDeleteButton.type
@@ -230,7 +232,7 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.getDeleteButton?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.getDeleteButton?.({$vue, vnode}) ?? vnode;
                         };
 
                         const vnodes = {
@@ -256,10 +258,10 @@ export default {
                                     const inactive = $vue.onItemInactive ?? inactiveComponent?.access().onItemInactive;
 
                                     // trigger the inactive handler for the recently active item
-                                    inactive?.({ list: $vue, data: unselected, component: inactiveComponent });
+                                    inactive?.({list: $vue, data: unselected, component: inactiveComponent});
 
                                     // trigger the active handler for the selected item
-                                    active?.({ list: $vue, data: selected, component: activeComponent });
+                                    active?.({list: $vue, data: selected, component: activeComponent});
                                 });
                             });
                         };
@@ -299,7 +301,7 @@ export default {
 
                                     if (!item) {
                                         // select the default item when the active item is removed
-                                        access($vue).setDefaultItem({ tid: access(parent).tid.value });
+                                        access($vue).setDefaultItem({tid: access(parent).tid.value});
                                     }
                                 }
                             });
@@ -364,7 +366,7 @@ export default {
                             access($vue).loadActivationHandler();
                         });
 
-                        return $vue.setup({ parent, self });
+                        return $vue.setup({parent, self});
                     }}
 
                     v-slots={$vue.$slots}
