@@ -1,8 +1,8 @@
 <script lang="jsx">
-import { Collection } from "@razaman2/firestore-proxy";
-import ReactiveView, { setup, access } from "@razaman2/reactive-view";
+import {Collection} from "@razaman2/collection-proxy";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
-import { onMounted, onBeforeUnmount } from "vue";
+import {onMounted, onBeforeUnmount} from "vue";
 
 export default {
     props: {
@@ -21,7 +21,7 @@ export default {
                             return (
                                 <ReactiveView
                                     setup={(parent) => {
-                                        const { firstName, lastName } = access(parent).getState.getData();
+                                        const {firstName, lastName} = access(parent).getState.getData();
 
                                         // region TEMPLATE V-NODES
                                         const template = () => {
@@ -29,15 +29,15 @@ export default {
                                                 <div class="bg-slate-500 text-white p-4">{firstName} {lastName}</div>
                                             );
 
-                                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                                         };
 
-                                        const vnodes = { template };
+                                        const vnodes = {template};
                                         // endregion
 
                                         const self = Object.assign(vnodes, {});
 
-                                        return { parent, self };
+                                        return {parent, self};
                                     }}
                                 />
                             );
@@ -63,10 +63,10 @@ export default {
                         access(parent).subscriptions.removeSubscriptions();
                     });
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
                 model={(payload) => {
-                    return Collection.proxy("users", { payload });
+                    return Collection.proxy("users", {payload});
                 }}
 
                 v-slots={$vue.$slots}

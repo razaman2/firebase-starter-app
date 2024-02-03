@@ -4,8 +4,9 @@ import CustomInput from "@components/CustomInput.vue";
 import CustomButton from "@components/CustomButton.vue";
 import AppLink from "@components/AppLink.vue";
 import CustomCollapse from "@components/CustomCollapse.vue";
-import {inject} from "vue";
+import {getAuth} from "firebase/auth";
 import {useNavigationStore} from "@stores/navigation";
+import {useAuthStore} from "@stores/auth";
 
 export default {
     props: {
@@ -20,8 +21,6 @@ export default {
     },
 
     setup() {
-        const {logout, authUser} = inject("app");
-
         return ($vue) => (
             <ReactiveView
                 modelName="Drawer"
@@ -50,7 +49,7 @@ export default {
                                     <ul class="menu w-80 min-h-full bg-base-200/90 text-base-content">
                                         <CustomButton
                                             class="bg-red-500 hover:bg-red-400 mb-3"
-                                            onClick={logout}
+                                            onClick={() => getAuth().signOut()}
                                         >logout</CustomButton>
 
                                         <li>
@@ -58,7 +57,7 @@ export default {
                                         </li>
 
                                         <li>
-                                            <AppLink to={`/user/${authUser.getData("id")}`}>User</AppLink>
+                                            <AppLink to={`/user/${useAuthStore().authUser().getData("id")}`}>User</AppLink>
                                         </li>
 
                                         <li>

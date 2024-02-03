@@ -1,7 +1,7 @@
 <script lang="jsx">
 import EventEmitter from "@razaman2/event-emitter";
 import ReactiveVue, {setup, access} from "@razaman2/reactive-view";
-import {computed, ref, onMounted} from "vue";
+import {computed, onMounted} from "vue";
 
 export default {
     props: {

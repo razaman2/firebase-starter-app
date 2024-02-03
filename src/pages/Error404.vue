@@ -1,7 +1,7 @@
 <script lang="jsx">
 import ReactiveView from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
-import { useRouter } from "vue-router";
+import {useRouter} from "vue-router";
 
 export default {
     setup() {

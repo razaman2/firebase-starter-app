@@ -183,7 +183,7 @@ export default {
                         const getAddButton = (data) => {
                             const getAddButton = access(parent).getAddButton(data);
 
-                            console.log("add button:", getAddButton)
+                            console.log("add button:", getAddButton);
 
                             const vnode = (
                                 <getAddButton.type

@@ -10,10 +10,10 @@
         "test": "firebase emulators:start --project demo-app --only firestore,auth"
     },
     "dependencies": {
+        "@razaman2/collection-proxy": "^0.0.1",
         "@razaman2/event-emitter": "^2.0.14",
-        "@razaman2/firestore-proxy": "^1.2.26",
         "@razaman2/object-manager": "^3.3.9",
-        "@razaman2/reactive-view": "^0.0.1",
+        "@razaman2/reactive-view": "^0.0.3",
         "daisyui": "^4.6.0",
         "firebase": "^10.7.2",
         "pinia": "^2.1.7",

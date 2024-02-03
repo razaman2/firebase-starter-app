@@ -1,6 +1,6 @@
 <script lang="jsx">
-import ReactiveView, { setup, access } from "@razaman2/reactive-view";
-import { computed } from "vue";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
+import {computed} from "vue";
 
 export default {
     props: {
@@ -93,7 +93,7 @@ export default {
                             })}</select>
                         );
 
-                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                     };
 
                     const option = (option) => {
@@ -106,10 +106,10 @@ export default {
                             />
                         );
 
-                        return $vue.$slots.option?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.option?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template, option };
+                    const vnodes = {template, option};
                     // endregion
 
                     const self = Object.assign(vnodes, {
@@ -121,7 +121,7 @@ export default {
                         _default,
                     });
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}

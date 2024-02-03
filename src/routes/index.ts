@@ -1,9 +1,9 @@
 import _super from "@routes/super";
 import admin from "@routes/admin";
 
-import { createRouter, createWebHistory } from "vue-router";
-import { useNavigationStore } from "@stores/navigation";
-import { useAuthStore } from "@stores/auth";
+import {createRouter, createWebHistory} from "vue-router";
+import {useNavigationStore} from "@stores/navigation";
+import {useAuthStore} from "@stores/auth";
 import Swal from "sweetalert2";
 
 const Route = createRouter({
@@ -24,10 +24,15 @@ const Route = createRouter({
                 {
                     path: "users",
                     component: () => import("@pages/Users.vue"),
-                    meta: { rolesAllowed: ["super", "admin"] },
+                    meta: {rolesAllowed: ["super", "admin"]},
+                },
+                {
+                    path: "development",
+                    component: () => import("@pages/Development.vue"),
+                    meta: {rolesAllowed: ["dev"]},
                 },
             ],
-            meta: { requiresAuth: true },
+            meta: {requiresAuth: true},
         },
 
         {
@@ -60,14 +65,14 @@ const Route = createRouter({
             path: "/admin",
             component: () => import("@layouts/Default.vue"),
             children: admin,
-            meta: { requiresAuth: true, rolesAllowed: ["super", "admin"] },
+            meta: {requiresAuth: true, rolesAllowed: ["super", "admin"]},
         },
 
         {
             path: "/super",
             component: () => import("@layouts/Default.vue"),
             children: _super,
-            meta: { requiresAuth: true, rolesAllowed: ["super"] },
+            meta: {requiresAuth: true, rolesAllowed: ["super"]},
         },
 
         {
@@ -117,7 +122,7 @@ Route.beforeEach((to, from, next) => {
                 });
 
                 if ((to.fullPath && fullPath) && (to.fullPath !== fullPath)) {
-                    return next({ path: fullPath });
+                    return next({path: fullPath});
                 }
             }
         } else {

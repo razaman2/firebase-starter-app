@@ -1,10 +1,11 @@
 <script lang="jsx">
-import { setup, access } from "@razaman2/reactive-view";
+import {setup, access} from "@razaman2/reactive-view";
 import Auth from "@layouts/Auth.vue";
 import CustomNavigation from "@components/CustomNavigation.vue";
 import CustomDrawer from "@components/CustomDrawer.vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
-import { useAuthStore } from "@stores/auth";
+import {RouterLink, useRoute, useRouter} from "vue-router";
+import {useAuthStore} from "@stores/auth";
+import {useNavigationStore} from "@stores/navigation";
 
 export default {
     props: {
@@ -21,7 +22,12 @@ export default {
                 setup={(parent) => {
                     const template = () => {
                         const vnode = (
-                            <CustomDrawer>
+                            <CustomDrawer
+                                state={useNavigationStore().get("drawer")}
+                                onUpdate:modelState={({after}) => {
+                                    useNavigationStore().set({drawer: after});
+                                }}
+                            >
                                 {access($vue).toolbar()}
 
                                 {access(parent).template()}
@@ -29,7 +35,7 @@ export default {
                         );
 
                         if (!route.meta.requiresAuth || (route.meta.requiresAuth && useAuthStore().authenticated())) {
-                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         } else {
                             router.push("/login");
                         }
@@ -37,13 +43,13 @@ export default {
 
                     const toolbar = () => {
                         const vnode = (
-                            <div class="bg-blue-200 p-4 flex justify-between items-center gap-x-10">
+                            <div class="bg-blue-200 p-4 flex flex-wrap justify-between items-center gap-x-10">
                                 {access($vue).title()}
 
                                 <div class="flex items-center gap-x-10">
                                     {access($vue).navigation()}
 
-                                    <div class="flex justify-between items-center gap-x-5">
+                                    <div class="flex flex-wrap justify-between items-center gap-x-5">
                                         {access($vue).user()}
 
                                         {access($vue).icon()}
@@ -52,7 +58,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.toolbar?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.toolbar?.({$vue, vnode}) ?? vnode;
                     };
 
                     const title = () => {
@@ -63,29 +69,29 @@ export default {
                             >{import.meta.env.VITE_APP_NAME}</RouterLink>
                         );
 
-                        return $vue.$slots.title?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
                     };
 
                     const navigation = () => {
                         const vnode = (
-                            <CustomNavigation />
+                            <CustomNavigation/>
                         );
 
-                        return $vue.$slots.navigation?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.navigation?.({$vue, vnode}) ?? vnode;
                     };
 
                     const icon = () => {
                         const vnode = (
                             <label for="drawer-toggle">
-                                <i-mdi-menu class="text-2xl cursor-pointer hover:scale-90 transition duration-500" />
+                                <i-mdi-menu class="text-2xl cursor-pointer hover:scale-90 transition duration-500"/>
                             </label>
                         );
 
-                        return $vue.$slots.icon?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.icon?.({$vue, vnode}) ?? vnode;
                     };
 
                     const user = () => {
-                        const { id, firstName, lastName } = access(parent).authUser.getData();
+                        const {id, firstName, lastName} = useAuthStore().authUser().getData();
 
                         const vnode = (
                             <RouterLink
@@ -97,14 +103,14 @@ export default {
                             >{firstName} {lastName}</RouterLink>
                         );
 
-                        return $vue.$slots.user?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.user?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template, title, user, navigation, toolbar, icon };
+                    const vnodes = {template, title, user, navigation, toolbar, icon};
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}

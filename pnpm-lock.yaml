@@ -5,18 +5,18 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@razaman2/collection-proxy':
+    specifier: ^0.0.1
+    version: 0.0.1
   '@razaman2/event-emitter':
     specifier: ^2.0.14
     version: 2.0.14
-  '@razaman2/firestore-proxy':
-    specifier: ^1.2.26
-    version: 1.2.26
   '@razaman2/object-manager':
     specifier: ^3.3.9
     version: 3.3.9
   '@razaman2/reactive-view':
-    specifier: ^0.0.1
-    version: 0.0.1(typescript@5.3.3)
+    specifier: ^0.0.3
+    version: 0.0.3(typescript@5.3.3)
   daisyui:
     specifier: ^4.6.0
     version: 4.6.0(postcss@8.4.33)
@@ -1223,14 +1223,6 @@ packages:
       uuid: 9.0.1
     dev: false
 
-  /@razaman2/firestore-proxy@1.2.26:
-    resolution: {integrity: sha512-5tLL9CV9T+lCwuKZ6Gqgq5IKLVwOQ29bBZ2bVSgptZlUVbkwWIoEwAjCeV92LpUOP/h+ULHWTiYvUWJVPDo6tA==}
-    dependencies:
-      '@razaman2/data-manager': 3.2.6
-      '@razaman2/js-factory': 1.2.5
-      '@razaman2/object-manager': 3.3.9
-    dev: false
-
   /@razaman2/js-factory@1.2.5:
     resolution: {integrity: sha512-HWhG5MZ7IvT2Yz4UJFV0DzmsPW04ux8RXJDeHeDnw2cAM5lnRCU/h3OoVF0JK00ojxV2FKGhWZ4R2/haU1cN8w==}
     dependencies:
@@ -1241,8 +1233,8 @@ packages:
     resolution: {integrity: sha512-F5eLxOcVuqTlnpUbzfwSZDdPa53PqJnvPHmd2Qg73mD5yo3GNIEf/NBgpVMwrJdkRwXCF0AZQ6JhCRk+lzGNRg==}
     dev: false
 
-  /@razaman2/reactive-view@0.0.1(typescript@5.3.3):
-    resolution: {integrity: sha512-3FfyENxbXEgfrLnSFiTgW8pld2QDxyRWXxpzU858/29H3I4uV/Syf8W+D4CWKjWI7WfKSmvRE6+Qta/6+5ltUg==}
+  /@razaman2/reactive-view@0.0.3(typescript@5.3.3):
+    resolution: {integrity: sha512-cnhu+X+KfFtt5EsHqK4k4nCnxDp6qtGfvjHKi5RsaIGL+QJFrZcd6Lpxh8ycYKTe1hU16gqiZW8RC07PrQlvRg==}
     dependencies:
       '@razaman2/collection-proxy': 0.0.1
       '@razaman2/data-manager': 3.2.6

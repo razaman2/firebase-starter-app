@@ -1,8 +1,8 @@
 <script lang="jsx">
-import { setup, access, getProps } from "@razaman2/reactive-view";
+import {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomSelect from "@components/CustomSelect.vue";
 import CustomInput from "@components/CustomInput.vue";
-import { ref, computed } from "vue";
+import {ref, computed} from "vue";
 
 export default {
     props: {
@@ -42,7 +42,7 @@ export default {
                             >{template.children}</div>
                         );
 
-                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                     };
 
                     const option = (option) => {
@@ -54,7 +54,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.option?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.option?.({$vue, vnode}) ?? vnode;
                     };
 
                     const name = (option) => {
@@ -62,7 +62,7 @@ export default {
                             <div>{access(parent).getName(option)}</div>
                         );
 
-                        return $vue.$slots.name?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.name?.({$vue, vnode}) ?? vnode;
                     };
 
                     const input = (option) => {
@@ -75,14 +75,14 @@ export default {
                             />
                         );
 
-                        return $vue.$slots.input?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.input?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template, option, name, input };
+                    const vnodes = {template, option, name, input};
 
-                    const $transform = ({ before, after }) => {
+                    const $transform = ({before, after}) => {
                         if (/checkbox|toggle/i.test(`${$vue.type}`)) {
-                            const { added, removed, from, to } = selectRef.value.options.reduce((options, option) => {
+                            const {added, removed, from, to} = selectRef.value.options.reduce((options, option) => {
                                 if (after.includes(option[selectRef.value.optionValue]
                                     ?? option) && !before?.includes(option[selectRef.value.optionValue] ?? option)) {
                                     options.added.push(option);
@@ -100,9 +100,9 @@ export default {
                                 }
 
                                 return options;
-                            }, { added: [], removed: [], from: [], to: [] });
+                            }, {added: [], removed: [], from: [], to: []});
 
-                            return { before: from, after: to, added, removed };
+                            return {before: from, after: to, added, removed};
                         } else {
                             return {
                                 before: selectRef.value.options.find((item) => {
@@ -115,9 +115,9 @@ export default {
                         }
                     };
 
-                    const self = Object.assign(vnodes, { _default, $transform });
+                    const self = Object.assign(vnodes, {_default, $transform});
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}

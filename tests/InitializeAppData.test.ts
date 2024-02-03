@@ -1,9 +1,9 @@
 import "@src/firebase-init-auth";
-import { it, beforeEach } from "vitest";
-import { Collection } from "@razaman2/firestore-proxy";
-import { initializeTestApp, getAdminContext } from "@razaman2/firestore-testing";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential } from "firebase/auth";
-import { faker } from "@faker-js/faker";
+import {it, beforeEach} from "vitest";
+import {Collection} from "@razaman2/collection-proxy";
+import {initializeTestApp, getAdminContext} from "@razaman2/collection-proxy-testing";
+import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential} from "firebase/auth";
+import {faker} from "@faker-js/faker";
 
 beforeEach(async () => {
     await initializeTestApp();
@@ -26,19 +26,19 @@ it("initialize app data", () => {
             });
         }, {}) as UserCredential;
 
-        const user = Collection.proxy("users", { getFirestore }).setData({
+        const user = Collection.proxy("users", {getFirestore}).setData({
             id: auth.user.uid,
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
         });
 
         await Promise.all([
-            user.create({ batch }),
+            user.create({batch}),
 
             // user email
             Collection.proxy("emails").setParent(user).create({
                 batch,
-                data: { address: email, primary: true },
+                data: {address: email, primary: true},
             }),
 
             // user settings
@@ -58,22 +58,15 @@ it("initialize app data", () => {
                     id: 1,
                     user: {
                         statuses: [
-                            { id: "active", name: "Active" },
-                            { id: "inactive", name: "Inactive" },
-                            { id: "trial", name: "Trial" },
-                        ],
-                    },
-                    company: {
-                        statuses: [
-                            { id: "active", name: "Active" },
-                            { id: "inactive", name: "Inactive" },
-                            { id: "trial", name: "Trial" },
+                            {id: "active", name: "Active"},
+                            {id: "inactive", name: "Inactive"},
+                            {id: "trial", name: "Trial"},
                         ],
                     },
                 },
             }),
 
-            Collection.proxy("roles").setParent(user).setDoc("super").create({ batch }),
+            Collection.proxy("roles").setParent(user).setDoc("super").create({batch}),
 
             Collection.proxy("roles").create({
                 batch,
@@ -110,23 +103,23 @@ it("add user", () => {
             while (count--) {
                 promises.push(new Promise(async (resolve) => {
                     const batch = getFirestore.batch();
-                    const email = faker.internet.email({ provider: "firestore.com" }).trim().toLowerCase();
+                    const email = faker.internet.email({provider: "firestore.com"}).trim().toLowerCase();
                     const auth = await createUserWithEmailAndPassword(getAuth(), email, password);
 
-                    const user = Collection.proxy("users", { getFirestore }).setData({
+                    const user = Collection.proxy("users", {getFirestore}).setData({
                         id: auth.user.uid,
                         firstName: faker.person.firstName(),
                         lastName: faker.person.lastName(),
                     });
 
                     await Promise.all([
-                        user.create({ batch }),
+                        user.create({batch}),
 
-                        Collection.proxy("roles").setParent(user).setDoc("user").create({ batch }),
+                        Collection.proxy("roles").setParent(user).setDoc("user").create({batch}),
 
                         Collection.proxy("emails").setParent(user).create({
                             batch,
-                            data: { address: email },
+                            data: {address: email},
                         }),
 
                         Collection.proxy("settings").setParent(user).create({

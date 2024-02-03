@@ -1,6 +1,6 @@
 <script lang="jsx">
-import ReactiveView, { access, setup } from "@razaman2/reactive-view";
-import { ref, computed } from "vue";
+import ReactiveView, {access, setup} from "@razaman2/reactive-view";
+import {ref, computed} from "vue";
 
 export default {
     props: {
@@ -65,7 +65,7 @@ export default {
                                     return Intl.NumberFormat($vue.locale, {
                                         ...(typeofTel
                                             && $vue.money
-                                            && { style: $vue.style, currency: $vue.currency }),
+                                            && {style: $vue.style, currency: $vue.currency}),
                                         minimumFractionDigits: $vue.decimals,
                                         useGrouping: typeofTel,
                                     }).format(value);
@@ -79,7 +79,7 @@ export default {
                         const template = () => {
                             const vnode = (access($vue)[$vue.type] ?? access($vue).input)();
 
-                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
 
                         const radio = () => {
@@ -98,7 +98,7 @@ export default {
                                                     : (access(parent).getState.getData($vue.$attrs.name) === $vue.$attrs.value)
                                     )}
                                     onInput={(e) => {
-                                        const { checked, value, name } = e.target;
+                                        const {checked, value, name} = e.target;
 
                                         try {
                                             if (data.constructor.name === "Object") {
@@ -117,7 +117,7 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.radio?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.radio?.({$vue, vnode}) ?? vnode;
                         };
 
                         const checkbox = () => {
@@ -134,7 +134,7 @@ export default {
                                                 : access(parent).getState.getData(`${$vue.$attrs.name}.${$vue.$attrs.value}`)
                                     )}
                                     onInput={(e) => {
-                                        const { checked, value } = e.target;
+                                        const {checked, value} = e.target;
 
                                         try {
                                             if (data.constructor.name === "Object") {
@@ -157,13 +157,13 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.checkbox?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.checkbox?.({$vue, vnode}) ?? vnode;
                         };
 
                         const textarea = () => {
                             const vnode = (
                                 <textarea
-                                    value={access(parent).getState.getData({ alternative: "" })}
+                                    value={access(parent).getState.getData({alternative: ""})}
                                     onInput={(e) => {
                                         throttle(() => {
                                             access(parent).getState.setData(e.target.value);
@@ -172,7 +172,7 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.textarea?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.textarea?.({$vue, vnode}) ?? vnode;
                         };
 
                         const input = () => {
@@ -200,10 +200,10 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.input?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.input?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const vnodes = { template, input, textarea, checkbox, radio };
+                        const vnodes = {template, input, textarea, checkbox, radio};
                         // endregion
 
                         const throttle = (handler) => {
@@ -214,7 +214,7 @@ export default {
 
                         const self = Object.assign(vnodes, {});
 
-                        return $vue.setup({ parent, self });
+                        return $vue.setup({parent, self});
                     }}
 
                     v-slots={$vue.$slots}

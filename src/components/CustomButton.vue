@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveView, { setup } from "@razaman2/reactive-view";
+import ReactiveView, {setup} from "@razaman2/reactive-view";
 
 export default {
     props: {
@@ -29,15 +29,15 @@ export default {
                                 </$vue.tag>
                             );
 
-                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const vnodes = { template };
+                        const vnodes = {template};
                         // endregion
 
                         const self = Object.assign(vnodes, {});
 
-                        return $vue.setup({ parent, self });
+                        return $vue.setup({parent, self});
                     }}
 
                     v-slots={$vue.$slots}

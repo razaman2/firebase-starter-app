@@ -1,9 +1,11 @@
 <script lang="jsx">
-import { Collection, Updates } from "@razaman2/firestore-proxy";
-import ReactiveView, { setup, access, getProps } from "@razaman2/reactive-view";
+import {Collection, Updates} from "@razaman2/collection-proxy";
+import ReactiveView, {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomSelect from "@components/CustomSelect.vue";
 import Roles from "@components/Roles.vue";
-import { inject, ref, computed } from "vue";
+import {ref, computed} from "vue";
+import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
 
 const UserRole = {
     setup() {
@@ -12,7 +14,6 @@ const UserRole = {
                 <ReactiveView
                     setup={(parent) => {
                         const rolesRef = ref();
-                        const { appRoles } = inject("app");
 
                         const isValid = computed(() => {
                             return access(rolesRef).getState?.getData("id");
@@ -29,7 +30,7 @@ const UserRole = {
                                         ref={rolesRef}
                                         class="rounded"
                                         placeholder="Add Role"
-                                        options={appRoles.getData()}
+                                        options={useAppStore().appRoles().getData()}
                                     />
 
                                     <getAddButton.type
@@ -47,15 +48,15 @@ const UserRole = {
                                 </div>
                             );
 
-                            return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const vnodes = { template };
+                        const vnodes = {template};
                         // endregion
 
-                        const self = Object.assign(vnodes, { isValid });
+                        const self = Object.assign(vnodes, {isValid});
 
-                        return { parent, self };
+                        return {parent, self};
                     }}
                 />
             );
@@ -75,8 +76,10 @@ export default {
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
-                        const { authUser, authRoles, authCompany } = inject("app");
-                        const { firstName, lastName } = authUser.getData();
+                        const authUser = useAuthStore().authUser();
+                        const authRoles = useAuthStore().authRoles();
+
+                        const {firstName, lastName} = authUser.getData();
 
                         const vnode = (
                             <div class="h-full p-4 bg-blue-50">
@@ -91,7 +94,6 @@ export default {
                                             return Collection.proxy("roles", {
                                                 payload,
                                                 creator: authUser,
-                                                owners: [authCompany],
                                             }).setParent(authUser).onWrite({
                                                 handler: (collection) => new Updates(collection),
                                                 triggers: ["create", "update", "delete"],
@@ -102,15 +104,15 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template };
+                    const vnodes = {template};
                     // endregion
 
                     const self = Object.assign(vnodes, {});
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}

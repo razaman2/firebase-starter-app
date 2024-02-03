@@ -1,8 +1,8 @@
 <script lang="jsx">
 import ObjectManager from "@razaman2/object-manager";
-import ReactiveView, { setup, access } from "@razaman2/reactive-view";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
-import { ref, computed, onMounted, Teleport } from "vue";
+import {ref, computed, onMounted, Teleport} from "vue";
 
 export default {
     emits: ["ok", "cancel"],
@@ -67,7 +67,7 @@ export default {
                             </Teleport>
                         );
 
-                        return $vue.$slots.template?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                     };
 
                     const modalBox = () => {
@@ -81,7 +81,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.modalBox?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.modalBox?.({$vue, vnode}) ?? vnode;
                     };
 
                     const modalContent = () => {
@@ -89,16 +89,16 @@ export default {
                             <div class="px-4">{$vue.$slots.default?.() ?? "No Content"}</div>
                         );
 
-                        return $vue.$slots.modalContent?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.modalContent?.({$vue, vnode}) ?? vnode;
                     };
 
                     const modalBackdrop = () => {
                         if (!$vue.persistent) {
                             const vnode = (
-                                <div class="modal-backdrop" onClick={access($vue).hide} />
+                                <div class="modal-backdrop" onClick={access($vue).hide}/>
                             );
 
-                            return $vue.$slots.modalBackdrop?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.modalBackdrop?.({$vue, vnode}) ?? vnode;
                         }
                     };
 
@@ -111,7 +111,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.modalActions?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.modalActions?.({$vue, vnode}) ?? vnode;
                     };
 
                     const header = () => {
@@ -126,7 +126,7 @@ export default {
                             </div>
                         );
 
-                        return $vue.$slots.header?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.header?.({$vue, vnode}) ?? vnode;
                     };
 
                     const close = () => {
@@ -138,7 +138,7 @@ export default {
                                 />
                             );
 
-                            return $vue.$slots.close?.({ $vue, vnode }) ?? vnode;
+                            return $vue.$slots.close?.({$vue, vnode}) ?? vnode;
                         }
                     };
 
@@ -158,7 +158,7 @@ export default {
                             >ok</CustomButton>
                         );
 
-                        return $vue.$slots.ok?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.ok?.({$vue, vnode}) ?? vnode;
                     };
 
                     const cancel = () => {
@@ -176,7 +176,7 @@ export default {
                             >cancel</CustomButton>
                         );
 
-                        return $vue.$slots.cancel?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.cancel?.({$vue, vnode}) ?? vnode;
                     };
 
                     const title = () => {
@@ -184,10 +184,10 @@ export default {
                             <h3 class="font-bold">{$vue.title}</h3>
                         );
 
-                        return $vue.$slots.title?.({ $vue, vnode }) ?? vnode;
+                        return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = { template, modalBox, modalContent, modalBackdrop, modalActions, title, header, close, ok, cancel };
+                    const vnodes = {template, modalBox, modalContent, modalBackdrop, modalActions, title, header, close, ok, cancel};
 
                     const show = () => {
                         modalRef.value.showModal();
@@ -201,7 +201,7 @@ export default {
                         return modalRef.value.open;
                     };
 
-                    const self = Object.assign(vnodes, { show, hide, showing, modalRef, isValid });
+                    const self = Object.assign(vnodes, {show, hide, showing, modalRef, isValid});
 
                     onMounted(() => {
                         modalRef.value.addEventListener("close", () => {
@@ -213,7 +213,7 @@ export default {
                         }
                     });
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}
