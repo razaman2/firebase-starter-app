@@ -70,6 +70,18 @@ service cloud.firestore {
             return incomingData().diff(storedData());
         }
 
+        function incomingDataHasOnly(keys) {
+            return diffData().affectedKeys().hasOnly(keys);
+        }
+
+        function incomingDataHasAny(keys) {
+            return diffData().affectedKeys().hasAny(keys);
+        }
+
+        function incomingDataHasAll(keys) {
+            return diffData().affectedKeys().hasAll(keys);
+        }
+
         function authorized() {
             return true;
         }

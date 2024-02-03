@@ -1,16 +1,20 @@
 <script lang="jsx">
-import ReactiveVue, {setup} from "@razaman2/reactive-vue";
+import ReactiveView, {setup} from "@razaman2/reactive-view";
 import {RouterLink} from "vue-router";
 
 export default {
     props: {
         ...setup,
+        to: {
+            type: String,
+            default: "#",
+        },
     },
 
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="AppLink"
                     setup={(parent) => {
                         // region TEMPLATE V-NODES
@@ -19,8 +23,9 @@ export default {
                                 <RouterLink
                                     exactActiveClass="text-blue-500"
                                     class="hover:text-blue-700 transition duration-200"
+                                    to={$vue.to}
                                 >
-                                    {$vue.$slots.default()}
+                                    {$vue.$slots.default?.() ?? "No Content"}
                                 </RouterLink>
                             );
 

@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {access, setup} from "@razaman2/reactive-vue";
+import ReactiveView, {access, setup} from "@razaman2/reactive-view";
 import {ref, computed} from "vue";
 
 export default {
@@ -46,7 +46,7 @@ export default {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="CustomInput"
                     setup={(parent) => {
                         const timeout = ref();

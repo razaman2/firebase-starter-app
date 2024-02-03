@@ -1,6 +1,6 @@
 <script lang="jsx">
 import ObjectManager from "@razaman2/object-manager";
-import {setup, access, getProps} from "@razaman2/reactive-vue";
+import {setup, access, getProps} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
 import {watch, ref, nextTick, onMounted} from "vue";
 
@@ -87,7 +87,7 @@ export default {
                         const getItemProps = (options) => {
                             const props = {
                                 class: {
-                                    "hidden": !$vue.display || (
+                                    "hidden": ($vue.display === false) || (
                                         access(parent).getItemIdentifier(options.state)
                                         !== access($vue).getActiveItemIdentifier()
                                     ),
@@ -180,8 +180,8 @@ export default {
                             return $vue.$slots.getItemActions?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getAddButton = () => {
-                            const getAddButton = access(parent).getAddButton();
+                        const getAddButton = (data) => {
+                            const getAddButton = access(parent).getAddButton(data);
 
                             const vnode = (
                                 <getAddButton.type
@@ -198,8 +198,8 @@ export default {
                             return $vue.$slots.getAddButton?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getSaveButton = () => {
-                            const getAddButton = access(parent).getAddButton();
+                        const getSaveButton = (data) => {
+                            const getAddButton = access(parent).getAddButton(data);
 
                             const vnode = (
                                 <getAddButton.type
@@ -216,8 +216,8 @@ export default {
                             return $vue.$slots.getSaveButton?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getDeleteButton = () => {
-                            const getDeleteButton = access(parent).getDeleteButton(access($vue).getActiveComponent());
+                        const getDeleteButton = (component) => {
+                            const getDeleteButton = access(parent).getDeleteButton(component ?? access($vue).getActiveComponent());
 
                             const vnode = (
                                 <getDeleteButton.type

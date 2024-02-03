@@ -1,7 +1,8 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/firestore-proxy";
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
-import {computed, inject} from "vue";
+import {Collection, Updates} from "@razaman2/collection-proxy";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
+import {computed} from "vue";
+import {useAuthStore} from "@stores/auth";
 
 export default {
     props: {
@@ -10,7 +11,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="NewRole"
                 setup={(parent) => {
                     const isValid = computed(() => {
@@ -91,7 +92,7 @@ export default {
                 model={(payload) => {
                     return Collection.proxy("roles", {
                         payload,
-                        creator: inject("app").authUser,
+                        creator: useAuthStore().authUser(),
                     }).onWrite({
                         handler: (collection) => new Updates(collection),
                         triggers: ["create", "update", "delete"],

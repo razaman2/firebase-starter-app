@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {setup} from "@razaman2/reactive-vue";
+import ReactiveView, {setup} from "@razaman2/reactive-view";
 
 export default {
     props: {
@@ -9,20 +9,24 @@ export default {
                 return /String|Number/.test(label.constructor.name);
             },
         },
+        tag: {
+            type: String,
+            default: "button",
+        },
     },
 
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="CustomButton"
                     setup={(parent) => {
                         // region TEMPLATE V-NODES
                         const template = () => {
                             const vnode = (
-                                <button class="btn text-white disabled:text-white disabled:opacity-60 uppercase">
+                                <$vue.tag class="btn text-white disabled:text-white disabled:opacity-60 uppercase">
                                     {$vue.$slots.default?.() ?? $vue.label}
-                                </button>
+                                </$vue.tag>
                             );
 
                             return $vue.$slots.template?.({$vue, vnode}) ?? vnode;

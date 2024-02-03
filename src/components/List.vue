@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access, safeRequest} from "@razaman2/reactive-vue";
+import ReactiveView, {setup, access, safeRequest} from "@razaman2/reactive-view";
 import {h, ref, reactive, computed, Fragment} from "vue";
 import {v4 as uuid} from "uuid";
 
@@ -33,7 +33,7 @@ export default {
             },
         },
         getDisplayComponent: {
-            default: ReactiveVue,
+            default: ReactiveView,
             validator: (value) => {
                 return /Function|Object/.test(value.constructor.name);
             },
@@ -55,7 +55,7 @@ export default {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="List"
                     defaultData={[]}
                     setup={(parent) => {
@@ -346,13 +346,13 @@ export default {
                             });
                         };
 
-                        const getAddButton = () => {
+                        const getAddButton = (data) => {
                             const vnode = (
                                 <button
                                     ref={addButtonRef}
                                     class="bg-green-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase"
                                     onClick={() => {
-                                        const component = access($vue).getDefaultComponent();
+                                        const component = access($vue).getDefaultComponent(data);
 
                                         return access($vue).add(component);
                                     }}

@@ -1,8 +1,10 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/firestore-proxy";
-import ReactiveVue, {access, setup, getProps} from "@razaman2/reactive-vue";
+import {Collection, Updates} from "@razaman2/collection-proxy";
+import ReactiveView, {access, setup, getProps} from "@razaman2/reactive-view";
 import {deleteField, writeBatch, getFirestore} from "firebase/firestore";
-import {inject, computed, ref} from "vue";
+import {computed, ref} from "vue";
+import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
 
 const ListItem = {
     props: {
@@ -12,7 +14,7 @@ const ListItem = {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     logging={true}
                     modelName="ListItem"
                     setup={(parent) => {
@@ -74,7 +76,7 @@ const ListItem = {
                     model={(payload) => {
                         return Collection.proxy({
                             payload,
-                            creator: inject("app").authUser,
+                            creator: useAuthStore().authUser(),
                         }).onWrite({
                             handler: (collection) => new Updates(collection, {}, collection.config),
                             triggers: ["create", "update", "delete"],
@@ -214,7 +216,7 @@ export default {
                                             <CustomSelect
                                                 class="rounded"
                                                 optionProperty="id"
-                                                options={inject("app").appRoles.getData()}
+                                                options={useAppStore().appRoles().getData()}
                                                 state={access(parent).getState.getData("role")}
                                                 onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                                 onUpdate:modelState={({before, after}) => {

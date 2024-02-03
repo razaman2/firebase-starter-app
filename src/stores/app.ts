@@ -1,10 +1,10 @@
 import {defineStore} from "pinia";
-import {Collection} from "@razaman2/firestore-proxy";
-import ObjectManager from "@razaman2/object-manager";
+import {Collection} from "@razaman2/collection-proxy";
+import {reactive} from "vue";
 
 type Document = {
     [p: string]: any;
-    id: string;
+    id: string | number;
 };
 
 type CacheOptions = {
@@ -12,17 +12,33 @@ type CacheOptions = {
     force?: boolean;
     timeout?: number;
     async?: boolean;
-}
+};
 
-export const useAppStore = defineStore("app", {
+export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
     state: () => {
         return {
-            roles: [] as Array<Document>,
-            companies: [] as Array<Document>,
-            settings: {} as Document & {id: string | number},
-            _cache: {} as {
-                [key: string]: any
-            },
+            roles: Collection.proxy("roles", {
+                payload: {
+                    name: "AppRoles",
+                    data: reactive<Array<Document>>([]),
+                },
+            }) as Collection,
+
+            companies: Collection.proxy("companies", {
+                payload: {
+                    name: "AppCompanies",
+                    data: reactive<Array<Document>>([]),
+                },
+            }) as Collection,
+
+            settings: Collection.proxy("settings", {
+                payload: {
+                    name: "AppSettings",
+                    data: reactive<Partial<Document>>({}),
+                },
+            }) as Collection,
+
+            _cache: {} as Record<string, any>,
         };
     },
     persist: {
@@ -109,27 +125,30 @@ export const useAppStore = defineStore("app", {
         },
 
         getRoles(state) {
-            return (id?: string) => {
+            return (id?: string | number) => {
                 return (id !== undefined)
-                    ? state.roles.find((role: any) => (role.id === id))
-                    : state.roles;
+                    ? state.roles.getData().find((role: Document) => role.id === id)
+                    : state.roles.getData();
             };
         },
 
         getCompanies(state) {
             return (id?: string | number) => {
                 return (id !== undefined)
-                    ? state.companies.find((company: any) => (company.id === id))
-                    : state.companies;
+                    ? state.companies.getData().find((company: any) => company.id === id)
+                    : state.companies.getData();
             };
         },
-
-        getSettings(state) {
-            return (key?: string) => {
-                return (key !== undefined)
-                    ? ObjectManager.on(state.settings).get(key)
-                    : state.settings;
-            };
+    },
+    actions: {
+        appRoles() {
+            return this.roles;
+        },
+        appCompanies() {
+            return this.companies;
+        },
+        appSettings() {
+            return this.settings;
         },
     },
 });

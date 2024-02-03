@@ -1,5 +1,5 @@
 <script lang="jsx">
-import {setup, access} from "@razaman2/reactive-vue";
+import {setup, access} from "@razaman2/reactive-view";
 import Swal from "sweetalert2";
 
 export default {

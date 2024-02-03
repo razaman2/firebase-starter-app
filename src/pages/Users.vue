@@ -1,6 +1,6 @@
 <script lang="jsx">
-import {Collection} from "@razaman2/firestore-proxy";
-import ReactiveVue, {setup, access, getSubscription} from "@razaman2/reactive-vue";
+import {Collection} from "@razaman2/collection-proxy";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
 import {onMounted, onBeforeUnmount} from "vue";
 
@@ -10,19 +10,16 @@ export default {
     },
 
     setup() {
-        const subscriptions = getSubscription();
-
         return ($vue) => (
             <List
                 modelName="Users"
-                subscriptions={subscriptions}
                 class="flex flex-col gap-y-1 m-4"
                 getDefaultDisplayComponent={false}
                 getDisplayComponent={{
                     setup() {
                         return ($vue) => {
                             return (
-                                <ReactiveVue
+                                <ReactiveView
                                     setup={(parent) => {
                                         const {firstName, lastName} = access(parent).getState.getData();
 

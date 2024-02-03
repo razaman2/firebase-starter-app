@@ -1,7 +1,7 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import CustomOptionGroup from "@components/CustomOptionGroup.vue";
-import {ref, reactive, capitalize} from "vue";
+import {capitalize} from "vue";
 
 export default {
     props: {
@@ -10,7 +10,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 logging={true}
                 modelName="AboutPage"
                 state={{fruits: ["apples", "bananas", "grapes", "plums"], direction: "north"}}

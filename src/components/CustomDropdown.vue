@@ -1,5 +1,5 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 
 export default {
     props: {
@@ -20,7 +20,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {

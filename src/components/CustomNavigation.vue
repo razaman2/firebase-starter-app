@@ -1,8 +1,8 @@
 <script lang="jsx">
-import ReactiveVue, {setup} from "@razaman2/reactive-vue";
+import ReactiveView, {setup} from "@razaman2/reactive-view";
 import AppLink from "@components/AppLink.vue";
 import {useAuthStore} from "@stores/auth";
-import {inject} from "vue";
+import {getAuth} from "firebase/auth";
 
 export default {
     props: {
@@ -11,7 +11,7 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
@@ -30,7 +30,9 @@ export default {
                                 </li>
 
                                 <li class={{"hidden": !useAuthStore().authenticated()}}>
-                                    <AppLink to={`/user/${inject("app").authUser.getData("id")}`}>Auth User</AppLink>
+                                    <AppLink to={`/user/${useAuthStore().authUser().getData("id")}`}>
+                                        Auth User
+                                    </AppLink>
                                 </li>
 
                                 <li>
@@ -48,7 +50,7 @@ export default {
                                 <li class={{
                                     "hidden": !useAuthStore().authenticated(),
                                     "cursor-pointer text-red-500 hover:text-red-700 transition duration-200": true,
-                                }} onClick={inject("app").logout}>
+                                }} onClick={() => getAuth().signOut()}>
                                     Logout
                                 </li>
                             </ul>
