@@ -20,7 +20,7 @@ export default {
                     setup={(parent) => {
                         const isValid = computed(() => {
                             return (
-                                access(parent).getState.getData("username", "").length
+                                access(parent).getState.getData("username", "")
                                 && (access(parent).getState.getData("password", "").length >= 6)
                             );
                         });
@@ -41,7 +41,6 @@ export default {
                                 <div class="flex flex-col gap-y-3">
                                     <div class="flex flex-col gap-y-1">
                                         {access($vue).username()}
-
                                         {access($vue).password()}
                                     </div>
 

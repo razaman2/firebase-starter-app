@@ -77,8 +77,6 @@ export default {
                     // region TEMPLATE V-NODES
                     const template = () => {
                         const authUser = useAuthStore().authUser();
-                        const authRoles = useAuthStore().authRoles();
-
                         const {firstName, lastName} = authUser.getData();
 
                         const vnode = (
@@ -87,7 +85,7 @@ export default {
 
                                 <Roles
                                     class="mt-5 space-y-2"
-                                    model={authRoles}
+                                    model={useAuthStore().authRoles()}
                                     getDefaultDisplayComponent={UserRole}
                                     getItemProps={{
                                         model: (payload) => {

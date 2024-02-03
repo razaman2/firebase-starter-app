@@ -1,8 +1,8 @@
 <script lang="jsx">
 import {Collection} from "@razaman2/collection-proxy";
-import ReactiveView, {setup, access} from "@razaman2/reactive-view";
+import ReactiveView, {access, setup} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
-import {onMounted, onBeforeUnmount} from "vue";
+import {onBeforeUnmount, onMounted} from "vue";
 
 export default {
     props: {

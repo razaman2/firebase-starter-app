@@ -2,7 +2,7 @@
 import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getProps} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
-import {watch, ref, nextTick, onMounted} from "vue";
+import {watch, ref, onMounted} from "vue";
 
 export default {
     emits: ["item-active", "item-inactive"],
@@ -247,20 +247,18 @@ export default {
 
                         const loadSelectionHandler = () => {
                             watch(selected, (selected, unselected) => {
-                                nextTick(() => {
-                                    const id = access(parent).getItemIdentifier(unselected);
-                                    const inactiveComponent = access(parent).components[id];
-                                    const activeComponent = access($vue).getActiveComponent();
+                                const id = access(parent).getItemIdentifier(unselected);
+                                const inactiveComponent = access(parent).components[id];
+                                const activeComponent = access($vue).getActiveComponent();
 
-                                    const active = $vue.onItemActive ?? activeComponent?.access().onItemActive;
-                                    const inactive = $vue.onItemInactive ?? inactiveComponent?.access().onItemInactive;
+                                const active = $vue.onItemActive ?? access(activeComponent).onItemActive;
+                                const inactive = $vue.onItemInactive ?? access(inactiveComponent).onItemInactive;
 
-                                    // trigger the inactive handler for the recently active item
-                                    inactive?.({list: $vue, data: unselected, component: inactiveComponent});
+                                // trigger the inactive handler for the recently active item
+                                inactive?.({list: $vue, data: unselected, component: inactiveComponent});
 
-                                    // trigger the active handler for the selected item
-                                    active?.({list: $vue, data: selected, component: activeComponent});
-                                });
+                                // trigger the active handler for the selected item
+                                active?.({list: $vue, data: selected, component: activeComponent});
                             });
                         };
 

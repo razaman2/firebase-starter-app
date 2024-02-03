@@ -46,21 +46,27 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
                 const config = (typeof options.collection === "string")
                     ? {name: options.collection}
                     : options.collection;
-                if (!state._cache.value[config.name]) {
-                    state._cache.value[config.name] = {};
+
+                if (!state._cache[config.name]) {
+                    state._cache[config.name] = {};
                 }
-                const collection = state._cache.value[config.name];
+
+                const collection = state._cache[config.name];
+
                 const set = (id: string | number) => {
                     if (id || (id === 0)) {
-                        clearTimeout(state._cache.value[`${config.name}Timeout`]);
+                        clearTimeout(state._cache[`${config.name}Timeout`]);
                         collection[id] = {};
+
                         const promise = new Promise((resolve) => {
                             console.log(`CACHE ${config.name}:`.toUpperCase(), id);
-                            state._cache.value[`${config.name}Timeout`] = setTimeout(async () => {
+
+                            state._cache[`${config.name}Timeout`] = setTimeout(async () => {
                                 const promises = Object.entries(collection).reduce((promises: Array<any>, [id, document]: any) => {
                                     const _collection = Collection.proxy(config.name, {
                                         parent: config.parent,
                                     });
+
                                     const _options = {
                                         realtime: config.realtime ?? false,
                                         callback: config.callback
@@ -73,27 +79,34 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
                                                 }
                                             }),
                                     };
+
                                     return (!document.id || options.force) ? promises.concat(
                                         config.query
                                             ? _collection.getDocuments(Object.assign({query: (ref: any) => config.query(ref, id)}, _options))
                                             : _collection.getDocument(id, _options),
                                     ) : promises;
                                 }, []);
+
                                 console.log(`FETCHING ${config.name}:`.toUpperCase(), promises);
+
                                 const subscriptions = await Promise.all(promises);
+
                                 if (config.subscription) {
                                     subscriptions.forEach((subscription) => {
                                         config.subscription(subscription);
                                     });
                                 }
-                                resolve(state._cache.value[config.name]);
+
+                                resolve(state._cache[config.name]);
                             }, options.timeout);
                         });
+
                         if (options.async) {
                             return promise;
                         }
                     }
                 };
+
                 if (options.force) {
                     return set(id);
                 } else if (collection[id]) {

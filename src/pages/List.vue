@@ -23,7 +23,6 @@ const ListItem = {
                             const vnode = (
                                 <div class="contents">
                                     {access($vue).getNameInput()}
-
                                     {access($vue).getActionButton()}
                                 </div>
                             );
@@ -78,7 +77,7 @@ const ListItem = {
                             payload,
                             creator: useAuthStore().authUser(),
                         }).onWrite({
-                            handler: (collection) => new Updates(collection, {}, collection.config),
+                            handler: (collection) => new Updates(collection),
                             triggers: ["create", "update", "delete"],
                         });
                     }}
@@ -281,7 +280,6 @@ export default {
                                         </div>
 
                                         {access(parent).template()}
-
                                         {access($vue).getSaveAllButton()}
                                     </div>
                                 );

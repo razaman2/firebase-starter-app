@@ -1,9 +1,8 @@
 <script lang="jsx">
 import {setup, access} from "@razaman2/reactive-view";
 import Auth from "@layouts/Auth.vue";
-import CustomNavigation from "@components/CustomNavigation.vue";
-import CustomDrawer from "@components/CustomDrawer.vue";
-import {RouterLink, useRoute, useRouter} from "vue-router";
+import {RouterLink} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@stores/auth";
 import {useNavigationStore} from "@stores/navigation";
 
@@ -29,7 +28,6 @@ export default {
                                 }}
                             >
                                 {access($vue).toolbar()}
-
                                 {access(parent).template()}
                             </CustomDrawer>
                         );
@@ -46,14 +44,9 @@ export default {
                             <div class="bg-blue-200 p-4 flex flex-wrap justify-between items-center gap-x-10">
                                 {access($vue).title()}
 
-                                <div class="flex items-center gap-x-10">
-                                    {access($vue).navigation()}
-
-                                    <div class="flex flex-wrap justify-between items-center gap-x-5">
-                                        {access($vue).user()}
-
-                                        {access($vue).icon()}
-                                    </div>
+                                <div class="flex justify-between items-center gap-x-5">
+                                    {access($vue).user()}
+                                    {access($vue).icon()}
                                 </div>
                             </div>
                         );
@@ -70,14 +63,6 @@ export default {
                         );
 
                         return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const navigation = () => {
-                        const vnode = (
-                            <CustomNavigation/>
-                        );
-
-                        return $vue.$slots.navigation?.({$vue, vnode}) ?? vnode;
                     };
 
                     const icon = () => {
@@ -106,7 +91,7 @@ export default {
                         return $vue.$slots.user?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = {template, title, user, navigation, toolbar, icon};
+                    const vnodes = {template, title, user, toolbar, icon};
 
                     const self = Object.assign(vnodes, {});
 
