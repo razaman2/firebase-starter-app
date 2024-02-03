@@ -1,22 +1,23 @@
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
+import ObjectManager from "@razaman2/object-manager";
 
-export const useNavigationStore = defineStore("navigation", {
+export const useNavigationStore = defineStore(`${import.meta.env.VITE_APP_NAME}-NAVIGATION`, {
     state: () => {
         return {
-            navigation: {} as { [p: string]: any; },
-            route: {} as { [p: string]: any; },
+            navigation: {admin: true, super: true} as Record<string, any>,
+            route: {meta: {}} as Record<string, any>,
         };
     },
     persist: {
         enabled: true,
         strategies: [
-            { storage: localStorage },
+            {storage: localStorage},
         ],
     },
     getters: {
         get(state) {
-            return (key: string) => {
-                return state.navigation[key];
+            return (key: string | number) => {
+                return ObjectManager.on(state.navigation).get(key);
             };
         },
 
@@ -25,10 +26,8 @@ export const useNavigationStore = defineStore("navigation", {
         },
     },
     actions: {
-        set(value: Record<string, any>) {
-            Object.entries(value).forEach(([key, value]) => {
-                this.navigation[key] = value;
-            });
+        set(paths: Record<string | number, any>) {
+            return ObjectManager.on(this.navigation).set(paths);
         },
     },
 });

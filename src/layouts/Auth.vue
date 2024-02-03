@@ -1,14 +1,12 @@
 <script lang="jsx">
-import "@src/firebase-init-firestore";
-import { Collection } from "@razaman2/firestore-proxy";
-import { setup, access } from "@razaman2/reactive-view";
+import {setup, access} from "@razaman2/reactive-view";
 import Base from "@layouts/Base.vue";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useAuthStore } from "@stores/auth";
-import { useAppStore } from "@stores/app";
-import { useNavigationStore } from "@stores/navigation";
-import { useRouter } from "vue-router";
-import { reactive, provide, watch, onMounted } from "vue";
+import {getAuth, onAuthStateChanged} from "firebase/auth";
+import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
+import {useNavigationStore} from "@stores/navigation";
+import {useRouter} from "vue-router";
+import {watch, watchEffect, onMounted} from "vue";
 
 export default {
     props: {
@@ -22,77 +20,22 @@ export default {
             <Base
                 modelName="AuthLayout"
                 setup={(parent) => {
-                    // region COLLECTIONS
-                    const authUser = Collection.proxy("users", {
-                        payload: {
-                            name: "AuthUser",
-                            data: reactive(useAuthStore().getUser()),
-                        },
-                    });
+                    const resolveAuthRoles = (roles) => {
+                        return roles.reduce((authRoles, authRole) => {
+                            const appRole = useAppStore().getRoles(authRole.id);
 
-                    const authRoles = Collection.proxy("roles", {
-                        payload: {
-                            name: "AuthRoles",
-                            data: reactive(useAuthStore().getRoles()),
-                        },
-                        parent: authUser,
-                    });
-
-                    const authSettings = Collection.proxy("settings", {
-                        payload: {
-                            name: "AuthSettings",
-                            data: reactive(useAuthStore().getSettings()),
-                        },
-                        parent: authUser,
-                    });
-
-                    const appRoles = Collection.proxy("roles", {
-                        payload: {
-                            name: "AppRoles",
-                            data: reactive(useAppStore().getRoles()),
-                        },
-                    });
-
-                    const appSettings = Collection.proxy("settings", {
-                        payload: {
-                            name: "AppSettings",
-                            data: reactive(useAppStore().getSettings()),
-                        },
-                    });
-
-                    const collections = {
-                        authUser,
-                        authRoles,
-                        authSettings,
-                        appRoles,
-                        appSettings,
-                    };
-                    // endregion
-
-                    const logout = () => {
-                        access(parent).subscriptions.removeSubscriptions();
-
-                        useAppStore().$reset();
-                        useAuthStore().$reset();
-
-                        useNavigationStore().$patch({
-                            route: {
-                                path: null,
-                                fullPath: null,
-                                meta: {},
-                            },
-                        });
-
-                        signOut(getAuth());
+                            return appRole ? authRoles.concat({
+                                ...authRole,
+                                name: appRole.name,
+                            }) : authRoles;
+                        }, []);
                     };
 
                     const loadAuthUser = (auth) => {
                         const subscriptionName = `auth.${auth.uid}`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).authUser.getDocument(auth.uid, (snapshot) => {
-                                useAuthStore().$patch({ user: snapshot.data() });
-                            });
+                            const subscription = useAuthStore().authUser().getDocument(auth.uid);
 
                             access(parent).subscriptions.addSubscription(subscriptionName, subscription);
                         }
@@ -102,19 +45,8 @@ export default {
                         const subscriptionName = `auth.${user.id}.roles`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).authRoles.getDocuments({
-                                callback: (snapshot) => {
-                                    const roles = snapshot.docs.reduce((authRoles, authRole) => {
-                                        const appRole = useAppStore().getRoles(authRole.id);
-
-                                        return appRole ? authRoles.concat({
-                                            ...authRole.data(),
-                                            name: appRole.name,
-                                        }) : authRoles;
-                                    }, []);
-
-                                    useAuthStore().$patch({ roles });
-                                },
+                            const subscription = useAuthStore().authRoles().getDocuments((snapshot, collection) => {
+                                collection.replaceData(resolveAuthRoles(snapshot.docs.map((doc) => doc.data())));
                             });
 
                             access(parent).subscriptions.addSubscription(subscriptionName, subscription);
@@ -125,9 +57,7 @@ export default {
                         const subscriptionName = `auth.${user.id}.settings`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).authSettings.getDocument(user.id, (snapshot) => {
-                                useAuthStore().$patch({ settings: snapshot.data() });
-                            });
+                            const subscription = useAuthStore().authSettings().getDocument(user.id);
 
                             access(parent).subscriptions.addSubscription(subscriptionName, subscription);
                         }
@@ -137,9 +67,7 @@ export default {
                         const subscriptionName = `app.roles`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).appRoles.getDocuments((snapshot) => {
-                                useAppStore().$patch({ roles: snapshot.docs.map((doc) => doc.data()) });
-                            });
+                            const subscription = useAppStore().appRoles().getDocuments();
 
                             access(parent).subscriptions.addSubscription(subscriptionName, subscription);
                         }
@@ -149,63 +77,65 @@ export default {
                         const subscriptionName = `app.settings`;
 
                         if (!access(parent).subscriptions.hasSubscription(subscriptionName)) {
-                            const subscription = access($vue).appSettings.getDocument(import.meta.env.VITE_APP_SETTINGS, (snapshot) => {
-                                useAppStore().$patch({ settings: snapshot.data() });
-                            });
+                            const subscription = useAppStore().appSettings().getDocument(import.meta.env.VITE_APP_SETTINGS);
 
                             access(parent).subscriptions.addSubscription(subscriptionName, subscription);
                         }
                     };
 
-                    const isUserHaveRoles = (roles) => {
-                        const user = { roles: Array.isArray(roles) ? roles : [roles] };
-
-                        return Boolean(useAuthStore().getRoles().find((role) => {
-                            return user.roles.some((id) => (role.id === id));
-                        }));
-                    };
-
-                    const self = Object.assign(collections, { logout, isUserHaveRoles });
-
-                    provide("app", self);
-
                     onAuthStateChanged(getAuth(), (auth) => {
                         if (auth) {
                             loadAuthUser(auth);
-                        } else {
-                            access($vue).authUser.replaceData();
+                        } else if (useAuthStore().authUser().getData("id")) {
                             access(parent).subscriptions.removeSubscriptions();
+
+                            useAppStore().$reset();
+                            useAuthStore().$reset();
+                            useNavigationStore().$reset();
                         }
                     });
 
                     onMounted(() => {
-                        watch(() => useNavigationStore().to(), async (to, toBefore) => {
+                        watch(() => useNavigationStore().to(), (to, toBefore) => {
                             if (useAuthStore().authenticated()) {
-                                await router.push(to.fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                router.push(to.fullPath ?? useAuthStore().authSettings().getData("path") ?? "/");
                             } else if (to.meta.requiresAuth || toBefore?.meta.requiresAuth) {
-                                await router.push("/login");
+                                router.push("/login");
                             }
                         });
 
-                        watch(() => useAuthStore().authenticated(), async (authenticated) => {
+                        watch(() => useAuthStore().authenticated(), (authenticated) => {
                             if (authenticated) {
                                 if (useAppStore().getRoles("super")) {
-                                    await router.push(useNavigationStore().to().fullPath ?? useAuthStore().getSettings("path") ?? "/");
+                                    router.push(useNavigationStore().to().fullPath ?? useAuthStore().authSettings().getData("path") ?? "/");
                                 } else {
-                                    await router.push("/super/roles");
+                                    router.push("/super/roles");
                                 }
                             } else if (useNavigationStore().to().meta.requiresAuth) {
-                                await router.push("/login");
+                                router.push("/login");
                             }
                         });
 
-                        watch(authRoles.getData(), async () => {
+                        watch(useAuthStore().authRoles().getData(), () => {
                             if (!useAuthStore().authorized(router.currentRoute.value)) {
-                                await router.push(`/user/${useAuthStore().getUser("id")}`);
+                                router.push(`/user/${useAuthStore().authUser().getData("id")}`);
                             }
                         });
 
-                        watch(authUser.getData(), (user) => {
+                        watch(() => useAppStore().appRoles().getData(), (roles) => {
+                            if (roles.length) {
+                                useAuthStore().authRoles().getDocuments({
+                                    realtime: false,
+                                    callback: (snapshot, collection) => {
+                                        collection.replaceData(resolveAuthRoles(snapshot.docs.map((doc) => doc.data())));
+                                    },
+                                });
+                            }
+                        }, {deep: true} /*{deep: true} is required here.*/);
+
+                        watchEffect(() => {
+                            const user = useAuthStore().authUser().getData();
+
                             if (user.id) {
                                 loadAppRoles();
                                 loadAppSettings();
@@ -213,44 +143,9 @@ export default {
                                 loadAuthSettings(user);
                             }
                         });
-
-                        useAppStore().$subscribe((mutation) => {
-                            if (mutation.payload?.settings) {
-                                appSettings.replaceData(mutation.payload.settings);
-                            }
-
-                            if (mutation.payload?.roles) {
-                                appRoles.replaceData(mutation.payload.roles);
-
-                                useAuthStore().$patch({
-                                    roles: useAuthStore().getRoles().reduce((authRoles, authRole) => {
-                                        const appRole = useAppStore().getRoles(authRole.id);
-
-                                        return appRole ? authRoles.concat({
-                                            ...authRole,
-                                            name: appRole.name,
-                                        }) : authRoles;
-                                    }, []),
-                                });
-                            }
-                        });
-
-                        useAuthStore().$subscribe((mutation) => {
-                            if (mutation.payload?.user) {
-                                authUser.replaceData(mutation.payload.user);
-                            }
-
-                            if (mutation.payload?.roles) {
-                                authRoles.replaceData(mutation.payload.roles);
-                            }
-
-                            if (mutation.payload?.settings) {
-                                authSettings.replaceData(mutation.payload.settings);
-                            }
-                        });
                     });
 
-                    return $vue.setup({ parent, self });
+                    return $vue.setup({parent});
                 }}
 
                 v-slots={$vue.$slots}
