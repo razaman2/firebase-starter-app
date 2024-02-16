@@ -77,7 +77,10 @@ export default {
 
                         // region TEMPLATE V-NODES
                         const template = () => {
-                            const vnode = (access($vue)[$vue.type] ?? access($vue).input)();
+                            const vnode = (
+                                access($vue)[$vue.type]
+                                ?? access($vue).input
+                            ).call();
 
                             return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };

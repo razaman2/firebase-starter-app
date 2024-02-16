@@ -2,7 +2,7 @@
 import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getProps} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
-import {watch, ref, nextTick, onMounted} from "vue";
+import {watch, ref, onMounted, nextTick} from "vue";
 
 export default {
     emits: ["item-active", "item-inactive"],
@@ -248,18 +248,20 @@ export default {
                         const loadSelectionHandler = () => {
                             watch(selected, (selected, unselected) => {
                                 nextTick(() => {
-                                    const id = access(parent).getItemIdentifier(unselected);
-                                    const inactiveComponent = access(parent).components[id];
-                                    const activeComponent = access($vue).getActiveComponent();
+                                    if (access(parent).getItemIdentifier(selected) !== access(parent).getItemIdentifier(unselected)) {
+                                        const id = access(parent).getItemIdentifier(unselected);
+                                        const inactiveComponent = access(parent).components[id];
+                                        const activeComponent = access($vue).getActiveComponent();
 
-                                    const active = $vue.onItemActive ?? activeComponent?.access().onItemActive;
-                                    const inactive = $vue.onItemInactive ?? inactiveComponent?.access().onItemInactive;
+                                        const active = $vue.onItemActive ?? access(activeComponent).onItemActive;
+                                        const inactive = $vue.onItemInactive ?? access(inactiveComponent).onItemInactive;
 
-                                    // trigger the inactive handler for the recently active item
-                                    inactive?.({list: $vue, data: unselected, component: inactiveComponent});
+                                        // trigger the inactive handler for the recently active item
+                                        inactive?.({list: $vue, data: unselected, component: inactiveComponent});
 
-                                    // trigger the active handler for the selected item
-                                    active?.({list: $vue, data: selected, component: activeComponent});
+                                        // trigger the active handler for the selected item
+                                        active?.({list: $vue, data: selected, component: activeComponent});
+                                    }
                                 });
                             });
                         };
@@ -281,15 +283,13 @@ export default {
                             };
 
                             watch(() => ObjectManager.on(access(parent).getState.getData()).clone(), (items, itemsBefore) => {
-                                if (!itemsBefore.length) {
+                                if (itemsBefore?.length !== items.length) {
                                     access($vue).setDefaultItem((
                                         ($vue.active.constructor.name === "Function")
                                             ? getItem(items, $vue.active(items))
                                             : getItem(items, $vue.active)
                                     ));
-                                }
-
-                                if (itemsBefore.length !== items.length) {
+                                } else if (items.length) {
                                     const item = items.find((item) => {
                                         return (
                                             access(parent).getItemIdentifier(selected.value)
@@ -299,10 +299,10 @@ export default {
 
                                     if (!item) {
                                         // select the default item when the active item is removed
-                                        access($vue).setDefaultItem({tid: access(parent).tid.value});
+                                        access($vue).setDefaultItem(items[0] ?? {tid: access(parent).tid.value});
                                     }
                                 }
-                            });
+                            }, {immediate: true});
                         };
 
                         const add = async (component) => {

@@ -1,12 +1,11 @@
 <script lang="jsx">
-import {setup, access} from "@razaman2/reactive-vue";
+import {setup, access} from "@razaman2/reactive-view";
 import Auth from "@layouts/Auth.vue";
 import CustomDropdown from "@components/CustomDropdown.vue";
-import CustomNavigation from "@components/CustomNavigation.vue";
 import {RouterLink} from "vue-router";
-import {useAuthStore} from "@stores/auth";
-import Swal from "sweetalert2";
 import {useRoute, useRouter} from "vue-router";
+import {useAuthStore} from "@stores/auth";
+import {useNavigationStore} from "@stores/navigation";
 
 export default {
     props: {
@@ -23,11 +22,15 @@ export default {
                 setup={(parent) => {
                     const template = () => {
                         const vnode = (
-                            <div>
+                            <CustomDrawer
+                                state={useNavigationStore().get("drawer")}
+                                onUpdate:modelState={({after}) => {
+                                    useNavigationStore().set({drawer: after});
+                                }}
+                            >
                                 {access($vue).toolbar()}
-
                                 {access(parent).template()}
-                            </div>
+                            </CustomDrawer>
                         );
 
                         if (!route.meta.requiresAuth || (route.meta.requiresAuth && useAuthStore().authenticated())) {
@@ -43,8 +46,6 @@ export default {
                                 {access($vue).title()}
 
                                 <div class="flex items-baseline gap-x-10">
-                                    {access($vue).navigation()}
-
                                     <div>
                                         <div class="flex justify-between items-center gap-x-5">
                                             {access($vue).user()}
@@ -72,44 +73,25 @@ export default {
                         return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const navigation = () => {
-                        const vnode = (
-                            <CustomNavigation/>
-                        );
-
-                        return $vue.$slots.navigation?.({$vue, vnode}) ?? vnode;
-                    };
-
                     const icon = () => {
                         const vnode = (
-                            <i-mdi-menu
-                                class="text-2xl cursor-pointer hover:scale-90 transition duration-500"
-                                onClick={async () => {
-                                    await Swal.fire({
-                                        title: "Right sidebar 👋",
-                                        html: `<div id="right-drawer">drawer</div>`,
-                                        position: "top-end",
-                                        grow: "column",
-                                        width: 500,
-                                        showConfirmButton: false,
-                                        showCloseButton: true,
-                                    });
-                                }}
-                            />
+                            <label for="drawer-toggle">
+                                <i-mdi-menu class="text-2xl cursor-pointer hover:scale-90 transition duration-500"/>
+                            </label>
                         );
 
                         return $vue.$slots.icon?.({$vue, vnode}) ?? vnode;
                     };
 
                     const user = () => {
-                        const {firstName, lastName} = access(parent).authUser.getData();
+                        const {id, firstName, lastName} = useAuthStore().authUser().getData();
 
                         const vnode = (
                             <RouterLink
-                                to={`/user/${access(parent).authUser.getData("id")}`}
+                                to={`/user/${id}`}
                                 class={{
-                                    "tw-hidden": !useAuthStore().authenticated(),
-                                    "tw-italic": true,
+                                    "hidden": !useAuthStore().authenticated(),
+                                    "italic": true,
                                 }}
                             >{firstName} {lastName}</RouterLink>
                         );
@@ -120,11 +102,11 @@ export default {
                     const company = () => {
                         const vnode = (
                             <CustomDropdown
-                                options={access($vue).authCompanies.getData()}
-                                state={access($vue).authCompany.getData()}
+                                options={useAuthStore().authCompanies().getData()}
+                                state={useAuthStore().authCompany().getData()}
                                 onUpdate:modelState={({before, after}) => {
                                     if ((before.id && after.id) && (before.id !== after.id)) {
-                                        useAuthStore().$patch({company: after});
+                                        useAuthStore().authCompany().replaceData(after);
                                     }
                                 }}
                             />
@@ -133,7 +115,7 @@ export default {
                         return $vue.$slots.company?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const vnodes = {template, title, user, company, navigation, toolbar, icon};
+                    const vnodes = {template, title, user, company, toolbar, icon};
 
                     const self = Object.assign(vnodes, {});
 

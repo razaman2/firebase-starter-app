@@ -139,7 +139,6 @@ export default {
                                                         class="flex justify-between items-center !p-2"
                                                     >
                                                         {vnode.children}
-
                                                         {access($vue).getAddButton()}
                                                     </vnode.type>
                                                 );
@@ -179,7 +178,6 @@ export default {
                                             class="bg-primary hover:bg-primary/80"
                                             setup={(parent) => {
                                                 console.log("button mounted:", parent);
-
                                                 return {parent};
                                             }}
                                         />
@@ -199,7 +197,6 @@ export default {
                                             class="bg-primary hover:bg-primary/80"
                                             setup={(parent) => {
                                                 console.log("button mounted:", parent);
-
                                                 return {parent};
                                             }}
                                         />

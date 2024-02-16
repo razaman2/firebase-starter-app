@@ -89,7 +89,6 @@ export default {
                                             state={access(parent).getState.getData("direction")}
                                             onUpdate:modelState={({before, after}) => {
                                                 console.log("radio:", {before, after});
-
                                                 access(parent).getState.setData({direction: after.id});
                                             }}
                                         />

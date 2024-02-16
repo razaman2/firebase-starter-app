@@ -93,13 +93,9 @@ Route.beforeEach((to, from, next) => {
 
     const cache = () => {
         if (!["/login"].includes(to.path) && (to.fullPath !== fullPath)) {
-            useNavigationStore().$patch({
-                route: {
-                    path: to.path,
-                    fullPath: to.fullPath,
-                    meta: to.meta,
-                },
-            });
+            const {matched, ...route} = to;
+
+            useNavigationStore().$patch({route} as any);
 
             console.info(`%cto: ${to.fullPath} from: ${from.fullPath} cached: ${fullPath}`, "color: purple");
         }

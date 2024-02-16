@@ -1,12 +1,12 @@
 import "@src/firebase-init-auth";
 import {it, beforeEach} from "vitest";
-import {Collection, getCollectionRelationship} from "@razaman2/firestore-proxy";
-import {initializeTestApp, getAdminContext} from "@razaman2/firestore-testing";
+import {Collection, getCollectionRelationship} from "@razaman2/collection-proxy";
+import {initializeTestApp, getAdminContext} from "@razaman2/collection-proxy-testing";
 import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, UserCredential} from "firebase/auth";
 import {faker} from "@faker-js/faker";
 
 beforeEach(async () => {
-    await initializeTestApp();
+    await initializeTestApp({projectId: "n2n-app"});
 });
 
 const email = "user@firestore.com".trim().toLowerCase();

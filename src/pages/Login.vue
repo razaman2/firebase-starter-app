@@ -1,11 +1,11 @@
 <script lang="jsx">
-import ReactiveVue, {setup, access} from "@razaman2/reactive-vue";
+import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
 import CustomInput from "@components/CustomInput.vue";
 import CustomSelect from "@components/CustomSelect.vue";
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import Swal from "sweetalert2";
-import {computed, inject} from "vue";
+import {computed} from "vue";
 import {useAuthStore} from "@stores/auth";
 
 export default {
@@ -16,12 +16,12 @@ export default {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     modelName="LoginPage"
                     setup={(parent) => {
                         const isValid = computed(() => {
                             return (
-                                access(parent).getState.getData("username", "").length
+                                access(parent).getState.getData("username", "")
                                 && (access(parent).getState.getData("password", "").length >= 6)
                             );
                         });
@@ -30,7 +30,7 @@ export default {
                         const template = () => {
                             return (
                                 <div class="h-full bg-blue-50 grid place-content-center">
-                                    {inject("app").authUser.getData("id")
+                                    {useAuthStore().authUser().getData("id")
                                         ? access($vue).logoutForm()
                                         : access($vue).loginForm()}
                                 </div>
@@ -42,7 +42,6 @@ export default {
                                 <div class="flex flex-col gap-y-3">
                                     <div class="flex flex-col gap-y-1">
                                         {access($vue).username()}
-
                                         {access($vue).password()}
                                     </div>
 
@@ -57,7 +56,6 @@ export default {
                             const vnode = (
                                 <div class="flex flex-col gap-y-3">
                                     {access($vue).companies()}
-
                                     {access($vue).logout()}
                                 </div>
                             );
@@ -69,10 +67,10 @@ export default {
                             const vnode = (
                                 <CustomSelect
                                     class="rounded"
-                                    options={inject("app").authCompanies.getData()}
-                                    defaultData={inject("app").authCompany.getData()}
+                                    options={useAuthStore().authCompanies().getData()}
+                                    defaultData={useAuthStore().authCompany().getData()}
                                     onUpdate:modelState={({after}) => {
-                                        useAuthStore().$patch({company: after});
+                                        useAuthStore().authCompany().replaceData(after);
                                     }}
                                 />
                             );
@@ -144,7 +142,7 @@ export default {
                                 <CustomButton
                                     label="logout"
                                     class="bg-red-500 disabled:bg-red-500 hover:bg-red-400"
-                                    onClick={inject("app").logout}
+                                    onClick={() => getAuth().signOut()}
                                 />
                             );
 

@@ -1,20 +1,21 @@
 <script lang="jsx">
-import {Collection, Updates, getCollectionRelationship} from "@razaman2/firestore-proxy";
-import ReactiveVue, {setup, access, getProps} from "@razaman2/reactive-vue";
+import {Collection, Updates, getCollectionRelationship} from "@razaman2/collection-proxy";
+import ReactiveView, {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomSelect from "@components/CustomSelect.vue";
 import Roles from "@components/Roles.vue";
 import Role from "@components/Role.vue";
+import {ref, computed} from "vue";
+import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
 import {getFirestore, writeBatch, arrayRemove, arrayUnion} from "firebase/firestore";
-import {inject, ref, computed} from "vue";
 
 const UserRole = {
     setup() {
         return ($vue) => {
             return (
-                <ReactiveVue
+                <ReactiveView
                     setup={(parent) => {
                         const rolesRef = ref();
-                        const {authUser, authCompany, appRoles} = inject("app");
 
                         const isValid = computed(() => {
                             return access(rolesRef).getState?.getData("id");
@@ -31,15 +32,15 @@ const UserRole = {
                                         ref={rolesRef}
                                         class="rounded"
                                         placeholder="Add Role"
-                                        options={appRoles.getData()}
+                                        options={useAppStore().appRoles().getData()}
                                     />
 
                                     <getAddButton.type
                                         {...getProps(getAddButton.props, "onClick")}
                                         onClick={async () => {
                                             const role = await Collection.proxy("roles", {
-                                                creator: authUser,
-                                            }).setParent(authUser).setDoc(access(rolesRef).getState.getData("id")).init();
+                                                creator: useAuthStore().authUser(),
+                                            }).setParent(useAuthStore().authUser()).setDoc(access(rolesRef).getState.getData("id")).init();
 
                                             if (role.getData("id")) {
                                                 const batch = writeBatch(getFirestore());
@@ -48,7 +49,7 @@ const UserRole = {
                                                     batch,
                                                     update: (collection) => new Updates(collection),
                                                     data: {
-                                                        belongsTo: arrayUnion(getCollectionRelationship(authCompany)),
+                                                        belongsTo: arrayUnion(getCollectionRelationship(useAuthStore().authCompany())),
                                                     },
                                                 });
 
@@ -89,15 +90,13 @@ const NewRole = {
             return (
                 <Role
                     setup={(parent) => {
-                        const {authCompany} = inject("app");
-
                         const remove = async () => {
                             const batch = writeBatch(getFirestore());
 
                             await access(parent).getState.update({
                                 batch,
                                 data: {
-                                    belongsTo: arrayRemove(getCollectionRelationship(authCompany)),
+                                    belongsTo: arrayRemove(getCollectionRelationship(useAuthStore().authCompany())),
                                 },
                             });
 
@@ -121,13 +120,12 @@ export default {
 
     setup() {
         return ($vue) => (
-            <ReactiveVue
+            <ReactiveView
                 modelName="UserPage"
                 setup={(parent) => {
                     // region TEMPLATE V-NODES
                     const template = () => {
-                        const {authUser, authRoles, authCompany} = inject("app");
-                        const {firstName, lastName} = authUser.getData();
+                        const {firstName, lastName} = useAuthStore().authUser().getData();
 
                         const vnode = (
                             <div class="h-full p-4 bg-blue-50">
@@ -135,16 +133,16 @@ export default {
 
                                 <Roles
                                     class="mt-5 space-y-2"
-                                    model={authRoles}
+                                    model={useAuthStore().authRoles()}
                                     getDefaultDisplayComponent={UserRole}
                                     getDisplayComponent={NewRole}
                                     getItemProps={{
                                         model: (payload) => {
                                             return Collection.proxy("roles", {
                                                 payload,
-                                                creator: authUser,
-                                                owners: [authCompany],
-                                            }).setParent(authUser).onWrite({
+                                                creator: useAuthStore().authUser(),
+                                                owners: [useAuthStore().authCompany()],
+                                            }).setParent(useAuthStore().authUser()).onWrite({
                                                 handler: (collection) => new Updates(collection),
                                                 triggers: ["create", "update", "delete"],
                                             });
