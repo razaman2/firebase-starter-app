@@ -7,7 +7,7 @@ export default {
         ...setup,
         options: {
             type: Array,
-            default: () => [],
+            default: [],
         },
         optionLabel: {
             type: String,
@@ -27,11 +27,13 @@ export default {
             <ReactiveView
                 modelName="CustomSelect"
                 setup={(parent) => {
+                    const CLEARED = "${cleared}";
+
                     const _default = computed(() => {
                         return [
                             {
                                 [$vue.optionLabel]: $vue.$attrs.placeholder ?? "None",
-                                [$vue.optionValue]: "${cleared}",
+                                [$vue.optionValue]: CLEARED,
                             },
                         ];
                     });
@@ -42,7 +44,7 @@ export default {
 
                     const getProperty = (option) => {
                         try {
-                            return /Object/.test(option.constructor.name)
+                            return ["Object"].includes(option.constructor.name)
                                 ? $vue.optionProperty
                                     ? option[$vue.optionProperty]
                                     : option
@@ -56,16 +58,16 @@ export default {
                         const data = access(parent).getState.getData();
 
                         return (
-                            access($vue).getValue(option) === access($vue).getValue(data) ||
-                            option === data
+                            (access($vue).getValue(option) === access($vue).getValue(data))
+                            || (option === data)
                         );
                     };
 
                     const findOption = (target) => {
                         return $vue.options.find((option) => {
                             return (
-                                access($vue).getValue(option) ===
-                                access($vue).getValue(target) || option === target
+                                (access($vue).getValue(option) === access($vue).getValue(target))
+                                || (option === target)
                             );
                         });
                     };
@@ -76,10 +78,10 @@ export default {
                             <select
                                 class="w-full"
                                 onInput={(e) => {
-                                    if (e.target.value === "${cleared}") {
+                                    if (e.target.value === CLEARED) {
                                         access(parent).getState.replaceData(undefined);
                                     } else {
-                                        const option = access($vue).findOption(e.target.value);
+                                        const option = access($vue).findOption(e.target.value) ?? e.target.value;
 
                                         if (option) {
                                             access(parent).getState.replaceData(getProperty(option));
@@ -88,9 +90,11 @@ export default {
                                         }
                                     }
                                 }}
-                            >{access($vue)._default.value.concat($vue.options).map((option) => {
-                                return access($vue).option(option);
-                            })}</select>
+                            >{access($vue)._default.value.concat($vue.options).reduce((options, option) => {
+                                return (($vue.$attrs.placeholder === false) && (option.id === CLEARED))
+                                    ? options
+                                    : options.concat(access($vue).option(option));
+                            }, [])}</select>
                         );
 
                         return $vue.$slots.template?.({$vue, vnode}) ?? vnode;

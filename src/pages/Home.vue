@@ -77,7 +77,7 @@ export default {
                                         title="Users List"
                                         class="border"
                                         pinRows={true}
-                                        pagination={{rowsPerPage: 10}}
+                                        pagination={{rows: 5}}
                                         getDisplayComponent={CustomTableRow}
                                         getItemProps={{
                                             model: (payload) => {
@@ -154,7 +154,7 @@ export default {
                                                                         firstName: faker.person.firstName(),
                                                                         lastName: faker.person.lastName(),
                                                                     }).props.onClick();
-                                                                }}/>
+                                                                }} />
                                                             </th>))}
                                                     </vnode.type>
                                                 );

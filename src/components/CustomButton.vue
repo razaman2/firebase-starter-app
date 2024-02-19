@@ -6,7 +6,7 @@ export default {
         ...setup,
         label: {
             validator: (label) => {
-                return /String|Number/.test(label.constructor.name);
+                return ["String", "Number"].includes(label.constructor.name);
             },
         },
         tag: {

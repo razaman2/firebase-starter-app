@@ -1,7 +1,8 @@
 <script lang="jsx">
 import {setup, access} from "@razaman2/reactive-view";
 import ItemsList from "@components/ItemsList.vue";
-import {Fragment} from "vue";
+import CustomTablePagination from "@components/CustomTablePagination.vue";
+import {provide, Fragment} from "vue";
 
 export default {
     props: {
@@ -37,6 +38,8 @@ export default {
             <ItemsList
                 modelName="CustomTable"
                 setup={(parent) => {
+                    provide("list", $vue);
+
                     const sizes = {
                         xs: "table-xs",
                         sm: "table-sm",
@@ -151,7 +154,7 @@ export default {
 
                     const pagination = (pagination) => {
                         const vnode = (
-                            `Records per page: ${pagination?.rowsPerPage ?? 5} 1-5 of 5 < >`
+                            <CustomTablePagination state={pagination} />
                         );
 
                         return $vue.$slots.pagination?.({$vue, vnode}) ?? vnode;
@@ -170,7 +173,7 @@ export default {
                             },
                         };
 
-                        const getItemProps = access(parent.parent).getItemProps(Object.assign(options, props));
+                        const getItemProps = access(parent.parent).getItemProps(Object.assign({}, options, props));
 
                         return {
                             ...getItemProps,
