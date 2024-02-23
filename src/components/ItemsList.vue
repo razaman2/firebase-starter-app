@@ -12,7 +12,7 @@ export default {
         active: {
             default: 0,
             validator: (item) => {
-                return /Function|Object|String|Number|Boolean/.test(item.constructor.name);
+                return ["Function", "Object", "String", "Number", "Boolean"].includes(item.constructor.name);
             },
         },
         activeKey: {
@@ -35,15 +35,9 @@ export default {
             type: Boolean,
             default: true,
         },
-        getItemDisplay: {
-            type: Function,
-        },
-        onItemActive: {
-            type: Function,
-        },
-        onItemInactive: {
-            type: Function,
-        },
+        getItemDisplay: Function,
+        onItemActive: Function,
+        onItemInactive: Function,
     },
 
     setup() {

@@ -8,43 +8,33 @@ export default {
 
     props: {
         ...setup,
-        onItemBeforeAdd: {
-            type: Function,
-        },
-        onItemAdding: {
-            type: Function,
-        },
-        onItemBeforeDelete: {
-            type: Function,
-        },
-        onItemDeleting: {
-            type: Function,
-        },
+        isValid: Function,
+        onItemBeforeAdd: Function,
+        onItemAdding: Function,
+        onItemBeforeDelete: Function,
+        onItemDeleting: Function,
         getItemSlots: {
             default: () => ({}),
-            validator: (value) => {
-                return /Function|Object/.test(value.constructor.name);
+            validator: (slots) => {
+                return ["Function", "Object"].includes(slots.constructor.name);
             },
         },
         getItemProps: {
             default: () => ({}),
-            validator: (value) => {
-                return /Function|Object/.test(value.constructor.name);
+            validator: (props) => {
+                return ["Function", "Object"].includes(props.constructor.name);
             },
         },
         getDisplayComponent: {
             default: ReactiveView,
-            validator: (value) => {
-                return /Function|Object/.test(value.constructor.name);
+            validator: (component) => {
+                return ["Function", "Object"].includes(component.constructor.name);
             },
         },
         getDefaultDisplayComponent: {
-            validator: (value) => {
-                return /Function|Object|Boolean/.test(value.constructor.name);
+            validator: (component) => {
+                return ["Function", "Object", "Boolean"].includes(component.constructor.name);
             },
-        },
-        isValid: {
-            type: Function,
         },
         addToStart: {
             type: Boolean,
