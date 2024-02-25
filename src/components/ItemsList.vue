@@ -242,34 +242,39 @@ export default {
                         const loadSelectionHandler = () => {
                             watch(selected, (selected, unselected) => {
                                 nextTick(() => {
-                                    if (access(parent).getItemIdentifier(selected) !== access(parent).getItemIdentifier(unselected)) {
-                                        const id = access(parent).getItemIdentifier(unselected);
-                                        const inactiveComponent = access(parent).components[id];
+                                    const id = access(parent).getItemIdentifier(unselected);
+
+                                    if (id !== access(parent).getItemIdentifier(selected)) {
                                         const activeComponent = access($vue).getActiveComponent();
+                                        const inactiveComponent = access(parent).components[id];
 
                                         const active = $vue.onItemActive ?? access(activeComponent).onItemActive;
                                         const inactive = $vue.onItemInactive ?? access(inactiveComponent).onItemInactive;
 
-                                        // trigger the inactive handler for the recently active item
-                                        inactive?.({list: $vue, data: unselected, component: inactiveComponent});
+                                        if (activeComponent && active) {
+                                            // trigger the active handler for the selected item
+                                            active({list: $vue, data: selected, component: activeComponent});
+                                        }
 
-                                        // trigger the active handler for the selected item
-                                        active?.({list: $vue, data: selected, component: activeComponent});
+                                        if (inactiveComponent && inactive) {
+                                            // trigger the inactive handler for the recently active item
+                                            inactive({list: $vue, data: unselected, component: inactiveComponent});
+                                        }
                                     }
                                 });
-                            });
+                            }, {immediate: true});
                         };
 
                         const loadActivationHandler = () => {
                             const getItem = (items, active = "") => {
-                                if (/String|Object/.test(active.constructor.name)) {
+                                if (["String", "Object"].includes(active.constructor.name)) {
                                     return items.find((item) => {
                                         return (
                                             (item[$vue.activeKey] === active[$vue.activeKey])
                                             || (item[$vue.activeKey] === active)
                                         );
                                     });
-                                } else if (active.constructor.name === "Number") {
+                                } else if (["Number"].includes(active.constructor.name)) {
                                     return (active > -1)
                                         ? items[active]
                                         : items[items.length - Math.abs(active)];
@@ -277,13 +282,13 @@ export default {
                             };
 
                             watch(() => ObjectManager.on(access(parent).getState.getData()).clone(), (items, itemsBefore) => {
-                                if (itemsBefore?.length !== items.length) {
-                                    access($vue).setDefaultItem((
-                                        ($vue.active.constructor.name === "Function")
+                                if (access($vue).isDefaultActive()) {
+                                    access($vue).setDefaultItem(
+                                        (["Function"].includes($vue.active.constructor.name))
                                             ? getItem(items, $vue.active(items))
                                             : getItem(items, $vue.active)
-                                    ));
-                                } else if (items.length) {
+                                    );
+                                } else {
                                     const item = items.find((item) => {
                                         return (
                                             access(parent).getItemIdentifier(selected.value)

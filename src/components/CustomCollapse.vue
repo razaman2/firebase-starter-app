@@ -40,11 +40,13 @@ export default {
     },
 
     setup() {
+        const notifications = new EventEmitter();
+
         return ($vue) => (
             <ReactiveVue
                 modelName="CustomCollapse"
                 defaultData={{activated: $vue.eager, open: false}}
-                notifications={new EventEmitter()}
+                notifications={notifications}
                 setup={(parent) => {
                     const template = () => {
                         const vnode = (

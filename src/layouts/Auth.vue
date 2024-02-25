@@ -2,7 +2,7 @@
 import "@src/firebase-init-firestore";
 import {Collection} from "@razaman2/collection-proxy";
 import ObjectManager from "@razaman2/object-manager";
-import {setup, access} from "@razaman2/reactive-view";
+import {setup, access, getSubscription} from "@razaman2/reactive-view";
 import Base from "@layouts/Base.vue";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {query, where} from "firebase/firestore";
@@ -11,6 +11,7 @@ import {useAppStore} from "@stores/app";
 import {useNavigationStore} from "@stores/navigation";
 import {useRouter} from "vue-router";
 import {watch, watchEffect, onMounted} from "vue";
+import {version} from "@/package.json";
 
 export default {
     props: {
@@ -19,10 +20,12 @@ export default {
 
     setup() {
         const router = useRouter();
+        const subscriptions = getSubscription();
 
         return ($vue) => (
             <Base
                 modelName="AuthLayout"
+                subscriptions={subscriptions}
                 setup={(parent) => {
                     const resolveAuthRoles = (roles) => {
                         return roles.reduce((authRoles, authRole) => {
@@ -56,6 +59,13 @@ export default {
                     const loadAuthCompany = (companies) => {
                         if (companies.length === 1) {
                             useAuthStore().authCompany().replaceData(companies[0]);
+                        } else {
+                            const collection = useAuthStore().authCompany();
+                            const company = useAppStore().getCompanies(collection.getData("id"));
+
+                            if (company?.id) {
+                                useAuthStore().authCompany().replaceData(company);
+                            }
                         }
                     };
 
@@ -135,14 +145,25 @@ export default {
                     };
 
                     onAuthStateChanged(getAuth(), (auth) => {
-                        if (auth) {
-                            loadAuthUser(auth);
-                        } else if (useAuthStore().authUser().getData("id")) {
+                        const restore = () => {
                             access(parent).subscriptions.removeSubscriptions();
 
                             useAppStore().$reset();
                             useAuthStore().$reset();
                             useNavigationStore().$reset();
+                            useNavigationStore().$patch({
+                                navigation: ObjectManager.on(useNavigationStore().navigation).clone()
+                            });
+                        };
+
+                        if (useAppStore().version !== version) {
+                            restore();
+                        }
+
+                        if (auth) {
+                            loadAuthUser(auth);
+                        } else if (useAuthStore().authenticated()) {
+                            restore();
                         }
                     });
 
@@ -173,35 +194,33 @@ export default {
                             }
                         });
 
-                        // watch(() => useAppStore().appRoles().getData(), (roles) => {
-                        //     if (roles.length) {
-                        //         useAuthStore().authRoles().getDocuments({
-                        //             realtime: false,
-                        //             callback: (snapshot, collection) => {
-                        //                 collection.replaceData(resolveAuthRoles(snapshot.docs.map((doc) => doc.data())));
-                        //             },
-                        //         });
-                        //     }
-                        // }, {deep: true} /*{deep: true} is required here.*/);
+                        watch(useAppStore().appRoles().getData(), (roles) => {
+                            if (useAuthStore().authCompany().getData("id")) {
+                                useAuthStore().authRoles().getDocuments({
+                                    realtime: false,
+                                    callback: (snapshot, collection) => {
+                                        collection.replaceData(resolveAuthRoles(snapshot.docs.map((doc) => doc.data())));
+                                    },
+                                });
+                            }
+                        });
 
-                        // watch(useAppStore().appCompanies().getData(), (companies) => {
-                        //     if (companies.length) {
-                        //         useAuthStore().authCompanies().getDocuments({
-                        //             realtime: false,
-                        //             callback: (snapshot) => {
-                        //                 const companies = snapshot.docs.map((doc) => doc.data());
-                        //
-                        //                 useAuthStore().authCompanies().replaceData(resolveAuthCompanies(companies));
-                        //                 useAuthStore().$patch({settings: {user: companies}});
-                        //             },
-                        //         });
-                        //     }
-                        // }, {deep: true} /*{deep: true} is required here.*/);
+                        watch(useAppStore().appCompanies().getData(), (companies) => {
+                            if (useAuthStore().authenticated()) {
+                                useAuthStore().authCompanies().getDocuments({
+                                    realtime: false,
+                                    callback: (snapshot, collection) => {
+                                        const companies = snapshot.docs.map((doc) => doc.data());
+
+                                        collection.replaceData(resolveAuthCompanies(companies));
+                                        useAuthStore().$patch({settings: {user: companies}});
+                                    },
+                                });
+                            }
+                        });
 
                         watch(() => ObjectManager.on(useAuthStore().authCompanies().getData()).clone(), (companies, companiesBefore) => {
-                            if (companiesBefore.length !== companies.length) {
-                                loadAuthCompany(companies);
-                            }
+                            loadAuthCompany(companies);
                         });
 
                         watch(() => ObjectManager.on(useAuthStore().authCompany().getData()).clone(), (company, companyBefore) => {
@@ -222,7 +241,7 @@ export default {
                                 // load company settings for the authenticated company
                                 loadAuthCompanySettings(company);
                             }
-                        }, {immediate: true});
+                        });
 
                         watchEffect(() => {
                             const user = useAuthStore().authUser().getData();

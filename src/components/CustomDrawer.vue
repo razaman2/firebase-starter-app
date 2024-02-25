@@ -44,7 +44,7 @@ export default {
                                 </div>
 
                                 <div class="drawer-side">
-                                    <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"/>
+                                    <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay" />
 
                                     <ul class="menu w-80 min-h-full bg-base-200/90 text-base-content">
                                         <CustomButton

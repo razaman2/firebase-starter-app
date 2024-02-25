@@ -1,6 +1,6 @@
 <script lang="jsx">
 import {Collection} from "@razaman2/collection-proxy";
-import ReactiveView, {access, setup} from "@razaman2/reactive-view";
+import ReactiveView, {access, setup, getSubscription} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
 import {onBeforeUnmount, onMounted} from "vue";
 
@@ -10,9 +10,12 @@ export default {
     },
 
     setup() {
+        const subscriptions = getSubscription();
+
         return ($vue) => (
             <List
                 modelName="Users"
+                subscriptions={subscriptions}
                 class="flex flex-col gap-y-1 m-4"
                 getDefaultDisplayComponent={false}
                 getDisplayComponent={{

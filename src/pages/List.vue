@@ -5,6 +5,7 @@ import {deleteField, writeBatch, getFirestore} from "firebase/firestore";
 import {computed, ref} from "vue";
 import {useAuthStore} from "@stores/auth";
 import {useAppStore} from "@stores/app";
+import {faker} from "@faker-js/faker";
 
 const ListItem = {
     props: {
@@ -17,6 +18,7 @@ const ListItem = {
                 <ReactiveView
                     logging={true}
                     modelName="ListItem"
+                    defaultData={{name: faker.person.fullName()}}
                     setup={(parent) => {
                         // region TEMPLATE V-NODES
                         const template = () => {
@@ -39,7 +41,6 @@ const ListItem = {
                                     debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
                                     autofocus={access($vue.$attrs.list()).isDefaultDisplayComponent(data)}
                                     state={data.name}
-                                    onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                     onUpdate:modelState={({after}) => {
                                         access($vue).getState.setData({name: after});
                                     }}
@@ -217,7 +218,6 @@ export default {
                                                 optionProperty="id"
                                                 options={useAppStore().appRoles().getData()}
                                                 state={access(parent).getState.getData("role")}
-                                                onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                                 onUpdate:modelState={({before, after}) => {
                                                     if (before !== after) {
                                                         access(parent).getState.setData({role: after ?? deleteField()});

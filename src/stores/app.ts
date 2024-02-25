@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {Collection} from "@razaman2/collection-proxy";
 import {reactive} from "vue";
+import {version} from "@/package.json";
 
 type Document = {
     [p: string]: any;
@@ -39,6 +40,8 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
             }) as Collection,
 
             _cache: {} as Record<string, any>,
+
+            version
         };
     },
     persist: {

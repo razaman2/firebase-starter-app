@@ -137,13 +137,6 @@ export default {
                             });
                         };
 
-                        /** @deprecated Please use `map` instead. **/
-                        const save = (callback) => {
-                            console.warn("save in List Component has been deprecated. Please use map instead.");
-
-                            return access($vue).map(callback);
-                        };
-
                         const find = (item, id) => {
                             const iid = (
                                 id
@@ -381,9 +374,8 @@ export default {
                         // endregion
 
                         const self = Object.assign(vnodes, {
-                            tid,
-                            components,
                             isValid,
+                            components,
                             addButtonRef,
                             deleteButtonRef,
                             isDefaultDisplayComponent,
@@ -391,13 +383,13 @@ export default {
                             getItemIdentifier,
                             getDefaultComponent,
                             finalize,
+                            size,
                             add,
                             remove,
-                            save,
                             map,
                             set,
                             unset,
-                            size,
+                            tid,
                         });
 
                         return $vue.setup({parent, self});
