@@ -35,7 +35,6 @@ export default {
                                                 {id: "grapes", name: "Grapes"},
                                             ]}
                                             state={access(parent).getState.getData("fruits")}
-                                            // onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                             onUpdate:modelState={({before, after, added, removed}) => {
                                                 console.log("checkbox1 update:", {before, after, added, removed});
                                                 access(parent).getState.setData({fruits: after.map((item) => item.id)});
@@ -56,7 +55,6 @@ export default {
                                             class="flex gap-x-2"
                                             options={["apples", "bananas", "grapes", "plums"]}
                                             state={access(parent).getState.getData("fruits")}
-                                            // onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                             onUpdate:modelState={({before, after, added, removed}) => {
                                                 console.log("checkbox2 update:", {before, after, added, removed});
                                                 access(parent).getState.setData({fruits: after});
@@ -99,7 +97,6 @@ export default {
                                         class="rounded"
                                         placeholder="Price"
                                         state={access(parent).getState.getData("price")}
-                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("price", after);
                                         }}
@@ -114,7 +111,6 @@ export default {
                                         class="rounded"
                                         placeholder="Age"
                                         state={access(parent).getState.getData("age")}
-                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("age", after);
                                         }}
@@ -127,7 +123,6 @@ export default {
                                         class="rounded"
                                         placeholder="Name"
                                         state={access(parent).getState.getData("test")}
-                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("test", after);
                                         }}
@@ -139,7 +134,6 @@ export default {
                                         class="rounded"
                                         placeholder="Details"
                                         state={access(parent).getState.getData("details")}
-                                        onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                         onUpdate:modelState={({after}) => {
                                             access(parent).getState.setData("details", after);
                                         }}

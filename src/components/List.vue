@@ -1,6 +1,6 @@
 <script lang="jsx">
 import ReactiveView, {setup, access, safeRequest} from "@razaman2/reactive-view";
-import {h, ref, reactive, computed, Fragment} from "vue";
+import {h, ref, reactive, computed} from "vue";
 import {v4 as uuid} from "uuid";
 
 export default {
@@ -59,10 +59,10 @@ export default {
                             try {
                                 const component = access($vue).getDefaultComponent();
 
-                                return $vue.isValid?.({
-                                    component,
-                                    list: $vue,
-                                }) ?? access(component).isValid.value;
+                                return (
+                                    $vue.isValid?.({component, list: $vue})
+                                    ?? access(component).isValid.value
+                                );
                             } catch {
                                 return false;
                             }
@@ -211,13 +211,13 @@ export default {
 
                         const getItemSlots = (options) => {
                             return (typeof $vue.getItemSlots === "function")
-                                ? $vue.getItemSlots?.(options)
+                                ? $vue.getItemSlots(options)
                                 : $vue.getItemSlots;
                         };
 
                         const getItemProps = (options) => {
                             const props = (typeof $vue.getItemProps === "function")
-                                ? $vue.getItemProps?.(options)
+                                ? $vue.getItemProps(options)
                                 : $vue.getItemProps;
 
                             return Object.assign({
@@ -279,7 +279,14 @@ export default {
 
                         const getDisplay = () => {
                             const vnode = (typeof $vue.getDisplayComponent === "function")
-                                // ? $vue.getDisplayComponent({component: access($vue).getDefaultComponent(), list: $vue})
+                                // ? (props, context) => {
+                                //     return $vue.getDisplayComponent({
+                                //         list: $vue,
+                                //         component: access($vue).getDefaultComponent(),
+                                //         context,
+                                //         props
+                                //     })
+                                // }
                                 ? $vue.getDisplayComponent
                                 : $vue.getDisplayComponent;
 
@@ -289,13 +296,20 @@ export default {
                         const getDefaultDisplay = () => {
                             if ($vue.getDefaultDisplayComponent !== false) {
                                 const vnode = ((typeof $vue.getDefaultDisplayComponent === "function")
-                                    // ? $vue.getDefaultDisplayComponent({component: access($vue).getDefaultComponent(), list: $vue})
+                                    // ? (props, context) => {
+                                    //     return $vue.getDisplayComponent({
+                                    //         list: $vue,
+                                    //         component: access($vue).getDefaultComponent(),
+                                    //         context,
+                                    //         props
+                                    //     })
+                                    // }
                                     ? $vue.getDefaultDisplayComponent
                                     : $vue.getDefaultDisplayComponent) ?? access($vue).getDisplay();
 
                                 return $vue.$slots.getDefaultDisplay?.({$vue, vnode}) ?? vnode;
                             } else {
-                                return Fragment;
+                                return access($vue).getDisplay();
                             }
                         };
 
@@ -352,7 +366,7 @@ export default {
                                     ref={deleteButtonRef}
                                     class="bg-red-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase"
                                     onClick={() => access($vue).remove(component)}
-                                    disabled={!String(access($vue).getItemIdentifier(component && access(component).getState.getData()))}
+                                    disabled={!String(access($vue).getItemIdentifier(component ? access(component).getState.getData() : {}))}
                                 >delete</button>
                             );
 

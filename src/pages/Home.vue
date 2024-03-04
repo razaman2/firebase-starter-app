@@ -1,11 +1,66 @@
 <script lang="jsx">
+import FileManager from "@helpers/FileManager";
+import {getStorage} from "firebase/storage";
 import {Collection} from "@razaman2/collection-proxy";
-import ReactiveView, {setup, access} from "@razaman2/reactive-view";
+import ReactiveView, {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomCollapse from "@components/CustomCollapse.vue";
 import CustomTable from "@components/CustomTable.vue";
 import CustomTableRow from "@components/CustomTableRow.vue";
+import CustomUploader from "@components/CustomUploader.vue";
+import CustomButton from "@components/CustomButton.vue";
+import ItemsList from "@components/ItemsList.vue";
 import {faker} from "@faker-js/faker";
-import {ref, onMounted} from "vue";
+import {ref, inject, onMounted} from "vue";
+
+const Attachment = {
+    setup() {
+        return ($vue) => {
+            return (
+                <ReactiveView
+                    setup={(parent) => {
+                        // region TEMPLATE V-NODES
+                        const template = () => {
+                            const getDeleteButton = access($vue.$attrs.list()).getDeleteButton($vue);
+
+                            const vnode = (
+                                <div class="flex justify-between items-center">
+                                    <img
+                                        src={access(parent).getState?.getData("url")}
+                                        width="85px"
+                                    />
+
+                                    <getDeleteButton.type
+                                        {...getProps(getDeleteButton.props, "class")}
+                                        class={getDeleteButton.props.class.replace("hidden", "")}
+
+                                        v-slots={getDeleteButton.children}
+                                    />
+                                </div>
+                            );
+
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        };
+
+                        const vnodes = {template};
+                        // endregion
+
+                        const onItemBeforeDelete = async () => {
+                            try {
+                                return await new FileManager(getStorage()).deleteFile(access(parent).getState.getData()) ?? true;
+                            } catch (e) {
+                                return ["storage/object-not-found"].includes(e.code)
+                            }
+                        };
+
+                        const self = Object.assign(vnodes, {onItemBeforeDelete});
+
+                        return {parent, self};
+                    }}
+                />
+            );
+        };
+    },
+};
 
 export default {
     props: {
@@ -18,6 +73,7 @@ export default {
                 modelName="HomePage"
                 setup={(parent) => {
                     const modalRef = ref();
+                    const attachmentsRef = ref();
 
                     // region TEMPLATE V-NODES
                     const template = () => {
@@ -38,7 +94,6 @@ export default {
                                                         <CustomInput
                                                             class="rounded"
                                                             state={access(modalRef).getState?.getData("firstName")}
-                                                            onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                                             onUpdate:modelState={({after}) => {
                                                                 access(modalRef).getState.setData("firstName", after);
                                                             }}
@@ -51,7 +106,6 @@ export default {
                                                         <CustomInput
                                                             class="rounded"
                                                             state={access(modalRef).getState?.getData("lastName")}
-                                                            onUpdate:propsState={({after}, state) => state.replaceData(after)}
                                                             onUpdate:modelState={({after}) => {
                                                                 access(modalRef).getState.setData("lastName", after);
                                                             }}
@@ -63,6 +117,106 @@ export default {
                                         },
                                     }}
                                 />
+
+                                <div class="py-10">
+                                    <h1 class="font-semibold mb-3">File Upload</h1>
+
+                                    <ItemsList
+                                        show={true}
+                                        actions={false}
+                                        ref={attachmentsRef}
+                                        // getDisplayComponent={({state}) => {
+                                        //     return (
+                                        //         <ReactiveView class="flex justify-between items-center">
+                                        //             <img
+                                        //                 src={state.url}
+                                        //                 width="100px"
+                                        //             />
+                                        //
+                                        //             <CustomButton
+                                        //                 label="delete"
+                                        //                 class="bg-red-500 hover:bg-red-400 btn-sm"
+                                        //                 onClick={() => {
+                                        //                     access(attachmentsRef).getState.setDoc(state.id).delete();
+                                        //                 }}
+                                        //             />
+                                        //         </ReactiveView>
+                                        //     );
+                                        // }}
+                                        getDisplayComponent={Attachment}
+                                        getDefaultDisplayComponent={false}
+                                        getItemProps={{
+                                            model: (payload) => {
+                                                return Collection.proxy("tests", {payload});
+                                            },
+                                        }}
+                                        onItemAdding={({component}) => {
+                                            if (component) {
+                                                access(component).getState.create();
+                                            } else {
+                                                return true;
+                                            }
+                                        }}
+                                        onItemDeleting={({component}) => {
+                                            if (component) {
+                                                access(component).getState.delete();
+                                            } else {
+                                                return true;
+                                            }
+                                        }}
+                                        setup={(parent) => {
+                                            onMounted(() => {
+                                                access(attachmentsRef).getState.getDocuments();
+                                            });
+
+                                            return {parent};
+                                        }}
+                                        model={(payload) => {
+                                            return Collection.proxy("tests", {payload});
+                                        }}
+
+                                        v-slots={{
+                                            getItems: ({$vue: $list}) => {
+                                                return (
+                                                    <CustomUploader
+                                                        id="123"
+                                                        name="users"
+                                                        multiple={true}
+                                                        onUpdate:modelState={async ({after}) => {
+                                                            for (const item of after) {
+                                                                await access($list).add(access($list).getDefaultComponent(item));
+                                                            }
+                                                        }}
+                                                    />
+                                                );
+                                            },
+
+                                            getItemsDisplay: ({vnode}) => {
+                                                return (
+                                                    <vnode.type
+                                                        {...vnode.props}
+                                                        class="flex my-1 pr-2 border"
+
+                                                        v-slots={vnode.children}
+                                                    />
+                                                );
+                                            },
+                                        }}
+                                    />
+
+                                    <CustomButton
+                                        label="save"
+                                        class={{
+                                            "hidden": !access(attachmentsRef).size?.(),
+                                            "bg-green-500 hover:bg-green-400 btn-sm mt-3": true,
+                                        }}
+                                        onClick={() => {
+                                            access(attachmentsRef).map(({component}) => {
+                                                return access(component).getState.create();
+                                            });
+                                        }}
+                                    />
+                                </div>
 
                                 <CustomButton
                                     onClick={() => {
@@ -154,7 +308,7 @@ export default {
                                                                         firstName: faker.person.firstName(),
                                                                         lastName: faker.person.lastName(),
                                                                     }).props.onClick();
-                                                                }} />
+                                                                }}/>
                                                             </th>))}
                                                     </vnode.type>
                                                 );

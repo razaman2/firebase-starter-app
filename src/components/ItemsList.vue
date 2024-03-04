@@ -35,6 +35,10 @@ export default {
             type: Boolean,
             default: true,
         },
+        show: {
+            type: Boolean,
+            default: false,
+        },
         getItemDisplay: Function,
         onItemActive: Function,
         onItemInactive: Function,
@@ -49,8 +53,8 @@ export default {
                         const selected = ref({tid: access(parent).tid.value});
                         const saveButtonRef = ref();
 
-                        const setDefaultItem = (item) => {
-                            selected.value = (item ?? {tid: access(parent).tid.value});
+                        const setDefaultItem = (item = {tid: access(parent).tid.value}) => {
+                            selected.value = item;
                         };
 
                         const getActiveItemIdentifier = () => {
@@ -67,7 +71,14 @@ export default {
                             );
                         };
 
-                        const isDefaultActive = () => {
+                        const isSelectedItem = (item = {}) => {
+                            return (
+                                access(parent).getItemIdentifier(selected.value)
+                                === access(parent).getItemIdentifier(item)
+                            );
+                        };
+
+                        const isDefaultItemActive = () => {
                             return (
                                 access($vue).getActiveItemIdentifier()
                                 === access(parent).tid.value
@@ -81,14 +92,24 @@ export default {
                         const getItemProps = (options) => {
                             const props = {
                                 class: {
-                                    "hidden": ($vue.display === false) || (
-                                        access(parent).getItemIdentifier(options.state)
-                                        !== access($vue).getActiveItemIdentifier()
+                                    "hidden": (
+                                        ($vue.show === true)
+                                            ? access(parent).isDefaultDisplayComponent(options.state)
+                                            : (
+                                                ($vue.display === false)
+                                                || (
+                                                    access(parent).getItemIdentifier(options.state)
+                                                    !== access($vue).getActiveItemIdentifier()
+                                                )
+                                            )
                                     ),
                                 },
                             };
 
-                            const getItemProps = access(parent).getItemProps(Object.assign(options, props));
+                            const getItemProps = access(parent).getItemProps({
+                                ...options,
+                                ...props,
+                            });
 
                             return {
                                 ...getItemProps,
@@ -101,9 +122,7 @@ export default {
                             const vnode = (
                                 <div>
                                     {access($vue).getItems()}
-
                                     {access($vue).getItemActions()}
-
                                     {access(parent).template()}
                                 </div>
                             );
@@ -148,8 +167,10 @@ export default {
                                             id,
                                         })
                                         // item display is set in the display component.
-                                        ?? (access(access(parent).components[id]).getItemDisplay?.value
-                                            || access(access(parent).components[id]).getItemDisplay)
+                                        ?? (
+                                            access(access(parent).components[id]).getItemDisplay?.value
+                                            || access(access(parent).components[id]).getItemDisplay
+                                        )
                                     }
                                 </div>
                             );
@@ -164,9 +185,7 @@ export default {
                                     "flex justify-end gap-1 py-3": true,
                                 }}>
                                     {access($vue).getAddButton()}
-
                                     {access($vue).getDeleteButton()}
-
                                     {access($vue).getSaveButton()}
                                 </div>
                             );
@@ -181,7 +200,7 @@ export default {
                                 <getAddButton.type
                                     {...getProps(getAddButton.props, ["onclick", "disabled"])}
                                     class={{
-                                        "hidden": access($vue).isDefaultActive(),
+                                        "hidden": access($vue).isDefaultItemActive(),
                                     }}
                                     onClick={() => access($vue).setDefaultItem()}
 
@@ -200,7 +219,7 @@ export default {
                                     {...getAddButton.props}
                                     ref={saveButtonRef}
                                     class={{
-                                        "hidden": !access($vue).isDefaultActive(),
+                                        "hidden": !access($vue).isDefaultItemActive(),
                                     }}
 
                                     v-slots={getAddButton.children}
@@ -210,14 +229,14 @@ export default {
                             return $vue.$slots.getSaveButton?.({$vue, vnode}) ?? vnode;
                         };
 
-                        const getDeleteButton = (component) => {
-                            const getDeleteButton = access(parent).getDeleteButton(component ?? access($vue).getActiveComponent());
+                        const getDeleteButton = (component = access($vue).getActiveComponent()) => {
+                            const getDeleteButton = access(parent).getDeleteButton(component);
 
                             const vnode = (
                                 <getDeleteButton.type
                                     {...getDeleteButton.props}
                                     class={{
-                                        "hidden": access($vue).isDefaultActive(),
+                                        "hidden": access($vue).isDefaultItemActive(),
                                     }}
 
                                     v-slots={getDeleteButton.children}
@@ -270,8 +289,14 @@ export default {
                                 if (["String", "Object"].includes(active.constructor.name)) {
                                     return items.find((item) => {
                                         return (
-                                            (item[$vue.activeKey] === active[$vue.activeKey])
-                                            || (item[$vue.activeKey] === active)
+                                            (
+                                                (typeof active === "string")
+                                                && (item === active)
+                                            )
+                                            || (
+                                                (item[access(parent).getItemKey(item)] === active[$vue.activeKey])
+                                                || (item[access(parent).getItemKey(item)] === active[access(parent).getItemKey(active)])
+                                            )
                                         );
                                     });
                                 } else if (["Number"].includes(active.constructor.name)) {
@@ -281,25 +306,16 @@ export default {
                                 }
                             };
 
-                            watch(() => ObjectManager.on(access(parent).getState.getData()).clone(), (items, itemsBefore) => {
-                                if (access($vue).isDefaultActive()) {
+                            watch(() => ObjectManager.on(access(parent).getState.getData()).clone(), (items) => {
+                                if (["Object"].includes($vue.active.constructor.name) || access($vue).isDefaultItemActive()) {
                                     access($vue).setDefaultItem(
                                         (["Function"].includes($vue.active.constructor.name))
                                             ? getItem(items, $vue.active(items))
-                                            : getItem(items, $vue.active)
+                                            : getItem(items, $vue.active),
                                     );
-                                } else {
-                                    const item = items.find((item) => {
-                                        return (
-                                            access(parent).getItemIdentifier(selected.value)
-                                            === access(parent).getItemIdentifier(item)
-                                        );
-                                    });
-
-                                    if (!item) {
-                                        // select the default item when the active item is removed
-                                        access($vue).setDefaultItem(items[0] ?? {tid: access(parent).tid.value});
-                                    }
+                                } else if (!items.find((item) => access($vue).isSelectedItem(item))) {
+                                    // select the default item when the active item is removed
+                                    access($vue).setDefaultItem(items[0] ?? {tid: access(parent).tid.value});
                                 }
                             }, {immediate: true});
                         };
@@ -345,7 +361,8 @@ export default {
                             add,
                             remove,
                             isActiveItem,
-                            isDefaultActive,
+                            isSelectedItem,
+                            isDefaultItemActive,
                             getActiveComponent,
                             getItemProps,
                             setDefaultItem,
