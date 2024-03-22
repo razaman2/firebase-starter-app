@@ -9,6 +9,7 @@ type Document = {
 };
 
 type CacheOptions = {
+    name?: string,
     collection: string | Record<string, any>;
     force?: boolean;
     timeout?: number;
@@ -41,13 +42,22 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
 
             _cache: {} as Record<string, any>,
 
-            version
+            modal: {type: "div"},
+
+            version,
         };
     },
     persist: {
         enabled: true,
         strategies: [
-            {storage: localStorage},
+            {
+                storage: localStorage,
+                paths: ["roles", "companies", "settings", "version"],
+            },
+            {
+                storage: sessionStorage,
+                paths: ["_cache"],
+            },
         ],
     },
     getters: {
@@ -57,23 +67,29 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
                     ? {name: options.collection}
                     : options.collection;
 
-                if (!state._cache[config.name]) {
-                    state._cache[config.name] = {};
-                }
+                const name = options.name ?? config.name;
 
-                const collection = state._cache[config.name];
+                if (!state._cache[name]) {state._cache[name] = {};}
 
                 const set = (id: string | number) => {
                     if (id || (id === 0)) {
-                        clearTimeout(state._cache[`${config.name}Timeout`]);
-                        collection[id] = {};
+                        // @ts-ignore
+                        clearTimeout(window.timeouts?.[`${import.meta.env.VITE_APP_NAME} - ${name}Timeout`]);
+                        state._cache[name][id] = false;
 
                         const promise = new Promise((resolve) => {
-                            console.log(`CACHE ${config.name}:`.toUpperCase(), id);
+                            console.log(`%cCACHE ${name.toUpperCase()}:`, "background-color: blue; color: white; padding: 2px;", id);
 
-                            state._cache[`${config.name}Timeout`] = setTimeout(async () => {
-                                const promises = Object.entries(collection).reduce((promises: Array<any>, [id, document]: any) => {
-                                    const _collection = Collection.proxy(config.name, {
+                            // @ts-ignore
+                            if (!window.timeouts) {
+                                // @ts-ignore
+                                window.timeouts = {};
+                            }
+
+                            // @ts-ignore
+                            window.timeouts[`${import.meta.env.VITE_APP_NAME} - ${name}Timeout`] = setTimeout(async () => {
+                                const promises = Object.entries(state._cache[name]).reduce((promises: Array<any>, [id, doc = {}]: any) => {
+                                    const collection = Collection.proxy(config.name, {
                                         parent: config.parent,
                                     });
 
@@ -81,23 +97,30 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
                                         realtime: config.realtime ?? false,
                                         callback: config.callback
                                             ? (...params: any) => {
-                                                return (collection[id] = config.callback(...params));
-                                            }
-                                            : ((snapshot: any) => {
-                                                if (snapshot.exists()) {
-                                                    collection[id] = snapshot.data();
+                                                const data = config.callback(...params);
+
+                                                if (data) {
+                                                    state._cache[name][id] = data;
                                                 }
-                                            }),
+                                            }
+                                            : (snapshot: any) => {
+                                                const data = snapshot.data();
+
+                                                if (data) {
+                                                    state._cache[name][id] = data;
+                                                }
+                                            },
                                     };
 
-                                    return (!document.id || options.force) ? promises.concat(
-                                        config.query
-                                            ? _collection.getDocuments(Object.assign({query: (ref: any) => config.query(ref, id)}, _options))
-                                            : _collection.getDocument(id, _options),
-                                    ) : promises;
+                                    return (!doc.id || options.force)
+                                        ? promises.concat((
+                                            config.query
+                                                ? collection.getDocuments(Object.assign({query: (ref: any) => config.query(ref, id)}, _options))
+                                                : collection.getDocument(id, _options)
+                                        )) : promises;
                                 }, []);
 
-                                console.log(`FETCHING ${config.name}:`.toUpperCase(), promises);
+                                console.log(`%cFETCHING ${name.toUpperCase()}:`, "background-color: blue; color: red; padding: 2px;", promises);
 
                                 const subscriptions = await Promise.all(promises);
 
@@ -107,7 +130,7 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
                                     });
                                 }
 
-                                resolve(state._cache[config.name]);
+                                resolve(state._cache[name]);
                             }, options.timeout);
                         });
 
@@ -119,8 +142,8 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
 
                 if (options.force) {
                     return set(id);
-                } else if (collection[id]) {
-                    return options.async ? collection : collection[id];
+                } else if (state._cache[name][id]) {
+                    return options.async ? state._cache[name] : state._cache[name][id];
                 } else {
                     return set(id);
                 }
@@ -152,6 +175,9 @@ export const useAppStore = defineStore(`${import.meta.env.VITE_APP_NAME}-APP`, {
         },
         appSettings() {
             return this.settings;
+        },
+        showModal(component: any) {
+            this.modal = component;
         },
     },
 });
