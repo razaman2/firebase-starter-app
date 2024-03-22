@@ -3,6 +3,7 @@ import ObjectManager from "@razaman2/object-manager";
 import {setup, access, getProps} from "@razaman2/reactive-view";
 import List from "@components/List.vue";
 import {watch, ref, onMounted, nextTick} from "vue";
+import {v4 as uuid} from "uuid";
 
 export default {
     emits: ["item-active", "item-inactive"],
@@ -55,6 +56,10 @@ export default {
 
                         const setDefaultItem = (item = {tid: access(parent).tid.value}) => {
                             selected.value = item;
+
+                            if (item.id) {
+                                access(parent).tid.value = uuid();
+                            }
                         };
 
                         const getActiveItemIdentifier = () => {
