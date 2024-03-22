@@ -5,7 +5,7 @@ import CustomButton from "@components/CustomButton.vue";
 import {ref, computed, onMounted, Teleport} from "vue";
 
 export default {
-    emits: ["ok", "cancel"],
+    emits: ["ok", "cancel", "dismiss"],
 
     props: {
         ...setup,
@@ -16,6 +16,13 @@ export default {
         persistent: {
             type: Boolean,
             default: false,
+        },
+        position: {
+            type: String,
+            default: "middle",
+            validator: (position) => {
+                return ["top", "middle", "bottom"].includes(position);
+            }
         },
         header: {
             type: Boolean,
@@ -31,7 +38,7 @@ export default {
         },
         show: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         close: {
             type: Boolean,
@@ -45,181 +52,183 @@ export default {
             type: Function,
             default: () => { },
         },
+        onDismiss: {
+            type: Function,
+            default: () => { },
+        },
     },
 
     setup() {
-        return ($vue) => (
-            <ReactiveView
-                modelName="CustomDialog"
-                setup={(parent) => {
-                    const modalRef = ref();
+        return ($vue) => {
+            return (
+                <ReactiveView
+                    modelName="CustomDialog"
+                    setup={(parent) => {
+                        const modalRef = ref();
+                        const isValid = computed(() => true);
 
-                    const isValid = computed(() => true);
-
-                    const template = () => {
-                        const vnode = (
-                            <Teleport to="body">
-                                <dialog ref={modalRef} class="modal">
-                                    {access($vue).modalBox()}
-
-                                    {access($vue).modalBackdrop()}
-                                </dialog>
-                            </Teleport>
-                        );
-
-                        return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const modalBox = () => {
-                        const vnode = (
-                            <div class="modal-box p-0">
-                                {access($vue).header()}
-
-                                {access($vue).modalContent()}
-
-                                {access($vue).modalActions()}
-                            </div>
-                        );
-
-                        return $vue.$slots.modalBox?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const modalContent = () => {
-                        const vnode = (
-                            <div class="px-4">{$vue.$slots.default?.() ?? "No Content"}</div>
-                        );
-
-                        return $vue.$slots.modalContent?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const modalBackdrop = () => {
-                        if (!$vue.persistent) {
+                        const template = () => {
                             const vnode = (
-                                <div class="modal-backdrop" onClick={access($vue).hide}/>
+                                <Teleport to="body">
+                                    <dialog ref={modalRef} class={{
+                                        [`modal-${$vue.position}`]: true,
+                                        "modal": true
+                                    }}>
+                                        {access($vue).modalBox()}
+                                        {access($vue).modalBackdrop()}
+                                    </dialog>
+                                </Teleport>
                             );
 
-                            return $vue.$slots.modalBackdrop?.({$vue, vnode}) ?? vnode;
-                        }
-                    };
+                            return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                        };
 
-                    const modalActions = () => {
-                        const vnode = (
-                            <div class="modal-action flex-wrap m-0 p-4">
-                                {access($vue).ok()}
-
-                                {access($vue).cancel()}
-                            </div>
-                        );
-
-                        return $vue.$slots.modalActions?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const header = () => {
-                        const vnode = (
-                            <div class={{
-                                hidden: !$vue.header,
-                                "flex justify-between bg-blue-50 px-4 py-3": true,
-                            }}>
-                                {access($vue).title()}
-
-                                {access($vue).close()}
-                            </div>
-                        );
-
-                        return $vue.$slots.header?.({$vue, vnode}) ?? vnode;
-                    };
-
-                    const close = () => {
-                        if ($vue.close) {
+                        const modalBox = () => {
                             const vnode = (
-                                <i-mdi-close
-                                    class="text-xl cursor-pointer hover:scale-90 transition duration-500"
-                                    onClick={access($vue).hide}
-                                />
+                                <div class="modal-box p-0">
+                                    {access($vue).modalHeader()}
+                                    {access($vue).modalContent()}
+                                    {access($vue).modalActions()}
+                                </div>
                             );
 
-                            return $vue.$slots.close?.({$vue, vnode}) ?? vnode;
-                        }
-                    };
+                            return $vue.$slots.modalBox?.({$vue, vnode}) ?? vnode;
+                        };
 
-                    const ok = () => {
-                        const vnode = (
-                            <CustomButton
-                                class={{
-                                    hidden: !$vue.ok,
-                                    "btn-success btn-sm": true,
-                                }}
-                                onClick={async () => {
-                                    await $vue.onOk(ObjectManager.on(access(parent).getState.getData()).clone());
+                        const modalContent = () => {
+                            const vnode = (
+                                <div class="px-4">{$vue.$slots.default?.() ?? "No Content"}</div>
+                            );
 
-                                    access($vue).hide();
-                                }}
-                                disabled={!access($vue).isValid.value}
-                            >ok</CustomButton>
-                        );
+                            return $vue.$slots.modalContent?.({$vue, vnode}) ?? vnode;
+                        };
 
-                        return $vue.$slots.ok?.({$vue, vnode}) ?? vnode;
-                    };
+                        const modalBackdrop = () => {
+                            if (!$vue.persistent) {
+                                const vnode = (
+                                    <div class="modal-backdrop" onClick={access($vue).hide} />
+                                );
 
-                    const cancel = () => {
-                        const vnode = (
-                            <CustomButton
-                                class={{
-                                    hidden: !$vue.cancel,
-                                    "btn-error btn-sm": true,
-                                }}
-                                onClick={async () => {
-                                    await $vue.onCancel();
+                                return $vue.$slots.modalBackdrop?.({$vue, vnode}) ?? vnode;
+                            }
+                        };
 
-                                    access($vue).hide();
-                                }}
-                            >cancel</CustomButton>
-                        );
+                        const modalActions = () => {
+                            const vnode = (
+                                <div class="modal-action flex-wrap m-0 p-4">
+                                    {access($vue).ok()}
+                                    {access($vue).cancel()}
+                                </div>
+                            );
 
-                        return $vue.$slots.cancel?.({$vue, vnode}) ?? vnode;
-                    };
+                            return $vue.$slots.modalActions?.({$vue, vnode}) ?? vnode;
+                        };
 
-                    const title = () => {
-                        const vnode = (
-                            <h3 class="font-bold">{$vue.title}</h3>
-                        );
+                        const modalHeader = () => {
+                            const vnode = (
+                                <div class={{
+                                    hidden: !$vue.header,
+                                    "flex justify-between bg-blue-50 p-4": true,
+                                }}>
+                                    {access($vue).modalTitle()}
+                                    {access($vue).close()}
+                                </div>
+                            );
 
-                        return $vue.$slots.title?.({$vue, vnode}) ?? vnode;
-                    };
+                            return $vue.$slots.modalHeader?.({$vue, vnode}) ?? vnode;
+                        };
 
-                    const vnodes = {template, modalBox, modalContent, modalBackdrop, modalActions, title, header, close, ok, cancel};
+                        const modalTitle = () => {
+                            const vnode = (
+                                <h3 class="font-bold">{$vue.title}</h3>
+                            );
 
-                    const show = () => {
-                        modalRef.value.showModal();
-                    };
+                            return $vue.$slots.modalTitle?.({$vue, vnode}) ?? vnode;
+                        };
 
-                    const hide = () => {
-                        modalRef.value.close();
-                    };
+                        const close = () => {
+                            if ($vue.close) {
+                                const vnode = (
+                                    <i-mdi-close
+                                        class="text-xl cursor-pointer hover:scale-90 transition duration-500"
+                                        onClick={access($vue).hide}
+                                    />
+                                );
 
-                    const showing = () => {
-                        return modalRef.value.open;
-                    };
+                                return $vue.$slots.close?.({$vue, vnode}) ?? vnode;
+                            }
+                        };
 
-                    const self = Object.assign(vnodes, {show, hide, showing, modalRef, isValid});
+                        const ok = () => {
+                            const vnode = (
+                                <CustomButton
+                                    class={{
+                                        hidden: !$vue.ok,
+                                        "btn-success btn-sm": true,
+                                    }}
+                                    onClick={async () => {
+                                        await $vue.onOk(ObjectManager.on(access(parent).getState.getData()).clone());
 
-                    onMounted(() => {
-                        modalRef.value.addEventListener("close", () => {
-                            access(parent).getState.replaceData();
+                                        access($vue).hide();
+                                    }}
+                                    disabled={!access($vue).isValid.value}
+                                >ok</CustomButton>
+                            );
+
+                            return $vue.$slots.ok?.({$vue, vnode}) ?? vnode;
+                        };
+
+                        const cancel = () => {
+                            const vnode = (
+                                <CustomButton
+                                    class={{
+                                        hidden: !$vue.cancel,
+                                        "btn-error btn-sm": true,
+                                    }}
+                                    onClick={async () => {
+                                        await $vue.onCancel();
+
+                                        access($vue).hide();
+                                    }}
+                                >cancel</CustomButton>
+                            );
+
+                            return $vue.$slots.cancel?.({$vue, vnode}) ?? vnode;
+                        };
+
+                        const vnodes = {template, modalBox, modalContent, modalBackdrop, modalActions, modalTitle, modalHeader, close, ok, cancel};
+
+                        const show = () => {
+                            modalRef.value.showModal();
+                        };
+
+                        const hide = () => {
+                            modalRef.value.close();
+                        };
+
+                        const showing = () => {
+                            return modalRef.value.open;
+                        };
+
+                        const self = Object.assign(vnodes, {show, hide, showing, modalRef, isValid});
+
+                        onMounted(() => {
+                            modalRef.value.addEventListener("close", async () => {
+                                await $vue.onDismiss();
+                            });
+
+                            if ($vue.show) {
+                                access($vue).show();
+                            }
                         });
 
-                        if ($vue.show) {
-                            access($vue).show();
-                        }
-                    });
+                        return $vue.setup({parent, self});
+                    }}
 
-                    return $vue.setup({parent, self});
-                }}
-
-                v-slots={$vue.$slots}
-            />
-        );
+                    v-slots={$vue.$slots}
+                />
+            );
+        };
     },
 };
 </script>
-
