@@ -102,7 +102,7 @@ export const useAuthStore = defineStore(`${import.meta.env.VITE_APP_NAME}-AUTH`,
                         && state.settings.auth.company.getData("id")
                         && !(
                             ["inactive"].includes(state.settings.auth.user.getData("status"))
-                            || ["inactive"].includes(state.settings.auth.company.getData("status"))
+                            || this.isUserHaveRoles("super") ? false : ["inactive"].includes(state.settings.auth.company.getData("status"))
                         )
                         && useAppStore().appSettings().getData("id")
                     );
