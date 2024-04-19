@@ -140,7 +140,7 @@ service cloud.firestore {
             allow get: if signedIn();
 
             // only super users can write app settings.
-            allow write: if userHasRole("super");
+            allow create, update: if userHasRole("super");
         }
 
         match /updates/{updateId} {
