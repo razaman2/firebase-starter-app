@@ -85,7 +85,7 @@ export default {
                             return item[access($vue).getItemKey(item)];
                         };
 
-                        const getDefaultComponent = (data, handler) => {
+                        const getDefaultComponent = (data) => {
                             const id = access($vue).getItemIdentifier(data);
 
                             const component = (
@@ -94,7 +94,7 @@ export default {
                             );
 
                             if (component && data) {
-                                access(component).getState.replaceData(handler ? handler(access(component).getState.getData()) : data);
+                                access(component).getState.replaceData((typeof data === "function") ? data(access(component).getState.getData()) : data);
                             }
 
                             return component;
@@ -308,8 +308,16 @@ export default {
                                     : $vue.getDefaultDisplayComponent) ?? access($vue).getDisplay();
 
                                 return $vue.$slots.getDefaultDisplay?.({$vue, vnode}) ?? vnode;
-                            } else {
+                            } else if ($vue.getDefaultDisplayComponent === undefined) {
                                 return access($vue).getDisplay();
+                            } else {
+                                return (
+                                    <ReactiveView
+                                        setup={(parent) => {
+                                            return {parent, self: {template: () => undefined}};
+                                        }}
+                                    />
+                                );
                             }
                         };
 
@@ -365,7 +373,9 @@ export default {
                                 <button
                                     ref={deleteButtonRef}
                                     class="bg-red-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase"
-                                    onClick={() => access($vue).remove(component)}
+                                    onClick={() => {
+                                        return access($vue).remove(component);
+                                    }}
                                     disabled={!String(access($vue).getItemIdentifier(component ? access(component).getState.getData() : {}))}
                                 >delete</button>
                             );
