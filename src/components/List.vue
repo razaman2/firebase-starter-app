@@ -85,7 +85,7 @@ export default {
                             return item[access($vue).getItemKey(item)];
                         };
 
-                        const getDefaultComponent = (data) => {
+                        const getDefaultComponent = (data, handler) => {
                             const id = access($vue).getItemIdentifier(data);
 
                             const component = (
@@ -94,7 +94,7 @@ export default {
                             );
 
                             if (component && data) {
-                                access(component).getState.replaceData((typeof data === "function") ? data(access(component).getState.getData()) : data);
+                                access(component).getState.replaceData(handler ? handler(access(component).getState.getData()) : data);
                             }
 
                             return component;
@@ -355,7 +355,10 @@ export default {
                             const vnode = (
                                 <button
                                     ref={addButtonRef}
-                                    class="bg-green-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase"
+                                    class={{
+                                        "tw-bg-green-500 tw-text-white tw-px-3 tw-py-2 enabled:hover:tw-opacity-90 disabled:tw-cursor-not-allowed disabled:tw-opacity-60 tw-cursor-pointer tw-border-0 tw-rounded tw-uppercase": true,
+                                        "bg-green-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase": true,
+                                    }}
                                     onClick={() => {
                                         const component = access($vue).getDefaultComponent(data);
 
@@ -372,7 +375,10 @@ export default {
                             const vnode = (
                                 <button
                                     ref={deleteButtonRef}
-                                    class="bg-red-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase"
+                                    class={{
+                                        "tw-bg-red-500 tw-text-white tw-px-3 tw-py-2 enabled:hover:tw-opacity-90 disabled:tw-cursor-not-allowed disabled:tw-opacity-60 tw-cursor-pointer tw-border-0 tw-rounded tw-uppercase": true,
+                                        "bg-red-500 text-white px-3 py-2 enabled:hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer border-0 rounded uppercase": true,
+                                    }}
                                     onClick={() => {
                                         return access($vue).remove(component);
                                     }}
