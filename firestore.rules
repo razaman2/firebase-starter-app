@@ -117,7 +117,7 @@ service cloud.firestore {
                 allow read: if signedIn();
 
                 // update must belong to this company.
-                allow create: if incomingData().get("belongsTo", []).hasAny([companyId + " companies"]);
+                allow create: if incomingData().get("belongsTo", []).hasAny(["companies/" + companyId]);
             }
 
             // START COMPANY CUSTOM RULES //
@@ -210,7 +210,7 @@ service cloud.firestore {
                 allow read: if signedIn();
 
                 // update must belong to this user.
-                allow create: if incomingData().get("belongsTo", []).hasAny([userId + " users"]);
+                allow create: if incomingData().get("belongsTo", []).hasAny(["users/" + userId]);
             }
 
             // START USERS CUSTOM RULES //

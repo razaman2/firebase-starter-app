@@ -1,7 +1,8 @@
 <script lang="jsx">
 import FileManager from "@helpers/FileManager";
 import {getStorage} from "firebase/storage";
-import {Collection} from "@razaman2/collection-proxy";
+import {query, count, startAfter, endBefore, limit, limitToLast, orderBy, getAggregateFromServer} from "firebase/firestore";
+import {Collection, Pagination} from "@razaman2/collection-proxy";
 import ReactiveView, {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomCollapse from "@components/CustomCollapse.vue";
 import CustomTable from "@components/CustomTable.vue";
@@ -9,8 +10,89 @@ import CustomTableRow from "@components/CustomTableRow.vue";
 import CustomUploader from "@components/CustomUploader.vue";
 import CustomButton from "@components/CustomButton.vue";
 import ItemsList from "@components/ItemsList.vue";
-import {faker} from "@faker-js/faker";
+import CustomTablePagination from "@components/CustomTablePagination.vue";
+import {useAppStore} from "@stores/app";
 import {ref, inject, onMounted} from "vue";
+import {faker} from "@faker-js/faker";
+
+const FirestoreTablePagination = {
+    props: {
+        ...setup,
+    },
+
+    setup() {
+        const list = inject("list");
+
+        return ($vue) => (
+            <CustomTablePagination
+                modelName="Pagination"
+                setup={(parent) => {
+                    const next = () => {
+                        const next = access(parent).next();
+
+                        return (
+                            <next.type
+                                {...next.props}
+                                onClick={() => {
+                                    access(list).getState.next();
+                                }}
+
+                                v-slots={next.children}
+                            />
+                        );
+                    };
+
+                    const prev = () => {
+                        const prev = access(parent).prev();
+
+                        return (
+                            <prev.type
+                                {...prev.props}
+                                onClick={() => {
+                                    access(list).getState.prev();
+                                }}
+
+                                v-slots={prev.children}
+                            />
+                        );
+                    };
+
+                    const rows = () => {
+                        const rows = access(parent).rows();
+
+                        return (
+                            <rows.type
+                                {...rows.props}
+                                onUpdate:modelState={({after}) => {
+                                    // access(list).getState.get(after);
+                                    access(parent).getState.setData({
+                                        // ...access(parent).getState.getData(),
+                                        rows: parseInt(after),
+                                    });
+
+                                    console.log("log data:", access(parent).getState);
+                                }}
+
+                                v-slots={rows.children}
+                            />
+                        );
+                    };
+
+                    const vnodes = {next, prev, rows};
+
+                    const self = Object.assign(vnodes, {});
+
+                    return $vue.setup({parent, self});
+                }}
+                model={(payload) => {
+                    return Collection.setConfig({getAggregateFromServer}, {payload});
+                }}
+
+                v-slots={$vue.$slots}
+            />
+        );
+    },
+};
 
 const Attachment = {
     setup() {
@@ -48,7 +130,7 @@ const Attachment = {
                             try {
                                 return await new FileManager(getStorage()).deleteFile(access(parent).getState.getData()) ?? true;
                             } catch (e) {
-                                return ["storage/object-not-found"].includes(e.code)
+                                return ["storage/object-not-found"].includes(e.code);
                             }
                         };
 
@@ -78,47 +160,14 @@ export default {
                     // region TEMPLATE V-NODES
                     const template = () => {
                         const vnode = (
-                            <div class="h-full bg-slate-100 p-4 items-center">
+                            <div class="grow bg-yellow-50 p-4">
                                 <h1 class="text-2xl text-slate-500 text-center border">Home Page</h1>
 
-                                <CustomModal
-                                    cancel={true}
-                                    ref={modalRef}
-
-                                    v-slots={{
-                                        default: () => {
-                                            return (
-                                                <div class="flex flex-col gap-y-2">
-                                                    <label class="flex flex-col gap-y-1">
-                                                        <span>First Name</span>
-                                                        <CustomInput
-                                                            class="rounded"
-                                                            state={access(modalRef).getState?.getData("firstName")}
-                                                            onUpdate:modelState={({after}) => {
-                                                                access(modalRef).getState.setData("firstName", after);
-                                                            }}
-                                                            debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
-                                                        />
-                                                    </label>
-
-                                                    <label class="flex flex-col gap-y-1">
-                                                        <span>Last Name</span>
-                                                        <CustomInput
-                                                            class="rounded"
-                                                            state={access(modalRef).getState?.getData("lastName")}
-                                                            onUpdate:modelState={({after}) => {
-                                                                access(modalRef).getState.setData("lastName", after);
-                                                            }}
-                                                            debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
-                                                        />
-                                                    </label>
-                                                </div>
-                                            );
-                                        },
-                                    }}
-                                />
-
-                                <div class="py-10">
+                                <CustomCollapse
+                                    class="my-3 rounded-none"
+                                    titleClass="bg-slate-500 text-white font-semibold"
+                                    contentClass="px-4"
+                                >
                                     <h1 class="font-semibold mb-3">File Upload</h1>
 
                                     <ItemsList
@@ -216,12 +265,72 @@ export default {
                                             });
                                         }}
                                     />
-                                </div>
+                                </CustomCollapse>
 
                                 <CustomButton
-                                    onClick={() => {
-                                        console.log("it's ok:", access(modalRef));
-                                        access(modalRef).show();
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        useAppStore().showModal(
+                                            <CustomModal
+                                                cancel={true}
+                                                position="middle"
+                                                ref={modalRef}
+                                                setup={(parent) => {
+                                                    const modalHeader = () => {
+                                                        const modalHeader = access(parent).modalHeader();
+
+                                                        const vnode = (
+                                                            <modalHeader.type
+                                                                {...modalHeader.props}
+                                                            >
+                                                                {modalHeader.children}
+                                                            </modalHeader.type>
+                                                        );
+
+                                                        return $vue.$slots.modalHeader?.({$vue, vnode}) ?? vnode;
+                                                    };
+
+                                                    const vnodes = {modalHeader};
+
+                                                    const self = Object.assign(vnodes, {});
+
+                                                    return {parent, self};
+                                                }}
+
+                                                v-slots={{
+                                                    default: () => {
+                                                        return (
+                                                            <div class="flex flex-col gap-y-2">
+                                                                <label class="flex flex-col gap-y-1">
+                                                                    <span>First Name</span>
+                                                                    <CustomInput
+                                                                        class="rounded"
+                                                                        state={access(modalRef).getState?.getData("firstName")}
+                                                                        onUpdate:modelState={({after}) => {
+                                                                            access(modalRef).getState.setData("firstName", after);
+                                                                        }}
+                                                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
+                                                                    />
+                                                                </label>
+
+                                                                <label class="flex flex-col gap-y-1">
+                                                                    <span>Last Name</span>
+                                                                    <CustomInput
+                                                                        class="rounded"
+                                                                        state={access(modalRef).getState?.getData("lastName")}
+                                                                        onUpdate:modelState={({after}) => {
+                                                                            access(modalRef).getState.setData("lastName", after);
+                                                                        }}
+                                                                        debounce={import.meta.env.VITE_DEBOUNCE_AGGRESSIVE}
+                                                                    />
+                                                                </label>
+                                                            </div>
+                                                        );
+                                                    },
+                                                }}
+                                            />,
+                                        );
                                     }}
                                 >open modal</CustomButton>
 
@@ -231,7 +340,8 @@ export default {
                                         title="Users List"
                                         class="border"
                                         pinRows={true}
-                                        pagination={{rows: 5}}
+                                        striped={true}
+                                        pagination={{rows: 3}}
                                         getDisplayComponent={CustomTableRow}
                                         getItemProps={{
                                             model: (payload) => {
@@ -239,6 +349,8 @@ export default {
                                             },
                                         }}
                                         setup={(parent) => {
+                                            const tablePaginationRef = ref();
+
                                             // region TEMPLATE V-NODES
                                             const getAddButton = () => {
                                                 const getAddButton = access(parent.parent.parent).getAddButton({
@@ -256,13 +368,37 @@ export default {
                                                 return $vue.$slots.getAddButton?.({$vue, vnode}) ?? vnode;
                                             };
 
-                                            const vnodes = {getAddButton};
+                                            const pagination = () => {
+                                                const pagination = access(parent).pagination();
+
+                                                return (
+                                                    <FirestoreTablePagination
+                                                        {...pagination.props}
+                                                        ref={tablePaginationRef}
+
+                                                        v-slots={pagination.children}
+                                                    />
+                                                );
+                                            };
+
+                                            const vnodes = {getAddButton, pagination};
                                             // endregion
 
                                             const self = Object.assign(vnodes, {});
 
-                                            onMounted(() => {
-                                                access(parent).getState.getDocuments();
+                                            onMounted(async () => {
+                                                const pagination = await access(tablePaginationRef).getState.getCollectionAggregate({
+                                                    count: count(),
+                                                });
+
+                                                access(parent).getState.getDocuments(new Pagination(pagination.getData("rows"), {
+                                                    query: (ref) => {
+                                                        return query(
+                                                            ref,
+                                                            orderBy("createdAt"),
+                                                        );
+                                                    },
+                                                }));
                                             });
 
                                             return {parent, self};
@@ -282,7 +418,7 @@ export default {
                                             }
                                         }}
                                         model={(payload) => {
-                                            return Collection.proxy({payload});
+                                            return Collection.setConfig({query, limit, limitToLast, startAfter, endBefore}, {payload});
                                         }}
 
                                         v-slots={{

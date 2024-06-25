@@ -10,10 +10,10 @@ type FileOptions = {
     path: string;
     handler: (snapshot: UploadTaskSnapshot) => void;
     public: boolean;
-};
+}
 
 export default class FileManager {
-    constructor(private storage: StorageReference, private options?: Partial<FileOptions>) { }
+    constructor(private storage: StorageReference, private options?: Partial<FileOptions>) {}
 
     static getFilename(name: string) {
         return name.replace(/(\.\w+$)/, ($1: string) => `-${Date.now()}${$1}`);
@@ -58,12 +58,12 @@ export default class FileManager {
         });
     }
 
-    deleteFile({path, url}: {path?: string; url?: string;}) {
+    deleteFile({path, url}: {path?: string, url?: string}) {
         return deleteObject(ref(this.storage, path ?? url));
     }
 
-    getFileUrl({path}: {path: string;}) {
-        return getDownloadURL(ref(this.storage, path));
+    getFileUrl({path, url}: {path?: string, url?: string}) {
+        return url ?? getDownloadURL(ref(this.storage, path));
     }
 }
 

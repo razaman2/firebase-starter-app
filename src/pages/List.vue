@@ -1,6 +1,7 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/collection-proxy";
+import {Collection, Update} from "@razaman2/collection-proxy";
 import ReactiveView, {access, setup, getProps} from "@razaman2/reactive-view";
+import CustomCollapse from "@components/CustomCollapse.vue";
 import {deleteField, writeBatch, getFirestore} from "firebase/firestore";
 import {computed, ref} from "vue";
 import {useAuthStore} from "@stores/auth";
@@ -78,7 +79,7 @@ const ListItem = {
                             payload,
                             creator: useAuthStore().authUser(),
                         }).onWrite({
-                            handler: (collection) => new Updates(collection),
+                            handler: (collection) => new Update(collection),
                             triggers: ["create", "update", "delete"],
                         });
                     }}
@@ -133,7 +134,7 @@ export default {
             const itemsListCheckbox = ref();
 
             return (
-                <div class="flex flex-col gap-y-10 w-max mx-auto py-3">
+                <div class="flex flex-col gap-y-10 py-3 px-4">
                     <List
                         logging={false}
                         addToStart={false}
@@ -201,137 +202,142 @@ export default {
                         v-slots={$vue.$slots}
                     />
 
-                    <ItemsList
-                        logging={false}
-                        getDisplayComponent={AddListItem}
-                        getItemProps={{
-                            setup: (parent) => {
-                                const getItemDisplay = computed(() => {
-                                    return access(parent).getState.getData("name");
-                                });
+                    <CustomCollapse
+                        class="rounded-none"
+                        titleClass="bg-slate-500"
+                    >
+                        <ItemsList
+                            logging={false}
+                            getDisplayComponent={AddListItem}
+                            getItemProps={{
+                                setup: (parent) => {
+                                    const getItemDisplay = computed(() => {
+                                        return access(parent).getState.getData("name");
+                                    });
+
+                                    const template = () => {
+                                        return (
+                                            <div class="flex flex-col gap-y-1">
+                                                <CustomSelect
+                                                    class="rounded"
+                                                    optionProperty="id"
+                                                    options={useAppStore().appRoles().getData()}
+                                                    state={access(parent).getState.getData("role")}
+                                                    onUpdate:modelState={({before, after}) => {
+                                                        if (before !== after) {
+                                                            access(parent).getState.setData({role: after ?? deleteField()});
+                                                        }
+                                                    }}
+                                                />
+
+                                                {access(parent).getNameInput()}
+                                            </div>
+                                        );
+                                    };
+
+                                    const self = {template, getItemDisplay};
+
+                                    return {parent, self};
+                                },
+                            }}
+                            onItemAdding={async ({component}) => {
+                                if (component) {
+                                    const batch = writeBatch(getFirestore());
+
+                                    await access(component).getState.create({batch});
+                                    await batch.commit();
+                                } else {
+                                    return access(itemsListCheckbox).getState.getData();
+                                }
+                            }}
+                            onItemDeleting={async ({component}) => {
+                                if (component) {
+                                    const batch = writeBatch(getFirestore());
+
+                                    await access(component).getState.remove({batch});
+                                    await batch.commit();
+                                } else {
+                                    return access(itemsListCheckbox).getState.getData();
+                                }
+                            }}
+                            onItemActive={({data}) => {
+                                console.log("item active:", {data});
+                            }}
+                            onItemInactive={({data}) => {
+                                console.log("item inactive:", {data});
+                            }}
+                            setup={(parent) => {
+                                access(parent).getState.getDocuments();
 
                                 const template = () => {
-                                    return (
-                                        <div class="flex flex-col gap-y-1">
-                                            <CustomSelect
-                                                class="rounded"
-                                                optionProperty="id"
-                                                options={useAppStore().appRoles().getData()}
-                                                state={access(parent).getState.getData("role")}
-                                                onUpdate:modelState={({before, after}) => {
-                                                    if (before !== after) {
-                                                        access(parent).getState.setData({role: after ?? deleteField()});
-                                                    }
-                                                }}
-                                            />
+                                    const vnode = (
+                                        <div class="flex flex-col gap-y-3">
+                                            <div class="p-2 bg-slate-500 text-white font-semibold flex justify-between">
+                                                <span>Items List</span>
 
-                                            {access(parent).getNameInput()}
+                                                <CustomOptionGroup
+                                                    state={true}
+                                                    type="checkbox"
+                                                    class="flex w-min"
+                                                    options={[""]}
+                                                    ref={itemsListCheckbox}
+                                                />
+                                            </div>
+
+                                            {access(parent).template()}
+                                            {access($vue).getSaveAllButton()}
                                         </div>
+                                    );
+
+                                    return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
+                                };
+
+                                const getItem = (params) => {
+                                    const getItem = access(parent).getItem(params);
+
+                                    return (
+                                        <getItem.type
+                                            {...getProps(getItem.props, "class")}
+                                            class={getItem.props.class.replace("bg-green-500", "bg-orange-400").replace("bg-gray-400", "bg-black").concat(" rounded")}
+
+                                            v-slots={getItem.children}
+                                        />
                                     );
                                 };
 
-                                const self = {template, getItemDisplay};
+                                const getSaveAllButton = () => {
+                                    const vnode = (
+                                        <CustomButton
+                                            class={{
+                                                hidden: access(itemsListCheckbox).getState?.getData(),
+                                                "bg-green-500 disabled:bg-green-500 hover:bg-green-400": true,
+                                            }}
+                                            onClick={async () => {
+                                                const batch = writeBatch(getFirestore());
+
+                                                await access(parent).map(({component}) => {
+                                                    return access(component).getState.create({batch});
+                                                });
+
+                                                await batch.commit();
+                                            }}
+                                        >save all</CustomButton>
+                                    );
+
+                                    return $vue.$slots.getSaveAllButton?.({$vue, vnode}) ?? vnode;
+                                };
+
+                                const self = {template, getItem, getSaveAllButton};
 
                                 return {parent, self};
-                            },
-                        }}
-                        onItemAdding={async ({component}) => {
-                            if (component) {
-                                const batch = writeBatch(getFirestore());
+                            }}
+                            model={(payload) => {
+                                return Collection.proxy({payload});
+                            }}
 
-                                await access(component).getState.create({batch});
-                                await batch.commit();
-                            } else {
-                                return access(itemsListCheckbox).getState.getData();
-                            }
-                        }}
-                        onItemDeleting={async ({component}) => {
-                            if (component) {
-                                const batch = writeBatch(getFirestore());
-
-                                await access(component).getState.remove({batch});
-                                await batch.commit();
-                            } else {
-                                return access(itemsListCheckbox).getState.getData();
-                            }
-                        }}
-                        onItemActive={({data}) => {
-                            console.log("item active:", {data});
-                        }}
-                        onItemInactive={({data}) => {
-                            console.log("item inactive:", {data});
-                        }}
-                        setup={(parent) => {
-                            access(parent).getState.getDocuments();
-
-                            const template = () => {
-                                const vnode = (
-                                    <div class="flex flex-col gap-y-3">
-                                        <div class="p-2 bg-slate-500 text-white font-semibold flex justify-between">
-                                            <span>Items List</span>
-
-                                            <CustomOptionGroup
-                                                state={true}
-                                                type="checkbox"
-                                                class="flex w-min"
-                                                options={[""]}
-                                                ref={itemsListCheckbox}
-                                            />
-                                        </div>
-
-                                        {access(parent).template()}
-                                        {access($vue).getSaveAllButton()}
-                                    </div>
-                                );
-
-                                return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
-                            };
-
-                            const getItem = (params) => {
-                                const getItem = access(parent).getItem(params);
-
-                                return (
-                                    <getItem.type
-                                        {...getProps(getItem.props, "class")}
-                                        class={getItem.props.class.replace("bg-green-500", "bg-orange-400").replace("bg-gray-400", "bg-black").concat(" rounded")}
-
-                                        v-slots={getItem.children}
-                                    />
-                                );
-                            };
-
-                            const getSaveAllButton = () => {
-                                const vnode = (
-                                    <CustomButton
-                                        class={{
-                                            hidden: access(itemsListCheckbox).getState?.getData(),
-                                            "bg-green-500 disabled:bg-green-500 hover:bg-green-400": true,
-                                        }}
-                                        onClick={async () => {
-                                            const batch = writeBatch(getFirestore());
-
-                                            await access(parent).map(({component}) => {
-                                                return access(component).getState.create({batch});
-                                            });
-
-                                            await batch.commit();
-                                        }}
-                                    >save all</CustomButton>
-                                );
-
-                                return $vue.$slots.getSaveAllButton?.({$vue, vnode}) ?? vnode;
-                            };
-
-                            const self = {template, getItem, getSaveAllButton};
-
-                            return {parent, self};
-                        }}
-                        model={(payload) => {
-                            return Collection.proxy({payload});
-                        }}
-
-                        v-slots={$vue.$slots}
-                    />
+                            v-slots={$vue.$slots}
+                        />
+                    </CustomCollapse>
                 </div>
             );
         };

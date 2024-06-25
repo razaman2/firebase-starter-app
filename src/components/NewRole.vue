@@ -1,5 +1,5 @@
 <script lang="jsx">
-import {Collection, Updates} from "@razaman2/collection-proxy";
+import {Collection, Update} from "@razaman2/collection-proxy";
 import ReactiveView, {setup, access} from "@razaman2/reactive-view";
 import {computed} from "vue";
 import {useAuthStore} from "@stores/auth";
@@ -94,7 +94,7 @@ export default {
                         payload,
                         creator: useAuthStore().authUser(),
                     }).onWrite({
-                        handler: (collection) => new Updates(collection),
+                        handler: (collection) => new Update(collection),
                         triggers: ["create", "update", "delete"],
                     });
                 }}

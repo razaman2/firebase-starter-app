@@ -306,7 +306,7 @@ export default {
                                     });
                                 } else if (["Number"].includes(active.constructor.name)) {
                                     return (active > -1)
-                                        ? items[active]
+                                        ? items[(active > items.length) ? (items.length - 1) : active]
                                         : items[items.length - Math.abs(active)];
                                 }
                             };
@@ -316,7 +316,7 @@ export default {
                                     access($vue).setDefaultItem(
                                         (["Function"].includes($vue.active.constructor.name))
                                             ? getItem(items, $vue.active(items))
-                                            : getItem(items, $vue.active),
+                                            : getItem(items, $vue.active) ?? items[0],
                                     );
                                 } else if (!items.find((item) => access($vue).isSelectedItem(item))) {
                                     // select the default item when the active item is removed

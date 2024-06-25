@@ -2,9 +2,12 @@
 import {setup, access} from "@razaman2/reactive-view";
 import Auth from "@layouts/Auth.vue";
 import CustomDropdown from "@components/CustomDropdown.vue";
+import CustomModal from "@components/CustomModal.vue";
+import CustomInput from "@components/CustomInput.vue";
 import {RouterLink} from "vue-router";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@stores/auth";
+import {useAppStore} from "@stores/app";
 import {useNavigationStore} from "@stores/navigation";
 
 export default {
@@ -27,6 +30,45 @@ export default {
                                 onUpdate:modelState={({after}) => {
                                     useNavigationStore().set({drawer: after});
                                 }}
+                                // onClick={() => {
+                                //     useAppStore().showModal(
+                                //         <CustomModal
+                                //             defaultData={{firstName: "Jane", lastName: "Doe"}}
+                                //             setup={(parent) => {
+                                //                 // region TEMPLATE V-NODES
+                                //                 const modalContent = () => {
+                                //                     const vnode = (
+                                //                         <div class="flex flex-col gap-y-1 px-4 py-2">
+                                //                             <CustomInput placeholder="First Name" class="rounded" state={access(parent).getState.getData("firstName")} onUpdate:modelState={({after}) => {
+                                //                                 access(parent).getState.setData("firstName", after);
+                                //                             }}/>
+                                //                             <CustomInput placeholder="Last Name" class="rounded" state={access(parent).getState.getData("lastName")} onUpdate:modelState={({after}) => {
+                                //                                 access(parent).getState.setData("lastName", after);
+                                //                             }}/>
+                                //                         </div>
+                                //                     );
+                                //
+                                //                     return $vue.$slots.modalContent?.({$vue, vnode}) ?? vnode;
+                                //                 };
+                                //
+                                //                 const modalTitle = () => {
+                                //                     const vnode = (
+                                //                         <div class="font-extrabold font-mono">User Input</div>
+                                //                     );
+                                //
+                                //                     return $vue.$slots.modalTitle?.({$vue, vnode}) ?? vnode;
+                                //                 };
+                                //
+                                //                 const vnodes = {modalContent, modalTitle};
+                                //                 // endregion
+                                //
+                                //                 const self = Object.assign(vnodes, {});
+                                //
+                                //                 return {parent, self};
+                                //             }}
+                                //         />,
+                                //     );
+                                // }}
                             >
                                 {access($vue).toolbar()}
                                 {access(parent).template()}

@@ -2,23 +2,20 @@
 import ReactiveView, {access, setup} from "@razaman2/reactive-view";
 import CustomButton from "@components/CustomButton.vue";
 import CustomSelect from "@components/CustomSelect.vue";
-import {inject, computed, watch} from "vue";
+import {computed} from "vue";
 
 export default {
     props: {
-        ...setup
+        ...setup,
     },
 
     setup() {
         return ($vue) => (
             <ReactiveView
-                defaultData={{page: 1, rows: 5, current: 1}}
+                defaultData={{page: 1, rows: 5, current: 1, count: 0}}
                 setup={(parent) => {
-                    const list = inject('list');
-
                     const template = () => {
-                        const items = access(list).size();
-                        const {current, page, rows} = access(parent).getState.getData();
+                        const {current, page, rows, count} = access(parent).getState.getData();
 
                         const vnode = (
                             <div class="flex flex-wrap gap-x-2 gap-y-2 items-center justify-end">
@@ -26,7 +23,7 @@ export default {
 
                                 {access($vue).rows()}
 
-                                {(current > items) ? ((items === 0) ? items : (current - rows)) : current} - {(rows * page) > items ? items : (rows * page)} of {items}
+                                {(current > count) ? ((count === 0) ? count : (current - rows)) : current} - {(rows * page) > count ? count : (rows * page)} of {count}
 
                                 <div class="flex gap-x-1">
                                     {access($vue).prev()}
@@ -50,12 +47,12 @@ export default {
                                     if (isValid) {
                                         access(parent).getState.setData({
                                             page: (page - 1),
-                                            current: (current - rows)
+                                            current: (current - rows),
                                         });
-                                    };
+                                    }
                                 }}
                             >
-                                <i-mdi-navigate-before />
+                                <i-mdi-navigate-before/>
                             </CustomButton>
                         );
 
@@ -63,9 +60,8 @@ export default {
                     };
 
                     const next = () => {
-                        const items = access(list).size();
-                        const {current, page, rows} = access(parent).getState.getData();
-                        const isValid = (page * rows) < items;
+                        const {current, page, rows, count} = access(parent).getState.getData();
+                        const isValid = (page * rows) < count;
 
                         const vnode = (
                             <CustomButton
@@ -75,12 +71,12 @@ export default {
                                     if (isValid) {
                                         access(parent).getState.setData({
                                             page: (page + 1),
-                                            current: (current + rows)
+                                            current: (current + rows),
                                         });
                                     }
                                 }}
                             >
-                                <i-mdi-navigate-next />
+                                <i-mdi-navigate-next/>
                             </CustomButton>
                         );
 
@@ -93,9 +89,9 @@ export default {
                                 placeholder={false}
                                 class="rounded max-w-fit bg-transparent border-none cursor-pointer"
                                 options={[3, 5, 7, 10, 15, 20, 25]}
-                                state={access(parent).getState.getData('rows')}
+                                state={access(parent).getState.getData("rows")}
                                 onUpdate:modelState={({after}) => {
-                                    access(parent).getState.replaceData({rows: parseInt(after)});
+                                    access(parent).getState.setData({rows: parseInt(after)});
                                 }}
                             />
                         );
@@ -107,16 +103,12 @@ export default {
 
                     const self = Object.assign(vnodes, {});
 
-                    watch(access(parent).getState.getData(), (pagination) => {
-                        console.log('pagination:', list);
-                    }, {deep: true, immediate: true});
-
                     return $vue.setup({parent, self});
                 }}
 
                 v-slots={$vue.$slots}
             />
         );
-    }
+    },
 };
 </script>

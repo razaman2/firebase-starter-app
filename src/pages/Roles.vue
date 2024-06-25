@@ -11,9 +11,7 @@ export default {
 
         notifications.on("creating", (collection, {batch}) => {
             if (collection.getDoc().id === "super") {
-                return Collection.proxy("roles", {
-                    owners: [useAuthStore().authCompany()],
-                }).setDoc(collection.getDoc().id).setParent(useAuthStore().authUser()).create({batch});
+                return Collection.proxy("roles").setParent(useAuthStore().authUser()).setOwners(useAuthStore().authCompany()).setDoc(collection.getDoc().id).create({batch});
             }
         });
 
@@ -21,7 +19,7 @@ export default {
             return (
                 <div class="p-4">
                     <h1 class={{
-                        hidden: useAppStore().getRoles("super"),
+                        "hidden": useAppStore().getRoles("super"),
                         "text-md shadow-lg text-white font-semibold bg-orange-500 px-2 py-1 mb-3 uppercase": true,
                     }}>create at least a super role to continue.</h1>
 

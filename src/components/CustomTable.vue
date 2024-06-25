@@ -145,16 +145,21 @@ export default {
                             <div class="border border-t-0 p-3 rounded-b font-semibold text-right">
                                 <span class={{
                                     "hidden": !$vue.pagination,
-                                }}>{access($vue).pagination($vue.pagination)}</span>
+                                }}>{access($vue).pagination()}</span>
                             </div>
                         );
 
                         return $vue.$slots.tableBottom?.({$vue, vnode}) ?? vnode;
                     };
 
-                    const pagination = (pagination) => {
+                    const pagination = () => {
                         const vnode = (
-                            <CustomTablePagination state={pagination} />
+                            <CustomTablePagination getDefaultData={(data) => {
+                                return {
+                                    ...data,
+                                    ...$vue.pagination,
+                                };
+                            }}/>
                         );
 
                         return $vue.$slots.pagination?.({$vue, vnode}) ?? vnode;

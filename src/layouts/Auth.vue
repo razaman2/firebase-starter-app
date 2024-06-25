@@ -92,7 +92,7 @@ export default {
                                 query: (ref) => {
                                     return query(
                                         ref,
-                                        where("belongsTo", "array-contains", `${company.id} companies`),
+                                        where("belongsTo", "array-contains", `companies/${company.id}`),
                                     );
                                 },
                                 callback: (snapshot, collection) => {
@@ -147,13 +147,15 @@ export default {
                     onAuthStateChanged(getAuth(), (auth) => {
                         const restore = () => {
                             access(parent).subscriptions.removeSubscriptions();
+                            const navigation = ObjectManager.on(useNavigationStore().navigation).clone();
+                            const company = ObjectManager.on(useAuthStore().authCompany().getData()).clone();
 
                             useAppStore().$reset();
                             useAuthStore().$reset();
                             useNavigationStore().$reset();
-                            useNavigationStore().$patch({
-                                navigation: ObjectManager.on(useNavigationStore().navigation).clone()
-                            });
+
+                            useAuthStore().authCompany().replaceData(company);
+                            useNavigationStore().$patch({navigation});
                         };
 
                         if (useAppStore().version !== version) {

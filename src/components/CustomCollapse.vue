@@ -1,7 +1,7 @@
 <script lang="jsx">
 import EventEmitter from "@razaman2/event-emitter";
 import ReactiveVue, {setup, access} from "@razaman2/reactive-view";
-import {computed, onMounted} from "vue";
+import {computed, ref, onMounted, cloneVNode} from "vue";
 
 export default {
     props: {
@@ -48,6 +48,8 @@ export default {
                 defaultData={{activated: $vue.eager, open: false}}
                 notifications={notifications}
                 setup={(parent) => {
+                    const inputRef = ref();
+
                     const template = () => {
                         const vnode = (
                             <div class={{
@@ -56,6 +58,7 @@ export default {
                                 "collapse-plus": ($vue.icon === "plus"),
                             }}>
                                 <input
+                                    ref={inputRef}
                                     class="hidden"
                                     name={$vue.name}
                                     type={$vue.accordion ? "radio" : "checkbox"}
@@ -105,14 +108,7 @@ export default {
                     const content = computed(() => {
                         if (access(parent).getState.getData("activated")) {
                             return ($vue.$slots.default?.($vue) ?? []).map((vnode) => {
-                                return (
-                                    <vnode.type
-                                        {...vnode.props}
-                                        notifications={access(parent).notifications}
-
-                                        v-slots={vnode.children}
-                                    />
-                                );
+                                return cloneVNode(vnode, {notifications: access(parent).notifications});
                             });
                         }
                     });
@@ -133,7 +129,7 @@ export default {
                         });
 
                         if ($vue.opened) {
-                            access(parent).notifications.emit("open", true);
+                            access(parent).notifications.emit("open", $vue.opened);
                         }
                     });
 
@@ -146,4 +142,3 @@ export default {
     },
 };
 </script>
-

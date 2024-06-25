@@ -71,16 +71,17 @@ export default {
                                     }).format(value);
                                 }
                             } else {
-                                return /string|number/.test(typeof value) ? value : null;
+                                return ["string", "number"].includes(typeof value) ? value : null;
                             }
                         });
 
                         // region TEMPLATE V-NODES
                         const template = () => {
                             const vnode = (
-                                access($vue)[$vue.type]
-                                ?? access($vue).input
-                            ).call();
+                                ["radio", "checkbox", "textarea"].includes($vue.type)
+                                    ? access($vue)[$vue.type]()
+                                    : access($vue).input()
+                            );
 
                             return $vue.$slots.template?.({$vue, vnode}) ?? vnode;
                         };
@@ -106,7 +107,7 @@ export default {
                                         try {
                                             if (data.constructor.name === "Object") {
                                                 access(parent).getState.setData(name, value);
-                                            } else if (/String|Number/.test(data.constructor.name)) {
+                                            } else if (["String", "Number"].includes(data.constructor.name)) {
                                                 access(parent).getState.replaceData(data);
                                                 console.log("log data here:", data);
                                                 // access(parent).getState.replaceData(checked ? data.concat(value) : data.filter((item) => (item !== value)));

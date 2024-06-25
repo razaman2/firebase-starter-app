@@ -22,7 +22,7 @@ export default {
             default: "middle",
             validator: (position) => {
                 return ["top", "middle", "bottom"].includes(position);
-            }
+            },
         },
         header: {
             type: Boolean,
@@ -72,7 +72,7 @@ export default {
                                 <Teleport to="body">
                                     <dialog ref={modalRef} class={{
                                         [`modal-${$vue.position}`]: true,
-                                        "modal": true
+                                        "modal": true,
                                     }}>
                                         {access($vue).modalBox()}
                                         {access($vue).modalBackdrop()}
@@ -106,7 +106,7 @@ export default {
                         const modalBackdrop = () => {
                             if (!$vue.persistent) {
                                 const vnode = (
-                                    <div class="modal-backdrop" onClick={access($vue).hide} />
+                                    <div class="modal-backdrop" onClick={access($vue).hide}/>
                                 );
 
                                 return $vue.$slots.modalBackdrop?.({$vue, vnode}) ?? vnode;

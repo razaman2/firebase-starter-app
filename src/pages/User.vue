@@ -1,5 +1,5 @@
 <script lang="jsx">
-import {Collection, Updates, getCollectionRelationship} from "@razaman2/collection-proxy";
+import {Collection, Update} from "@razaman2/collection-proxy";
 import ReactiveView, {setup, access, getProps} from "@razaman2/reactive-view";
 import CustomSelect from "@components/CustomSelect.vue";
 import Roles from "@components/Roles.vue";
@@ -47,9 +47,9 @@ const UserRole = {
 
                                                 await role.update({
                                                     batch,
-                                                    update: (collection) => new Updates(collection),
+                                                    update: (collection) => new Update(collection),
                                                     data: {
-                                                        belongsTo: arrayUnion(getCollectionRelationship(useAuthStore().authCompany())),
+                                                        belongsTo: arrayUnion(useAuthStore().authCompany().getDoc().path),
                                                     },
                                                 });
 
@@ -96,7 +96,7 @@ const NewRole = {
                             await access(parent).getState.update({
                                 batch,
                                 data: {
-                                    belongsTo: arrayRemove(getCollectionRelationship(useAuthStore().authCompany())),
+                                    belongsTo: arrayRemove(useAuthStore().authCompany().getDoc().path),
                                 },
                             });
 
@@ -143,7 +143,7 @@ export default {
                                                 creator: useAuthStore().authUser(),
                                                 owners: [useAuthStore().authCompany()],
                                             }).setParent(useAuthStore().authUser()).onWrite({
-                                                handler: (collection) => new Updates(collection),
+                                                handler: (collection) => new Update(collection),
                                                 triggers: ["create", "update", "delete"],
                                             });
                                         },

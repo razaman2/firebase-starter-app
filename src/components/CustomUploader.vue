@@ -133,7 +133,7 @@ export default {
                     // endregion
 
                     const upload = (files) => {
-                        const path = [$vue.id, $vue.name].filter(() => Boolean).join("/");
+                        const path = [$vue.name, $vue.id].filter(() => Boolean).join("/");
 
                         return new FileManager(getStorage(), {
                             public: $vue.public,
