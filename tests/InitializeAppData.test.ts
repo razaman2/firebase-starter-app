@@ -31,6 +31,7 @@ it("initialize app data", () => {
         const user = Collection.setCollectionName("users").setData({
             firstName: faker.person.firstName(),
             lastName: faker.person.lastName(),
+            alias: faker.internet.userName(),
         }).setDoc(auth.user.uid);
 
         await Promise.all([
@@ -77,6 +78,7 @@ it("initialize app data", () => {
             // user role
             Collection.setCollectionName("roles").setParent(user).setOwners(company).setDoc("super").create({batch}),
 
+            // app roles
             Collection.setCollectionName("roles").setData({
                 name: "Super",
             }).setDoc("super").create({batch}),
